@@ -13,6 +13,7 @@ import 'package:graduation_project/core%20pages/splash_screen.dart';
 import 'core/app_theme.dart';
 import 'features/campaigns/presentation/bloc/campaign_bloc.dart';
 import 'features/complaints/presentation/bloc/complaint_bloc.dart';
+import 'features/complaints/presentation/pages/all_nearby_complaints_page.dart';
 import 'features/complaints/presentation/pages/get_all_complaints.dart';
 import 'features/complaints/presentation/pages/my_complaint_page.dart';
 import 'features/notifications/presentation/firebase/api_notification_firebase.dart';
@@ -79,7 +80,7 @@ class MyApp extends StatelessWidget {
         builder: (context, child){
           return Directionality(textDirection: TextDirection.rtl, child: child!);
         },
-        home:LoginPage(),
+        home:MainNavigationPage(),
       ),
     );
   }

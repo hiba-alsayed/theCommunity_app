@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../../../../auth_token_provider.dart';
+import '../../../../core/auth_token_provider.dart';
 import '../models/login_model.dart';
 
 abstract class AuthRemoteDataSource {

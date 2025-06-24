@@ -13,7 +13,7 @@ import 'package:graduation_project/features/notifications/domain/usecase/get_not
 import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'auth_token_provider.dart';
+import 'core/auth_token_provider.dart';
 import 'core/base_url.dart';
 import 'core/network/network_info.dart';
 import 'features/Donation/data/datasources/donation_remote_data_source.dart';
@@ -34,6 +34,7 @@ import 'features/complaints/data/datasources/complaints_remote_data_source.dart'
 import 'features/complaints/data/repositories/complaints_repository_imp.dart';
 import 'features/complaints/domain/usecases/complaints_category_use_case.dart';
 import 'features/complaints/domain/usecases/get_all_complaints.dart';
+import 'features/complaints/domain/usecases/get_all_nearby_complaints.dart';
 import 'features/complaints/domain/usecases/get_complaints_by_category.dart';
 import 'features/complaints/domain/usecases/get_nearby_complaints.dart';
 import 'features/complaints/domain/usecases/grt_my_complaints.dart';
@@ -100,6 +101,7 @@ sl.registerFactory<CampaignBloc>(
           getNearbyComplaintsUseCase: sl(),
           getAllRegionsUseCase: sl(),
           submitComplaintUseCase: sl(),
+          getAllNearbyComplaintsUseCase: sl(),
     ),
   );
   sl.registerFactory<NotificationBloc>(
@@ -128,6 +130,7 @@ sl.registerLazySingleton<GetMyCampaigns>(()=>GetMyCampaigns(sl()));
 sl.registerLazySingleton<GetNearbyCampaigns>(()=>GetNearbyCampaigns(sl()));
 sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()));
   sl.registerLazySingleton<GetRecommendedCampaigns>(()=>GetRecommendedCampaigns(sl()));
+  sl.registerLazySingleton<GetPromotedCampaigns >(()=>GetPromotedCampaigns (sl()));
 
   sl.registerLazySingleton<LogIn>(
         () => LogIn(sl()),
@@ -140,7 +143,7 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
   sl.registerLazySingleton<GetNearbyComplaintsUseCase >(()=>GetNearbyComplaintsUseCase (sl()));
   sl.registerLazySingleton<GetAllRegionsUseCase >(()=>GetAllRegionsUseCase (sl()));
   sl.registerLazySingleton<SubmitComplaintUseCase >(()=>SubmitComplaintUseCase (sl()));
-  sl.registerLazySingleton<GetPromotedCampaigns >(()=>GetPromotedCampaigns (sl()));
+  sl.registerLazySingleton<GetAllNearbyComplaintsUseCase >(()=>GetAllNearbyComplaintsUseCase (sl()));
 
   sl.registerLazySingleton<GetNotifications>(()=>GetNotifications(sl()));
 

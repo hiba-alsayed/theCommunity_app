@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../../../auth_token_provider.dart';
+import '../../../../core/auth_token_provider.dart';
 import '../../../../core/base_url.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../model/notification_model.dart';

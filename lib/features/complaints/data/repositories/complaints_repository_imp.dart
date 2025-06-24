@@ -122,4 +122,18 @@ class ComplaintsRepositoryImp implements ComplaintsRepository{
     } else {
       return Left(OfflineFailure());
     }
+  }
+
+  @override
+  Future<Either<Failure, List<ComplaintEntity>>> getAllNearbyComplaints() async{
+    if (await networkInfo.isConnected) {
+      try {
+        final remoteComplaints = await remoteDataSource.getAllNearbyComplaints();
+        return Right(remoteComplaints);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(OfflineFailure());
+    }
   }}

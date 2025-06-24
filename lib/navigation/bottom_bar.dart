@@ -15,13 +15,32 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color getTopLineColor(int index) {
+      switch (index) {
+        case 0:
+          return AppColors.OliveGrove;
+        case 1:
+          return AppColors.SunsetOrange;
+        case 2:
+          return AppColors.OceanBlue;
+        case 3:
+          return AppColors.RichBerry;
+        case 4:
+          return AppColors.CedarOlive;
+        default:
+          return AppColors.CedarOlive;
+      }
+    }
+
     return Stack(
       alignment: Alignment.topCenter,
       children: [
       Positioned.fill(
       top: 0,
       child: CustomPaint(
-        painter: TopLinePainter(color: AppColors.CedarOlive),
+        painter: TopLinePainter(
+          color: getTopLineColor(currentIndex),
+        ),
       ),
     ),
        SalomonBottomBar(

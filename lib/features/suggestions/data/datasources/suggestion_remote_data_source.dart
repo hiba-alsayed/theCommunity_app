@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:graduation_project/core/errors/exceptions.dart';
 import 'package:graduation_project/core/widgets/message_display_widget.dart';
 import 'package:graduation_project/features/suggestions/domain/entities/Suggestions.dart';
-import '../../../../auth_token_provider.dart';
+import '../../../../core/auth_token_provider.dart';
 import '../../../../core/base_url.dart';
 import '../../../../core/errors/failures.dart';
 import '../models/Suggestion_model.dart';

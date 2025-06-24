@@ -11,6 +11,7 @@ import '../../domain/entites/complaint.dart';
 import '../../domain/entites/complaint_category_entity.dart';
 import '../../domain/entites/regions_entity.dart';
 import '../../domain/usecases/get_all_complaints.dart';
+import '../../domain/usecases/get_all_nearby_complaints.dart';
 import '../../domain/usecases/get_all_regions.dart';
 import '../../domain/usecases/get_complaints_by_category.dart';
 import '../../domain/usecases/get_nearby_complaints.dart';
@@ -29,6 +30,8 @@ class ComplaintBloc extends Bloc<ComplaintEvent, ComplaintState> {
   final GetNearbyComplaintsUseCase getNearbyComplaintsUseCase;
   final GetAllRegionsUseCase getAllRegionsUseCase;
   final SubmitComplaintUseCase submitComplaintUseCase;
+  final GetAllNearbyComplaintsUseCase getAllNearbyComplaintsUseCase;
+
   ComplaintBloc( {
     required this.getComplaintsCategoriesUseCase,
     required this.getAllComplaintsUseCase,
@@ -37,6 +40,7 @@ class ComplaintBloc extends Bloc<ComplaintEvent, ComplaintState> {
     required this.getNearbyComplaintsUseCase,
      required this.getAllRegionsUseCase,
     required this.submitComplaintUseCase,
+    required this.getAllNearbyComplaintsUseCase,
   }) : super(ComplaintInitialState()) {
 
 
@@ -103,6 +107,21 @@ class ComplaintBloc extends Bloc<ComplaintEvent, ComplaintState> {
             (complaints) => emit(NearbyComplaintsLoaded(complaints: complaints)),
       );
     });
+
+    // جلب جميع الشكاوي القريبة ()
+    on<GetAllNearbyComplaintsEvent>((event, emit) async {
+      emit(LoadingAllNearbyComplaints());
+      final result = await getAllNearbyComplaintsUseCase();
+      result.fold(
+            (failure) {
+          emit(ComplaintErrorState(message: _mapFailureToMessage(failure)));
+        },
+            (complaints) {
+          emit(AllNearbyComplaintsLoaded(complaints: complaints));
+        },
+      );
+    });
+
     //جلب جميع المناطق
     on<GetAllRegionsEvent>((event, emit) async {
       emit(LoadingRegions());

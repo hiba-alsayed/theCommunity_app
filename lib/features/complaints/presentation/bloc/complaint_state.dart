@@ -63,6 +63,17 @@ class NearbyComplaintsLoaded extends ComplaintState {
   List<Object> get props => [complaints];
 }
 
+// جلب جميع الشكاوي القريبة (بدون ادخال مسافة)
+class LoadingAllNearbyComplaints extends ComplaintState {}
+class AllNearbyComplaintsLoaded extends ComplaintState {
+  final List<ComplaintEntity> complaints;
+
+  const AllNearbyComplaintsLoaded({required this.complaints});
+
+  @override
+  List<Object> get props => [complaints];
+}
+
 // جلب جميع المناطق
 class LoadingRegions extends ComplaintState {}
 class RegionsLoaded extends ComplaintState {

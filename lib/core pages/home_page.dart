@@ -373,14 +373,14 @@ class _HomePageState extends State<HomePage> {
                         color: AppColors.WhisperWhite,
                         elevation: 8,
                         child: Container(
-                          width: 45,
-                          height: 45,
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
                             color: AppColors.WhisperWhite,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.LightGrey.withOpacity(0.5),
+                                color: AppColors.OliveMid.withOpacity(0.5),
                                 spreadRadius: 2,
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
@@ -426,7 +426,7 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.OliveMid,
+                            color: Colors.grey,
                           ),
                         ),
                       ),
@@ -444,7 +444,7 @@ class _HomePageState extends State<HomePage> {
                   builder: (context, state) {
                     if (state is LoadingRecommendedCampaigns) {
                       return const Center(
-                        child: LoadingWidget(), // Show loading indicator
+                        child: LoadingWidget(),
                       );
                     } else if (state is RecommendedCampaignsLoaded) {
                       final displayedCampaigns =
@@ -497,7 +497,7 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.OliveMid,
+                            color: Colors.grey,
                           ),
                         ),
                       ),
@@ -505,8 +505,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-
-              // Promoted Campaigns Carousel
               SliverToBoxAdapter(
                 child: BlocBuilder<CampaignBloc, CampaignState>(
                   buildWhen:

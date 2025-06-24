@@ -22,4 +22,5 @@ abstract class ComplaintsRepository {
      String description,
      int complaintCategoryId,
      List<File> complaintImages);
+  Future<Either<Failure, List<ComplaintEntity>>> getAllNearbyComplaints();
 }

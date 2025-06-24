@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:graduation_project/core/errors/failures.dart';
 import 'package:http/http.dart' as http;
 
-import '../../../../auth_token_provider.dart';
+import '../../../../core/auth_token_provider.dart';
 import '../../../../core/base_url.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../models/complaint_category_model.dart';
@@ -17,6 +18,7 @@ abstract class ComplaintsRemoteDataSource {
   Future<List<ComplaintModel>> getComplaintsByCategory(int categoryId);
   Future<List<ComplaintModel>> getMyComplaints();
   Future<List<ComplaintModel>> getNearbyComplaints(double distance, int categoryId);
+  Future<List<ComplaintModel>> getAllNearbyComplaints();
   Future<List<RegionModel>>getAllRegions();
   Future<Unit> submitComplaint(
       double latitude,
@@ -269,4 +271,37 @@ class ComplaintsRemoteDataSourceImp implements ComplaintsRemoteDataSource {
     }
   }
 
+  @override
+  Future<List<ComplaintModel>> getAllNearbyComplaints() async {
+    final token = await tokenProvider.getToken();
+    final response = await client.post(
+      Uri.parse("$baseUrl/api/client/complaint/all"),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: json.encode({
+        'distance': '4',
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      if (decoded['status'] == true &&
+          decoded['data'] is Map &&
+          decoded['data']['complaints'] != null &&
+          decoded['data']['complaints'] is List) {
+
+        final List<dynamic> complaintsList = decoded['data']['complaints'];
+        final complaints = complaintsList.map((json) => ComplaintModel.fromJson(json)).toList();
+
+        return complaints;
+      } else {
+        throw ServerException();
+      }
+    } else {
+      throw ServerException();
+    }
+  }
 }

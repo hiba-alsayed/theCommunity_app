@@ -66,3 +66,5 @@ class SubmitComplaintEvent extends ComplaintEvent {
     complaintImages,
   ];
 }
+// جلب جميع الشكاوي القريبة (بدون تحديد مسافة)
+class GetAllNearbyComplaintsEvent extends ComplaintEvent {}
