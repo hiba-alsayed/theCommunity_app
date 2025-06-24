@@ -23,10 +23,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
 
       result.fold(
-            (failure) => emit(LoginFailure(('حدث خطأ أثناء تسجيل الدخول'))),
+            (failure) => emit(LoginFailure(_mapFailureToMessage(failure))),
             (user) => emit(LoginSuccess(user)),
       );
     });
   }
+  String _mapFailureToMessage(Failure failure) {
+    if (failure is ServerFailure) {
+      return 'خطأ في الخادم. حاول مرة أخرى.';
+    } else if (failure is OfflineFailure ) {
+      return 'لا يوجد اتصال بالإنترنت';
+    } else {
+      return 'حدث خطأ غير متوقع. حاول مرة أخرى.';
+    }
+  }
 }
+
 

@@ -170,6 +170,16 @@ class _LoginPageState extends State<LoginPage> {
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'يرجى إدخال البريد الإلكتروني';
+                            }
+                            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                            if (!emailRegex.hasMatch(value.trim())) {
+                              return 'يرجى إدخال بريد إلكتروني صالح';
+                            }
+                            return null;
+                          },
                         ),
                         SizedBox(height: 16.h),
                         TextFormField(
@@ -186,29 +196,42 @@ class _LoginPageState extends State<LoginPage> {
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'يرجى إدخال كلمة المرور';
+                            }
+                            if (value.length < 6) {
+                              return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                            }
+                            return null;
+                          },
                         ),
                         SizedBox(height: 24.h),
-                        Container(
+                        state is LoginLoading
+                            ? const LoadingWidget()
+                            : Container(
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               colors: [Colors.black, Color(0xFF00B4D8)],
                             ),
-                            borderRadius: BorderRadius.circular(16.r),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
                               foregroundColor: Colors.white,
-                              minimumSize: Size(double.infinity, 50.h),
+                              minimumSize: const Size(double.infinity, 50),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16.r),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                             onPressed: _onLoginPressed,
-                            child: Text(
+                            child: const Text(
                               'تسجيل الدخول',
-                              style: TextStyle(fontSize: 18.sp),
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
                             ),
                           ),
                         ),
