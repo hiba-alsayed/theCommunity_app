@@ -11,6 +11,7 @@ import 'dart:math' as math;
 class SuggestionsListWidget extends StatefulWidget {
   final List<Suggestions> suggestion;
   final bool isMySuggestionsPage;
+
   const SuggestionsListWidget({
     super.key,
     required this.suggestion,
@@ -211,8 +212,8 @@ class _SuggestionCardState extends State<SuggestionCard> {
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundImage:
-                      NetworkImage(widget.suggestion.user.userimage),
+                      // backgroundImage:
+                      // NetworkImage(widget.suggestion.user.userimage),
                     ),
                     const SizedBox(width: 8),
                     Column(

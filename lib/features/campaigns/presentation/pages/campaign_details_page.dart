@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/strings/failures.dart';
 import '../../../../core/widgets/glowing_gps.dart';
 import '../../../Donation/presentation/bloc/donation_bloc.dart';
-import '../../../suggestions/presentation/pages/location_map_view_page.dart';
+import '../../../../core pages/location_map_view_page.dart';
 import '../../data/models/campaigns_model.dart';
 import '../../domain/entities/rating.dart';
 import '../bloc/campaign_bloc.dart';

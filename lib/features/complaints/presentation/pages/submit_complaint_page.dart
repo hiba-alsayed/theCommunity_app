@@ -5,7 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:graduation_project/features/complaints/domain/entites/complaint_category_entity.dart';
 import '../../../../core/widgets/loading_widget.dart';
-import '../../../suggestions/presentation/pages/location_picker_page.dart';
+import '../../../../core pages/location_picker_page.dart';
 import '../../domain/entites/regions_entity.dart';
 import '../bloc/complaint_bloc.dart';
 

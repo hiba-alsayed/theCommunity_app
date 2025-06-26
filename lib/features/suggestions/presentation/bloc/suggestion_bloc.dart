@@ -1,16 +1,19 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:graduation_project/features/campaigns/domain/entities/category.dart';
 import 'package:graduation_project/features/suggestions/domain/entities/Suggestions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/strings/failures.dart';
 import '../../../../core/strings/messages.dart';
+import '../../../campaigns/domain/usecases/category_use_case.dart';
 import '../../data/models/Suggestion_model.dart';
 import '../../domain/entities/Suggestions.dart';
 import '../../domain/usecases/delete_my_suggestion.dart';
 import '../../domain/usecases/get_all_suggestions.dart';
 import '../../domain/usecases/get_my_suggestions.dart';
 import '../../domain/usecases/get_nearby_suggestions.dart';
+import '../../domain/usecases/get_suggestion_category.dart';
 import '../../domain/usecases/get_suggestions_by_category.dart';
 import '../../domain/usecases/submit_suggestion.dart';
 import '../../domain/usecases/vote_on_suggestion.dart';
@@ -28,11 +31,12 @@ class SuggestionBloc extends Bloc<SuggestionEvent, SuggestionState> {
   final GetSuggestionsByCategory getSuggestionsByCategory;
   final GetNearbySuggestions getNearbySuggestions;
   final DeleteMySuggestion deleteMySuggestion;
+  final GetSuggestionCategory getSuggestionCategories;
 
   int currentPage = 1;
   bool hasReachedMax = false;
 
-  SuggestionBloc( {
+  SuggestionBloc({
     required this.getAllSuggestions,
     required this.getMySuggestions,
     required this.submitSuggestion,
@@ -40,6 +44,7 @@ class SuggestionBloc extends Bloc<SuggestionEvent, SuggestionState> {
     required this.getSuggestionsByCategory,
     required this.getNearbySuggestions,
     required this.deleteMySuggestion,
+    required this.getSuggestionCategories,
   }) : super(SuggestionInitialState()) {
 
     //جلب كل المقترحات
@@ -61,6 +66,16 @@ class SuggestionBloc extends Bloc<SuggestionEvent, SuggestionState> {
       );
     });
 
+    //جلب التصنيفات
+    on<LoadSuggestionCategoriesEvent>((event, emit) async {
+      emit(LoadingSuggestionCategories());
+      final result = await getSuggestionCategories();
+
+      result.fold(
+            (failure) => emit(SuggestionCategoryError("فشل في تحميل التصنيفات")),
+            (categories) => emit(SuggestionCategoriesLoaded(categories)),
+      );
+    });
     //رفع مقترح
     on<SubmitSuggestionEvent>((event, emit) async {
       emit(SubmittingSuggestionState());

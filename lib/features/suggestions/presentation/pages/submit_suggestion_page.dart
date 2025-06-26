@@ -7,7 +7,7 @@ import 'dart:io';
 import '../../../../core/widgets/glowing_gps.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../bloc/suggestion_bloc.dart';
-import 'location_picker_page.dart';
+import '../../../../core pages/location_picker_page.dart';
 
 class SubmitSuggestionPage extends StatefulWidget {
   @override

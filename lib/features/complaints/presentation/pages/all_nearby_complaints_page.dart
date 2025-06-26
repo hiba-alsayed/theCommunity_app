@@ -15,7 +15,6 @@ class _AllNearbyComplaintsPageState extends State<AllNearbyComplaintsPage> {
   @override
   void initState() {
     super.initState();
-    // Dispatch the event to fetch all nearby complaints when the page initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       BlocProvider.of<ComplaintBloc>(context).add(GetAllNearbyComplaintsEvent());
     });
@@ -27,12 +26,11 @@ class _AllNearbyComplaintsPageState extends State<AllNearbyComplaintsPage> {
       appBar: AppBar(
         title: const Text('الشكاوى القريبة', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blueAccent,
-        iconTheme: const IconThemeData(color: Colors.white), // Set back button color
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
       ),
       body: BlocConsumer<ComplaintBloc, ComplaintState>(
         listener: (context, state) {
-          // Optional: Listen for error states to show a SnackBar or dialog
           if (state is ComplaintErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -40,13 +38,11 @@ class _AllNearbyComplaintsPageState extends State<AllNearbyComplaintsPage> {
           }
         },
         builder: (context, state) {
-          // Show loading indicator
           if (state is LoadingAllNearbyComplaints) {
             return const Center(
               child: CircularProgressIndicator(color: Colors.blueAccent),
             );
           }
-          // Display the complaints when loaded
           else if (state is AllNearbyComplaintsLoaded) {
             if (state.complaints.isEmpty) {
               return const Center(
@@ -59,7 +55,6 @@ class _AllNearbyComplaintsPageState extends State<AllNearbyComplaintsPage> {
             }
             return ComplaintListView(complaints: state.complaints);
           }
-          // Show error message
           else if (state is ComplaintErrorState) {
             return Center(
               child: Text(
@@ -69,7 +64,6 @@ class _AllNearbyComplaintsPageState extends State<AllNearbyComplaintsPage> {
               ),
             );
           }
-          // Initial or unexpected state
           return const Center(
             child: Text('اسحب لتحديث الشكاوى القريبة',
                 style: TextStyle(fontSize: 16, color: Colors.grey)),

@@ -54,6 +54,25 @@ class SuggestionsByCategoryLoaded extends SuggestionState {
   List<Object?> get props => [suggestions];
 }
 
+//جلب التصنيفات
+class LoadingSuggestionCategories extends SuggestionState {}
+class SuggestionCategoriesLoaded extends SuggestionState {
+  final List<MyCategory> categories;
+
+  const SuggestionCategoriesLoaded(this.categories);
+
+  @override
+  List<Object?> get props => [categories];
+}
+class SuggestionCategoryError extends SuggestionState {
+  final String message;
+
+  const SuggestionCategoryError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 //جلب المقترحات القريبة
 class SuggestionsLoading extends SuggestionState {}
 class SuggestionsLoaded extends SuggestionState {

@@ -15,19 +15,19 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
-    context.read<NotificationBloc>().add( GetNotificationEvent());
+    context.read<NotificationBloc>().add(GetNotificationEvent());
   }
 
   Future<void> _onRefresh() async {
     // On pull-to-refresh, dispatch the event again.
-    context.read<NotificationBloc>().add( GetNotificationEvent());
+    context.read<NotificationBloc>().add(GetNotificationEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: const Text('الإشعارات'),
         backgroundColor: Theme.of(context).canvasColor,
         elevation: 1,
       ),
@@ -38,7 +38,6 @@ class _NotificationPageState extends State<NotificationPage> {
             case NotificationLoading():
             case NotificationInitial():
               return _buildLoadingShimmer();
-
             case NotificationLoaded():
               if (state.notifications.isEmpty) {
                 return _buildEmptyState();
@@ -49,14 +48,12 @@ class _NotificationPageState extends State<NotificationPage> {
               return _buildErrorWidget(state.message);
 
             default:
-
               return const Center(child: Text('An unexpected state occurred.'));
           }
         },
       ),
     );
   }
-
 
   Widget _buildLoadingShimmer() {
     return Shimmer.fromColors(
@@ -70,8 +67,14 @@ class _NotificationPageState extends State<NotificationPage> {
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
               leading: CircleAvatar(backgroundColor: Colors.white),
-              title: SizedBox(height: 16, child: ColoredBox(color: Colors.white)),
-              subtitle: SizedBox(height: 12, child: ColoredBox(color: Colors.white)),
+              title: SizedBox(
+                height: 16,
+                child: ColoredBox(color: Colors.white),
+              ),
+              subtitle: SizedBox(
+                height: 12,
+                child: ColoredBox(color: Colors.white),
+              ),
             ),
           );
         },
@@ -87,7 +90,9 @@ class _NotificationPageState extends State<NotificationPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         child: Center(
           child: Padding(
-            padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.25),
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).size.height * 0.25,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -107,9 +112,9 @@ class _NotificationPageState extends State<NotificationPage> {
                 Text(
                   'When you get a new notification, it will show up here.',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -132,13 +137,17 @@ class _NotificationPageState extends State<NotificationPage> {
             Text(
               'Oh no! Something went wrong.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
@@ -146,9 +155,12 @@ class _NotificationPageState extends State<NotificationPage> {
               label: const Text('Retry'),
               onPressed: _onRefresh,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -171,13 +183,8 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 }
 
-
-
 class NotificationTile extends StatelessWidget {
-  const NotificationTile({
-    super.key,
-    required this.notification,
-  });
+  const NotificationTile({super.key, required this.notification});
 
   final NotificationEntity notification;
 
@@ -216,7 +223,9 @@ class NotificationTile extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 notification.createdAt,
-                style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                ),
               ),
             ],
           ),
@@ -226,7 +235,11 @@ class NotificationTile extends StatelessWidget {
           // e.g., navigate to a details page
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text('Tapped on notification ID: ${notification.id}')));
+            ..showSnackBar(
+              SnackBar(
+                content: Text('Tapped on notification ID: ${notification.id}'),
+              ),
+            );
         },
       ),
     );

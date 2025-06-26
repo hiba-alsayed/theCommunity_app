@@ -5,7 +5,7 @@ import 'package:graduation_project/features/suggestions/domain/entities/Suggesti
 import '../../../../core/widgets/glowing_gps.dart';
 import '../bloc/suggestion_bloc.dart';
 import '../widgets/vote_widget.dart';
-import 'location_map_view_page.dart';
+import '../../../../core pages/location_map_view_page.dart';
 
 class SuggestionDetailsPage extends StatefulWidget {
   final Suggestions suggestion;

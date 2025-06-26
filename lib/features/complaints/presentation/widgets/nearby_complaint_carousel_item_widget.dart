@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/complaints/domain/entites/complaint.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/widgets/glowing_gps.dart';
 import '../pages/complaint_details_page.dart';
 
@@ -21,7 +23,6 @@ class _NearbyComplaintCarouselItemWidgetState extends State<NearbyComplaintCarou
     final String imageUrl = (widget.complaint.complaintImages != null && widget.complaint.complaintImages.isNotEmpty)
         ? widget.complaint.complaintImages[0].url
         : '';
-
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 8.0),
       elevation: 6,
@@ -55,11 +56,7 @@ class _NearbyComplaintCarouselItemWidgetState extends State<NearbyComplaintCarou
                       return child;
                     }
                     return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
+                      child: LoadingWidget(),
                     );
                   },
                 ),
@@ -103,7 +100,7 @@ class _NearbyComplaintCarouselItemWidgetState extends State<NearbyComplaintCarou
                         ),
                         const Spacer(),
                         Text(
-                          widget.complaint.createdAt.toString(),
+                          DateFormat('yyyy-MM-dd HH:mm').format(widget.complaint.createdAt),
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 11,

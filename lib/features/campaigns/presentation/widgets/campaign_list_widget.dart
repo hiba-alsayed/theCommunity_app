@@ -9,7 +9,7 @@ import '../../domain/entities/campaigns.dart';
 import '../pages/campaign_details_page.dart';
 
 
-
+//list
 class CampaignListWidget extends StatefulWidget {
   final List<Campaigns> campaigns;
 
@@ -18,7 +18,6 @@ class CampaignListWidget extends StatefulWidget {
   @override
   State<CampaignListWidget> createState() => _CampaignListWidgetState();
 }
-
 class _CampaignListWidgetState extends State<CampaignListWidget> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
@@ -80,6 +79,7 @@ class _CampaignListWidgetState extends State<CampaignListWidget> with SingleTick
   }
 }
 
+//card
 class CampaignCard extends StatelessWidget {
   final Campaigns campaign;
 
@@ -96,7 +96,6 @@ class CampaignCard extends StatelessWidget {
         return CampaignStatus.unknown;
     }
   }
-
   Color getStatusColor(CampaignStatus status) {
     switch (status) {
       case CampaignStatus.active:
@@ -107,7 +106,6 @@ class CampaignCard extends StatelessWidget {
         return Colors.grey.shade500;
     }
   }
-
   IconData getStatusIcon(CampaignStatus status) {
     switch (status) {
       case CampaignStatus.active:
@@ -205,7 +203,6 @@ class CampaignCard extends StatelessWidget {
                               campaign.title,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                // Removed color change for title
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

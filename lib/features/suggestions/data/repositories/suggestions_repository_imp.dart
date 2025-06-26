@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:graduation_project/core/errors/failures.dart';
 import 'package:graduation_project/core/network/network_info.dart';
+import 'package:graduation_project/features/campaigns/domain/entities/category.dart';
 import 'package:graduation_project/features/suggestions/data/datasources/suggestion_local_data_source.dart';
 import 'package:graduation_project/features/suggestions/data/datasources/suggestion_remote_data_source.dart';
 import 'package:graduation_project/features/suggestions/data/models/Suggestion_model.dart';
@@ -149,6 +150,19 @@ class SuggestionsRepositoryImp implements SuggestionsRepository {
       }
     } else {
       return Left(OfflineFailure());
+    }
+  }
+  @override
+  Future<Either<Failure, List<MyCategory>>> getCategories() async{
+    if (await networkInfo.isConnected) {
+      try {
+        final remoteCategories = await remoteDataSource.getCategories();
+        return Right(remoteCategories);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(ServerFailure());
     }
   }
 }

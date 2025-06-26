@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/features/campaigns/presentation/bloc/campaign_bloc.dart';
-import 'package:graduation_project/features/campaigns/presentation/widgets/recommended_list_widget.dart';
-
 import '../../../../core/widgets/loading_widget.dart';
+import '../widgets/campaign_list_widget.dart';
 
 class RecommendedPage extends StatefulWidget {
   const RecommendedPage({super.key});
@@ -36,7 +35,7 @@ class _RecommendedPageState extends State<RecommendedPage> {
                 child: Text('لا توجد حملات موصى بها حالياً.'),
               );
             }
-            return RecommendedListWidget(
+            return CampaignListWidget(
               campaigns: state.recommendedCampaigns,
             );
           } else if (state is CampaignErrorState) {

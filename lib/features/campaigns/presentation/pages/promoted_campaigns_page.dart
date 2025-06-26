@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/features/campaigns/presentation/bloc/campaign_bloc.dart';
-import 'package:graduation_project/features/campaigns/presentation/widgets/promoted_list_widget.dart';
+import '../widgets/campaign_list_widget.dart';
 
 class PromotedCampaignsPage extends StatefulWidget {
   const PromotedCampaignsPage({super.key});
@@ -31,7 +31,7 @@ class _PromotedCampaignsPageState extends State<PromotedCampaignsPage> {
             );
           }
           else if (state is PromotedCampaignsLoaded) {
-            return PromotedCampaignsListView(
+            return CampaignListWidget(
               campaigns: state.promotedCampaigns,
             );
           }

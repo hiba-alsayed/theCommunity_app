@@ -1,9 +1,11 @@
 import 'package:graduation_project/features/suggestions/domain/entities/Suggestions.dart';
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../campaigns/domain/entities/category.dart';
 
 abstract class SuggestionsRepository {
   Future<Either<Failure, List<Suggestions>>> getAllSuggestions();
+  Future<Either<Failure, List<MyCategory>>> getCategories();
   Future<Either<Failure,List<Suggestions>>>getMySuggestions();
   Future<Either<Failure, List<Suggestions>>> getAllSuggestionsByCategory(
     int categoryId,

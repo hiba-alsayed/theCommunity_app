@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../suggestions/presentation/pages/location_map_view_page.dart';
+import '../../../../core pages/location_map_view_page.dart';
 import '../../domain/entites/complaint.dart';
 import 'package:graduation_project/core/widgets/glowing_gps.dart';
 

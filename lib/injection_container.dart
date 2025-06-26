@@ -55,6 +55,7 @@ import 'features/suggestions/domain/usecases/delete_my_suggestion.dart';
 import 'features/suggestions/domain/usecases/get_all_suggestions.dart';
 import 'features/suggestions/domain/usecases/get_my_suggestions.dart';
 import 'features/suggestions/domain/usecases/get_nearby_suggestions.dart';
+import 'features/suggestions/domain/usecases/get_suggestion_category.dart';
 import 'features/suggestions/domain/usecases/get_suggestions_by_category.dart';
 import 'features/suggestions/domain/usecases/submit_suggestion.dart';
 import 'features/suggestions/domain/usecases/vote_on_suggestion.dart';
@@ -73,6 +74,7 @@ Future<void> init() async {
       getSuggestionsByCategory: sl(),
       getNearbySuggestions:sl(),
       deleteMySuggestion: sl(),
+      getSuggestionCategories: sl(),
     ),
   );
 sl.registerFactory<CampaignBloc>(
@@ -119,6 +121,7 @@ sl.registerFactory<CampaignBloc>(
   sl.registerLazySingleton<SubmitSuggestion>(() => SubmitSuggestion(sl()));
   sl.registerLazySingleton<VoteOnSuggestion>(() => VoteOnSuggestion(sl()));
   sl.registerLazySingleton<GetSuggestionsByCategory>(() => GetSuggestionsByCategory(sl()));
+  sl.registerLazySingleton<GetSuggestionCategory>(() => GetSuggestionCategory(sl()));
   sl.registerLazySingleton<GetNearbySuggestions>(() => GetNearbySuggestions(sl()));
   sl.registerLazySingleton<DeleteMySuggestion>(() => DeleteMySuggestion(sl()));
 

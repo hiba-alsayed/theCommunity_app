@@ -6,6 +6,7 @@ import 'package:graduation_project/features/suggestions/domain/entities/Suggesti
 import '../../../../core/auth_token_provider.dart';
 import '../../../../core/base_url.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../campaigns/data/models/category_model.dart';
 import '../models/Suggestion_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,6 +14,7 @@ abstract class SuggestionRemoteDataSource {
   Future<List<SuggestionModel>> getAllSuggestions();
   Future<List<SuggestionModel>> getMySuggestions();
   Future<List<SuggestionModel>> getAllSuggestionsByCategory(int categoryId);
+  Future<List<CategoryModel>> getCategories();
   Future<void> deleteMySuggestion(int suggestionId);
   Future<List<SuggestionModel>> getNearbySuggestions({
     required categoryId,
@@ -126,13 +128,11 @@ class SuggestionRemoteDataSourceImp implements SuggestionRemoteDataSource {
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       if (jsonResponse['status'] != true) {
-        print("Status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
+        // print("Status code: ${response.statusCode}");
+        // print("Response body: ${response.body}");
         throw ServerException();
       }
     } else {
-      print("Status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
       throw ServerException();
     }
   }
@@ -234,8 +234,6 @@ class SuggestionRemoteDataSourceImp implements SuggestionRemoteDataSource {
         'Authorization': 'Bearer $token',
       },
     );
-    // print('Response Status: ${response.statusCode}');
-    // print('Response Body: ${response.body}');
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
 
@@ -259,11 +257,40 @@ class SuggestionRemoteDataSourceImp implements SuggestionRemoteDataSource {
       url,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token', // Replace with actual token logic
+        'Authorization': 'Bearer $token',
       },
     );
     if (response.statusCode == 200 || response.statusCode == 204) {
       return;
+    } else {
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<List<CategoryModel>> getCategories() async {
+    final response = await client.get(
+      Uri.parse("$baseUrl/api/categories/"),
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+
+      if (decoded['status'] != true ||
+          decoded['data'] == null ||
+          decoded['data'] is! List) {
+        throw ServerException();
+      }
+
+      final List<dynamic> dataList = decoded['data'];
+      final categories =
+      dataList.map((json) => CategoryModel.fromJson(json)).toList();
+
+      return categories;
     } else {
       throw ServerException();
     }

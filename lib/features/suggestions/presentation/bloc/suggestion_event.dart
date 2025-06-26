@@ -11,6 +11,8 @@ class RefreshAllSuggestionsEvent extends SuggestionEvent {}
 class LoadMoreSuggestionsEvent extends SuggestionEvent {}
 //جلب مقترحاتي
 class GetMySuggestionsEvent extends SuggestionEvent{}
+//جلب التصنيفات
+class LoadSuggestionCategoriesEvent extends SuggestionEvent {}
 // جلب المقترحات القريبة
 class GetNearbySuggestionsEvent extends SuggestionEvent {
   final int categoryId;
