@@ -18,8 +18,13 @@ This app follows the **Clean Architecture** approach:
 - **Data Layer**: Handles API communication and data models
 - **Domain Layer**: Business logic and use cases
 - **Presentation Layer**: UI and state management using **BLoC**
+lib/
+├── data/
+├── domain/
+├── presentation/
+├── core/
+├── main.dar
 
-- 
 ## 🛠️ Tech Stack
 
 - **Flutter** & **Dart**
