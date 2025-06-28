@@ -1,16 +1,31 @@
-# graduation_project
+# theCommunity_app 🏙️
+A mobile application that relies on civil society participation, allowing them to submit their initiatives and complaints to the Damascus Governorate, in addition to the possibility of charities and volunteer groups participating and disseminating their campaigns.
 
-A new Flutter project.
+## 🚀 Features
 
-## Getting Started
+- ✅ Submit community initiatives and complaints directly to the governorate
+- ✅ Charities and volunteer teams can create and manage campaigns
+- ✅ Public voting system before campaign approval
+- ✅ Real-time **push notifications** using Firebase Cloud Messaging (FCM)
+- ✅ **Google Maps** integration for location selection and display
+- ✅ **Stripe** payment integration for online donations
+- ✅ Clean and professional **UI/UX**, designed with **Figma** and enhanced with smooth **animations**
 
-This project is a starting point for a Flutter application.
+- 
+## 🧠 Architecture
 
-A few resources to get you started if this is your first Flutter project:
+This app follows the **Clean Architecture** approach:
+- **Data Layer**: Handles API communication and data models
+- **Domain Layer**: Business logic and use cases
+- **Presentation Layer**: UI and state management using **BLoC**
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 
+## 🛠️ Tech Stack
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Flutter** & **Dart**
+- **BLoC** for state management
+- **Firebase Cloud Messaging** (FCM)
+- **Google Maps API**
+- **Stripe Checkout**
+- **RESTful API Integration**
+- **Figma** (for UI/UX design)
