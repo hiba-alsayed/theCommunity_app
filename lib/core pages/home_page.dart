@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     context.read<CampaignBloc>().add(GetAllCampaignsEvent());
   }
 
-  // Helper method to open the category filter dialog
+
   void _openFilterDialog() {
     context.read<CampaignBloc>().add(GetCategoriesEvent());
     showModalBottomSheet(

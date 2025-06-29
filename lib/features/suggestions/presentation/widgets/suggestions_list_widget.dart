@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/widgets/glowing_gps.dart';
 import '../../domain/entities/Suggestions.dart';
 import '../bloc/suggestion_bloc.dart';
@@ -13,135 +14,88 @@ class SuggestionsListWidget extends StatefulWidget {
   final bool isMySuggestionsPage;
 
   const SuggestionsListWidget({
-    super.key,
+    Key? key, // Added Key
     required this.suggestion,
     required this.isMySuggestionsPage,
-  });
+  }) : super(key: key);
 
   @override
   State<SuggestionsListWidget> createState() => _SuggestionsListWidgetState();
 }
 
-class _SuggestionsListWidgetState extends State<SuggestionsListWidget> {
-  final ScrollController _scrollController = ScrollController();
-  int _visibleItemCount = 5;
-  bool _isLoadingMore = false;
+class _SuggestionsListWidgetState extends State<SuggestionsListWidget> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_scrollListener);
-  }
-
-  void _scrollListener() {
-    if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent &&
-        !_isLoadingMore &&
-        _visibleItemCount < widget.suggestion.length) {
-      setState(() {
-        _isLoadingMore = true;
-      });
-
-      Future.delayed(const Duration(seconds: 1), () {
-        setState(() {
-          _visibleItemCount = (_visibleItemCount + 5).clamp(
-            0,
-            widget.suggestion.length,
-          );
-          _isLoadingMore = false;
-        });
-      });
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant SuggestionsListWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.suggestion != widget.suggestion) {
-      _visibleItemCount = 5;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final itemsToShow = widget.suggestion.take(_visibleItemCount).toList();
-
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: itemsToShow.length + 1,
-      itemBuilder: (context, index) {
-        if (index < itemsToShow.length) {
-          return SuggestionCard(
-            suggestion: itemsToShow[index],
-            showIconButton: widget.isMySuggestionsPage,
-          );
-        } else {
-          if (_visibleItemCount >= widget.suggestion.length) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'لا توجد مقترحات إضافية',
-                  style: TextStyle(
-                    color: Colors.blueGrey,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            );
-          } else {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: SpinKitChasingDots(
-                        color: Color(0xFF0172B2),
-                        size: 40.0,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'جارٍ تحميل المزيد...',
-                      style: TextStyle(
-                        color: Colors.blueGrey,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-        }
-      },
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
     );
+    _animationController.forward();
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(14),
+      itemCount: widget.suggestion.length,
+      itemBuilder: (context, index) {
+        final suggestion = widget.suggestion[index];
+        final animationDelay = Duration(milliseconds: 100 + index * 50);
+
+        return FadeTransition(
+          opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Interval(
+                animationDelay.inMilliseconds / _animationController.duration!.inMilliseconds,
+                1.0,
+                curve: Curves.easeOutCubic,
+              ),
+            ),
+          ),
+          child: SlideTransition(
+            position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+              CurvedAnimation(
+                parent: _animationController,
+                curve: Interval(
+                  animationDelay.inMilliseconds / _animationController.duration!.inMilliseconds,
+                  1.0,
+                  curve: Curves.easeOutCubic,
+                ),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SuggestionCard(
+                suggestion: suggestion,
+                showIconButton: widget.isMySuggestionsPage,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
-
-
 
 class SuggestionCard extends StatefulWidget {
   final Suggestions suggestion;
   final bool showIconButton;
 
   const SuggestionCard({
-    super.key,
+    Key? key, // Added Key
     required this.suggestion,
     required this.showIconButton,
-  });
+  }) : super(key: key);
 
   @override
   State<SuggestionCard> createState() => _SuggestionCardState();
@@ -178,17 +132,24 @@ class _SuggestionCardState extends State<SuggestionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(14),
-        shadowColor: Colors.black26,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           onTap: () {
             Navigator.push(
               context,
@@ -199,90 +160,161 @@ class _SuggestionCardState extends State<SuggestionCard> {
               ),
             );
           },
-          onLongPress:
-          widget.showIconButton ? _showDeleteConfirmationDialog : null,
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: width * 0.04,
-              vertical: width * 0.05,
-            ),
-            child: Column(
+            padding: const EdgeInsets.all(14.0),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      // backgroundImage:
-                      // NetworkImage(widget.suggestion.user.userimage),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.suggestion.user.createdBy,
-                          style: TextStyle(
-                            fontSize: width * 0.04,
-                            fontWeight: FontWeight.bold,
-                          ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: widget.suggestion.imageUrl != null && widget.suggestion.imageUrl!.isNotEmpty
+                      ? Image.network(
+                    widget.suggestion.imageUrl!,
+                    width: 100,
+                    height: 120,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 100,
+                          height: 120,
+                          color: Colors.white,
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            GlowingGPSIcon(),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${widget.suggestion.location.name}',
-                              style: TextStyle(
-                                fontSize: width * 0.03,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${widget.suggestion.createdat}',
-                          style: TextStyle(
-                            fontSize: width * 0.03,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 100,
+                      height: 120,
+                      color: Colors.grey[200],
+                      child: Icon(Icons.broken_image, size: 40, color: Colors.grey[400]),
                     ),
-                    const Spacer(),
-                    Transform.rotate(
-                      angle: math.pi,
-                      child: Icon(
-                        Icons.arrow_back_ios,
-                        size: 20,
-                        color: const Color(0xFF00B4D8),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Divider(color: Colors.grey.shade300),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    widget.suggestion.description,
-                    style: TextStyle(
-                      fontSize: width * 0.035,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                    textAlign: TextAlign.right,
+                  )
+                      : Container(
+                    width: 100,
+                    height: 120,
+                    color: Colors.grey[200],
+                    child: Icon(Icons.person, size: 40, color: Colors.grey[400]),
                   ),
                 ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.suggestion.user.createdBy,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (widget.showIconButton)
+                            PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'delete') {
+                                  _showDeleteConfirmationDialog();
+                                }
+                              },
+                              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                                const PopupMenuItem<String>(
+                                  value: 'delete',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.delete_outline, color: Colors.red),
+                                      SizedBox(width: 8),
+                                      Text('حذف', style: TextStyle(color: Colors.red)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                              icon: const Icon(Icons.more_vert),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.suggestion.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    GlowingGPSIcon(),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        widget.suggestion.location.name ?? 'غير محدد',
+                                        style: Theme.of(context).textTheme.labelMedium,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Icon(Icons.calendar_month_outlined, size: 16, color: Colors.grey),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      widget.suggestion.createdat ?? 'غير محدد',
+                                      style: Theme.of(context).textTheme.labelMedium,
+                                    ),
+                                    Spacer(),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text('(${widget.suggestion.likes})',
+                                                style: const TextStyle(color: Colors.green)),
+                                            const SizedBox(width: 4),
+                                            const Icon(Icons.keyboard_arrow_up_outlined, color: Colors.green),
+                                          ],
+                                        ),
+                                        SizedBox(width: 10,),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.keyboard_arrow_down_outlined, color: Colors.red),
+                                            const SizedBox(width: 4),
+                                            Text('(${widget.suggestion.dislikes})',
+                                                style: const TextStyle(color: Colors.red)),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),
         ),
-      ).animate().fade(duration: 350.ms).slideY(begin: 0.2, curve: Curves.easeOut),
+      ),
     );
   }
 }
-
 

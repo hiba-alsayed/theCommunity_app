@@ -10,6 +10,11 @@ import 'package:graduation_project/features/complaints/domain/usecases/get_all_r
 import 'package:graduation_project/features/complaints/domain/usecases/submit_complaint.dart';
 import 'package:graduation_project/features/notifications/domain/repository/notification_repository.dart';
 import 'package:graduation_project/features/notifications/domain/usecase/get_notifications_usecase.dart';
+import 'package:graduation_project/features/profile/data/datasources/profile_remote_data_source.dart';
+import 'package:graduation_project/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:graduation_project/features/profile/domain/repository/profile.dart';
+import 'package:graduation_project/features/profile/domain/usecases/get_my_profile.dart';
+import 'package:graduation_project/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,6 +52,8 @@ import 'features/login/presentation/bloc/login_bloc.dart';
 import 'features/notifications/data/datasource/notification_remote_data_source.dart';
 import 'features/notifications/data/repository/notification_repository_imp.dart';
 import 'features/notifications/presentation/bloc/notification_bloc.dart';
+import 'features/profile/domain/usecases/get_profile_by_userid.dart';
+import 'features/profile/domain/usecases/update_client_profile.dart';
 import 'features/suggestions/data/datasources/suggestion_local_data_source.dart';
 import 'features/suggestions/data/datasources/suggestion_remote_data_source.dart';
 import 'features/suggestions/data/repositories/suggestions_repository_imp.dart';
@@ -114,6 +121,13 @@ sl.registerFactory<CampaignBloc>(
         ()=>DonationBloc(makeDonation: sl()
     ),
   );
+  sl.registerFactory<ProfileBloc>(
+        ()=>ProfileBloc(
+            getMyProfileUseCase: sl(),
+            getProfileByUserIdUseCase: sl(),
+            updateClientProfileUseCase: sl()
+    ),
+  );
 
   //Use cases
   sl.registerLazySingleton<GetAllSuggestions>(() => GetAllSuggestions(sl()));
@@ -151,6 +165,10 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
   sl.registerLazySingleton<GetNotifications>(()=>GetNotifications(sl()));
 
   sl.registerLazySingleton<MakeDonation>(()=>MakeDonation(sl()));
+
+  sl.registerLazySingleton<GetMyProfile>(()=>GetMyProfile(sl()));
+  sl.registerLazySingleton<GetProfileByUserId>(()=>GetProfileByUserId(sl()));
+  sl.registerLazySingleton<UpdateClientProfile>(()=>UpdateClientProfile(sl()));
 
 
   // Repository
@@ -195,6 +213,13 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
     ),
   );
 
+  sl.registerLazySingleton<ProfileRepository>(
+        () => ProfileRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
   // Datasources
   sl.registerLazySingleton<SuggestionRemoteDataSource>(
     () => SuggestionRemoteDataSourceImp(client: sl(), tokenProvider: sl(),),
@@ -227,6 +252,10 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
   sl.registerLazySingleton<DonationRemoteDataSource>(
         () => DonationRemoteDataSourceImp(client: sl(),tokenProvider: sl()),
   );
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+        () => ProfileRemoteDataSourceImpl(client: sl(),tokenProvider: sl()),
+  );
+
 
   // Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImp(sl()));

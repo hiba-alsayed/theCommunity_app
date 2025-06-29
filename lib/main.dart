@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:graduation_project/features/Donation/presentation/bloc/donation_bloc.dart';
 import 'package:graduation_project/features/login/presentation/bloc/login_bloc.dart';
 import 'package:graduation_project/features/notifications/presentation/bloc/notification_bloc.dart';
+import 'package:graduation_project/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:graduation_project/navigation/main_navigation_page.dart';
 import 'core/app_theme.dart';
 import 'features/campaigns/presentation/bloc/campaign_bloc.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
           create: (_) => di.sl<NotificationBloc>(),
         ),
         BlocProvider<DonationBloc>(create: (_) => di.sl<DonationBloc>()),
+        BlocProvider<ProfileBloc>(create: (_) => di.sl<ProfileBloc>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

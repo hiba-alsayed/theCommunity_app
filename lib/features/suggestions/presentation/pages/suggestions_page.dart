@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project/features/suggestions/domain/usecases/get_suggestion_category.dart';
 import 'package:graduation_project/features/suggestions/presentation/pages/submit_suggestion_page.dart';
 import '../../../../core/app_color.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -19,8 +18,8 @@ class SuggestionsPage extends StatefulWidget {
 class _SuggestionsPageState extends State<SuggestionsPage> {
   String? _selectedCategory;
   int? _selectedCategoryId;
-  // أضف متغير لتخزين الاقتراحات الحالية المعروضة
-  List<Suggestions>? _currentSuggestions; // استخدم dynamic لتجنب خطأ نوع البيانات إذا كانت Suggestion مختلفة عن Campaigns
+
+  List<Suggestions>? _currentSuggestions;
 
   final Map<String, Map<String, dynamic>> categoryIcons = {
     'تنظيف': {
@@ -42,7 +41,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
   @override
   void initState() {
     super.initState();
-    // عند التهيئة، اطلب جميع المقترحات
     context.read<SuggestionBloc>().add(GetAllSuggestionsEvent());
   }
 
@@ -65,7 +63,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
           builder: (context, state) {
             if (state is LoadingSuggestionCategories) {
               return const SizedBox(
-                height: 200, // لتوفير مساحة لمؤشر التحميل
+                height: 200,
                 child: Center(child: CircularProgressIndicator()),
               );
             } else if (state is SuggestionCategoriesLoaded) {
@@ -89,18 +87,16 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                           _selectedCategory = null;
                           _selectedCategoryId = null;
                         });
-                        _loadCategorySuggestions(null); // لإعادة تحميل جميع المقترحات
+                        _loadCategorySuggestions(null);
                         Navigator.pop(context);
                       },
                     ),
                     ...categories.map((category) {
-                      // ابحث عن مفتاح في categoryIcons يحتوي على اسم التصنيف (أو جزء منه)
-                      // لتحقيق مرونة أكبر في المطابقة
                       final matchingEntry = categoryIcons.entries.firstWhere(
                             (entry) => category.name.contains(entry.key),
                         orElse: () => MapEntry('', {
-                          'icon': Icons.category, // أيقونة افتراضية إذا لم يتم العثور على تطابق
-                          'color': Colors.grey,   // لون افتراضي
+                          'icon': Icons.category,
+                          'color': Colors.grey,
                         }),
                       );
 
@@ -126,10 +122,9 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
             } else if (state is SuggestionCategoryError) {
               return Center(child: Text(state.message));
             }
-            // حالة احتياطية إذا لم تكن أي حالة معروفة
             return const SizedBox(
               height: 200,
-              child: Center(child: Text('حدث خطأ في تحميل التصنيفات.')), // رسالة أكثر وضوحًا
+              child: Center(child: Text('حدث خطأ في تحميل التصنيفات.')),
             );
           },
         );
@@ -139,17 +134,17 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [AppColors.OceanBlue, Colors.white],
-              stops: [0.0, 0.2],
-            ),
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.OceanBlue, Colors.white],
+            stops: [0.0, 0.2],
           ),
+        ),
+        child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -250,7 +245,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                     } else if (state is SuggestionsByCategoryLoaded) {
                       _currentSuggestions = state.suggestions;
                     }
-                    // في حالة نجاح أو فشل التصويت/الإرسال، قم بتحديث القائمة
                     if (state is VoteOnSuggestionSuccess ||
                         state is SuggestionSubmittedSuccessState ||
                         state is VoteOnSuggestionFailure ||
@@ -277,7 +271,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                       }
                       return SuggestionsListWidget(suggestion: state.suggestion, isMySuggestionsPage: false);
                     } else if (state is SuggestionsByCategoryLoaded) {
-                      // عندما تكون المقترحات محملة حسب التصنيف، قم بعرضها
                       if (state.suggestions.isEmpty) {
                         return const MessageDisplayWidget(message: 'لا توجد مقترحات في هذا التصنيف.');
                       }
@@ -285,14 +278,9 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                     } else if (state is SuggestionErrorState) {
                       return MessageDisplayWidget(message: state.message);
                     }
-                    // إذا لم تتطابق أي حالة من حالات التحميل أو البيانات،
-                    // وتحتفظ بقائمة المقترحات السابقة، قم بعرضها
                     else if (_currentSuggestions != null && _currentSuggestions!.isNotEmpty) {
-                      // تأكد أن `SuggestionsListWidget` يمكنه التعامل مع `List<dynamic>`
-                      // أو قم بتحويلها إلى نوع `Suggestion` إذا لزم الأمر
                       return SuggestionsListWidget(suggestion: _currentSuggestions!, isMySuggestionsPage: false);
                     }
-                    // كحالة نهائية، إذا لم تكن هناك بيانات مخبأة أو حالة معالجة
                     return const MessageDisplayWidget(message: 'جارِ تحميل المقترحات...');
                   },
                 ),

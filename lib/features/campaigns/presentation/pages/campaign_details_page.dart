@@ -9,6 +9,7 @@ import '../../../../core/strings/failures.dart';
 import '../../../../core/widgets/glowing_gps.dart';
 import '../../../Donation/presentation/bloc/donation_bloc.dart';
 import '../../../../core pages/location_map_view_page.dart';
+import '../../../profile/presentation/pages/get_profile_by_userid_page.dart';
 import '../../data/models/campaigns_model.dart';
 import '../../domain/entities/rating.dart';
 import '../bloc/campaign_bloc.dart';
@@ -419,16 +420,28 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> {
               const SizedBox(height: 16),
               Text("الحالة: ${campaign.status}"),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      campaign.campaignUser.userimage,
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => GetProfileByUserIdPage(
+                        userId: campaign.campaignUser.userid,
+                        userName: campaign.campaignUser.createdBy,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text("بواسطة: ${campaign.campaignUser.createdBy}"),
-                ],
+                  );
+                },
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        campaign.campaignUser.userimage,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text("بواسطة: ${campaign.campaignUser.createdBy}"),
+                  ],
+                ),
               ),
               const SizedBox(height: 8),
               Text(campaign.createdAt),

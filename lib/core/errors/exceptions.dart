@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ServerException implements Exception {}
+class ServerException implements Exception {
+  final int? statusCode;
+  final String? message;
+  ServerException({this.statusCode, this.message});
+}
 
 class EmptyCacheException implements Exception {}
 
