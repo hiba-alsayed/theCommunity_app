@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core pages/home_page.dart';
-import '../core pages/profile_page.dart';
 import '../features/campaigns/presentation/pages/get_all_campaigns_page.dart';
-import '../features/campaigns/presentation/pages/recommended_page.dart';
 import '../features/complaints/presentation/pages/get_all_complaints.dart';
-import '../features/profile/presentation/pages/profile_details_page.dart';
+import '../core pages/profile_details_page.dart';
 import '../features/suggestions/presentation/pages/suggestions_page.dart';
 import 'bottom_bar.dart';
 
@@ -24,7 +22,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     CampaignsPage(),
     SuggestionsPage(),
     ComplaintsPage(),
-    ProfilePageDetails(),
+    ProfilePage(),
   ];
 
   @override

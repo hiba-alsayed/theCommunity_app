@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:graduation_project/core/app_color.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../../../core/widgets/glowing_gps.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../../navigation/main_navigation_page.dart';
 import '../bloc/suggestion_bloc.dart';
 import '../../../../core pages/location_picker_page.dart';
 
@@ -29,7 +30,6 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
   final TextEditingController _participantsController = TextEditingController();
   final TextEditingController _requiredAmountController =
       TextEditingController();
-  // DateTime? _selectedDate;
   File? _imageFile;
   Category? _selectedCategory;
   LatLng? _selectedLocation;
@@ -166,11 +166,8 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                           bottomRight: Radius.circular(14),
                           bottomLeft: Radius.circular(14),
                         ),
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF03045e), Color(0xFF0096c7)],
-                          begin: Alignment.topRight,
-                          end: Alignment.bottomLeft,
-                        ),
+                          color: AppColors.OceanBlue,
+
                       ),
                     ),
                     Expanded(child: Container(color: Colors.white)),
@@ -186,7 +183,12 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                     children: [
                       IconButton(
                         icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MainNavigationPage()),
+                          );
+                        },
                       ),
                       SizedBox(width: 16),
                       Text(
@@ -200,7 +202,6 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                     ],
                   ),
                 ),
-
                 // -----------Form-----------
                 SingleChildScrollView(
                   padding: EdgeInsets.only(
@@ -293,7 +294,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                                     SizedBox(width: 8),
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color(0xFF0172B2),
+                                        backgroundColor: AppColors.OceanBlue,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             8,
@@ -318,7 +319,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                                       },
                                       child: Text(
                                         'اختر من الخريطة',
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                                       ),
                                     ),
                                   ],
@@ -358,10 +359,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                                           value == null
                                               ? 'الرجاء اختيار الفئة'
                                               : null,
-                                )
-                                .animate()
-                                .fade(duration: 350.ms)
-                                .slideY(begin: 0.2, curve: Curves.easeOut),
+                                ),
                             SizedBox(height: 16),
                             _buildFormField(
                               controller: _requiredAmountController,
@@ -476,8 +474,8 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF0172B2),
-                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: AppColors.OceanBlue,
+                                  padding: EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -491,10 +489,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                                         ? LoadingWidget()
                                         : Text(
                                           'تقديم المقترح',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.white,
-                                          ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                                         ),
                               ),
                             ),

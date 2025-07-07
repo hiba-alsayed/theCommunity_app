@@ -17,12 +17,20 @@ class _CampaignsPageState extends State<CampaignsPage> {
   String? _selectedCategory;
   int? _selectedCategoryId;
   List<Campaigns>? _cachedCampaigns;
+
   @override
   void initState() {
     super.initState();
-    final bloc = context.read<CampaignBloc>();
-    bloc.add(GetAllCampaignsEvent());
+    _refreshCampaigns();
   }
+  Future<void> _refreshCampaigns() async {
+    setState(() {
+      _selectedCategory = null;
+      _selectedCategoryId = null;
+    });
+    context.read<CampaignBloc>().add(GetAllCampaignsEvent());
+  }
+
 
   void _openFilterDialog() {
     context.read<CampaignBloc>().add(GetCategoriesEvent());
@@ -78,6 +86,10 @@ class _CampaignsPageState extends State<CampaignsPage> {
                       ),
                       title: const Text('الكل'),
                       onTap: () {
+                        setState(() {
+                          _selectedCategory = null;
+                          _selectedCategoryId = null;
+                        });
                         context.read<CampaignBloc>().add(
                           GetAllCampaignsEvent(),
                         );
@@ -86,12 +98,12 @@ class _CampaignsPageState extends State<CampaignsPage> {
                     ),
                     ...categories.map((category) {
                       final match = categoryIcons.entries.firstWhere(
-                        (entry) => category.name.contains(entry.key),
+                            (entry) => category.name.contains(entry.key),
                         orElse:
                             () => MapEntry('', {
-                              'icon': Icons.category,
-                              'color': Colors.grey,
-                            }),
+                          'icon': Icons.category,
+                          'color': Colors.grey,
+                        }),
                       );
 
                       return ListTile(
@@ -101,6 +113,10 @@ class _CampaignsPageState extends State<CampaignsPage> {
                         ),
                         title: Text(category.name),
                         onTap: () {
+                          setState(() {
+                            _selectedCategory = category.name;
+                            _selectedCategoryId = category.id;
+                          });
                           context.read<CampaignBloc>().add(
                             GetAllCampaignsByCategoryEvent(category.id),
                           );
@@ -196,47 +212,46 @@ class _CampaignsPageState extends State<CampaignsPage> {
                       ),
                     ),
                   Expanded(
-                    child: BlocConsumer<CampaignBloc, CampaignState>(
-                      listener: (context, state) {
-                        if (state is AllCampaignsLoaded) {
-                          _cachedCampaigns = state.campaigns;
-                        }
-                      },
-                      builder: (context, state) {
-                        if (state is LoadingAllCampaigns ||
-                            state is LoadingCampaignsByCategory) {
-                          return const Center(child: LoadingWidget());
-                        } else if (state is AllCampaignsLoaded) {
-                          _cachedCampaigns = state.campaigns;
-                          if (state.campaigns.isEmpty) {
-                            return const Center(
-                              child: Text('لا توجد حملات متاحة حالياً'),
-                            );
+                    child: RefreshIndicator(
+                      onRefresh: _refreshCampaigns,
+                      color: AppColors.SunsetOrange,
+                      backgroundColor: AppColors.WhisperWhite,
+                      child: BlocConsumer<CampaignBloc, CampaignState>(
+                        listener: (context, state) {
+                          if (state is AllCampaignsLoaded) {
+                            _cachedCampaigns = state.campaigns;
                           }
-                          return CampaignListWidget(campaigns: state.campaigns);
-                        } else if (state is CampaignsByCategoryLoaded) {
-                          if (state.campaigns.isEmpty) {
-                            return const Center(
-                              child: Text('لا توجد حملات في هذا التصنيف'),
-                            );
+                          if (state is CampaignsByCategoryLoaded) {
+                            _cachedCampaigns = state.campaigns;
                           }
-                          return CampaignListWidget(campaigns: state.campaigns);
-                        } else if (_cachedCampaigns != null &&
-                            _cachedCampaigns!.isNotEmpty) {
-                          return CampaignListWidget(
-                            campaigns: _cachedCampaigns!,
-                          );
-                        } else if (state is CampaignErrorState) {
-                          return Center(
-                            child: Text(
-                              state.message,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          );
-                        } else {
-                          return const Center(child: Text('جار التحميل...'));
-                        }
-                      },
+                        },
+                        builder: (context, state) {
+                          final List<Campaigns>? campaignsToDisplay =
+                          (_selectedCategory != null && state is CampaignsByCategoryLoaded)
+                              ? state.campaigns
+                              : _cachedCampaigns;
+
+                          if (state is LoadingAllCampaigns ||
+                              state is LoadingCampaignsByCategory) {
+                            return const Center(child: LoadingWidget());
+                          } else if (campaignsToDisplay != null && campaignsToDisplay.isNotEmpty) {
+                            return CampaignListWidget(campaigns: campaignsToDisplay);
+                          } else if (state is CampaignErrorState) {
+                            return Center(
+                              child: Text(
+                                state.message,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            );
+                          } else {
+                            String message = 'لا توجد حملات متاحة حالياً.';
+                            if (_selectedCategory != null) {
+                              message = 'لا توجد حملات في هذا التصنيف.';
+                            }
+                            return Center(child: Text(message));
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ],

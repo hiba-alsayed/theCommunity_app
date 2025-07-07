@@ -41,8 +41,15 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
   @override
   void initState() {
     super.initState();
+    _refreshSuggestions();
+  }
+
+  Future<void> _refreshSuggestions() async {
+    _selectedCategory = null;
+    _selectedCategoryId = null;
     context.read<SuggestionBloc>().add(GetAllSuggestionsEvent());
   }
+
 
   void _loadCategorySuggestions(int? categoryId) {
     if (categoryId == null) {
@@ -238,51 +245,55 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                   ),
                 ),
               Expanded(
-                child: BlocConsumer<SuggestionBloc, SuggestionState>(
-                  listener: (context, state) {
-                    if (state is AllSuggestionsLoaded) {
-                      _currentSuggestions = state.suggestion;
-                    } else if (state is SuggestionsByCategoryLoaded) {
-                      _currentSuggestions = state.suggestions;
-                    }
-                    if (state is VoteOnSuggestionSuccess ||
-                        state is SuggestionSubmittedSuccessState ||
-                        state is VoteOnSuggestionFailure ||
-                        state is SuggestionSubmittedErrorState) {
-                      if (_selectedCategoryId != null) {
-                        context.read<SuggestionBloc>().add(
-                          LoadSuggestionsByCategoryEvent(_selectedCategoryId!),
-                        );
-                      } else {
-                        context.read<SuggestionBloc>().add(
-                          GetAllSuggestionsEvent(),
-                        );
+                child: RefreshIndicator(
+                  onRefresh: _refreshSuggestions,
+                  color: AppColors.OceanBlue,
+                  backgroundColor: AppColors.WhisperWhite,
+                  child: BlocConsumer<SuggestionBloc, SuggestionState>(
+                    listener: (context, state) {
+                      if (state is AllSuggestionsLoaded) {
+                        _currentSuggestions = state.suggestion;
+                      } else if (state is SuggestionsByCategoryLoaded) {
+                        _currentSuggestions = state.suggestions;
                       }
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is LoadingAllSuggestions ||
-                        state is LoadingSuggestionsByCategory) {
-                      return const LoadingWidget();
-                    } else if (state is AllSuggestionsLoaded) {
-                      // عندما تكون كل المقترحات محملة، قم بعرضها
-                      if (state.suggestion.isEmpty) {
-                        return const MessageDisplayWidget(message: 'لا توجد مقترحات متاحة حالياً.');
+                      if (state is VoteOnSuggestionSuccess ||
+                          state is SuggestionSubmittedSuccessState ||
+                          state is VoteOnSuggestionFailure ||
+                          state is SuggestionSubmittedErrorState) {
+                        if (_selectedCategoryId != null) {
+                          context.read<SuggestionBloc>().add(
+                            LoadSuggestionsByCategoryEvent(_selectedCategoryId!),
+                          );
+                        } else {
+                          context.read<SuggestionBloc>().add(
+                            GetAllSuggestionsEvent(),
+                          );
+                        }
                       }
-                      return SuggestionsListWidget(suggestion: state.suggestion, isMySuggestionsPage: false);
-                    } else if (state is SuggestionsByCategoryLoaded) {
-                      if (state.suggestions.isEmpty) {
-                        return const MessageDisplayWidget(message: 'لا توجد مقترحات في هذا التصنيف.');
+                    },
+                    builder: (context, state) {
+                      if (state is LoadingAllSuggestions ||
+                          state is LoadingSuggestionsByCategory) {
+                        return const LoadingWidget();
+                      } else if (state is AllSuggestionsLoaded) {
+                        if (state.suggestion.isEmpty) {
+                          return const MessageDisplayWidget(message: 'لا توجد مقترحات متاحة حالياً.');
+                        }
+                        return SuggestionsListWidget(suggestion: state.suggestion, isMySuggestionsPage: false);
+                      } else if (state is SuggestionsByCategoryLoaded) {
+                        if (state.suggestions.isEmpty) {
+                          return const MessageDisplayWidget(message: 'لا توجد مقترحات في هذا التصنيف.');
+                        }
+                        return SuggestionsListWidget(suggestion: state.suggestions, isMySuggestionsPage: false);
+                      } else if (state is SuggestionErrorState) {
+                        return MessageDisplayWidget(message: state.message);
                       }
-                      return SuggestionsListWidget(suggestion: state.suggestions, isMySuggestionsPage: false);
-                    } else if (state is SuggestionErrorState) {
-                      return MessageDisplayWidget(message: state.message);
-                    }
-                    else if (_currentSuggestions != null && _currentSuggestions!.isNotEmpty) {
-                      return SuggestionsListWidget(suggestion: _currentSuggestions!, isMySuggestionsPage: false);
-                    }
-                    return const MessageDisplayWidget(message: 'جارِ تحميل المقترحات...');
-                  },
+                      else if (_currentSuggestions != null && _currentSuggestions!.isNotEmpty) {
+                        return SuggestionsListWidget(suggestion: _currentSuggestions!, isMySuggestionsPage: false);
+                      }
+                      return const MessageDisplayWidget(message: 'جارِ تحميل المقترحات...');
+                    },
+                  ),
                 ),
               ),
             ],

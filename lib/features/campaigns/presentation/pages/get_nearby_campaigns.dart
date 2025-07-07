@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/gradiant_app_bar.dart';
 import '../../../suggestions/presentation/pages/submit_suggestion_page.dart';
+import '../../domain/entities/category.dart';
 import '../bloc/campaign_bloc.dart';
 import '../widgets/campaign_list_widget.dart';
 
@@ -17,7 +18,7 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
   bool _hasInteractedWithSlider = false;
   double _selectedDistance = 2.0;
   int? _selectedCategoryId;
-  List<Category> _categories = [];
+  List<MyCategory> _categories = [];
   bool _loadingCategories = true;
   String? _errorMessage;
 

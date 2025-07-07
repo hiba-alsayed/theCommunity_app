@@ -110,7 +110,7 @@ class ComplaintCard extends StatelessWidget {
       case ComplaintStatus.rejected:
         return Colors.red;
       case ComplaintStatus.waiting:
-        return Colors.amber.shade600;;
+        return Colors.amber.shade600;
       default:
         return Colors.grey.shade500;
     }
@@ -303,7 +303,7 @@ class ComplaintCard extends StatelessWidget {
                                     Icon(Icons.calendar_month_outlined, size: 16, color: Colors.grey),
                                     const SizedBox(width: 6),
                                     Text(
-                                        DateFormat('yyyy-MM-dd HH:mm').format(complaint.createdAt) ?? 'غير محدد',
+                                        DateFormat('yyyy-MM-dd').format(complaint.createdAt) ?? 'غير محدد',
                                       style: Theme.of(context).textTheme.labelMedium,
                                     ),
                                   ],

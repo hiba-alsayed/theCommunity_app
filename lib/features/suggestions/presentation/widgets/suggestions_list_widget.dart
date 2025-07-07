@@ -14,7 +14,7 @@ class SuggestionsListWidget extends StatefulWidget {
   final bool isMySuggestionsPage;
 
   const SuggestionsListWidget({
-    Key? key, // Added Key
+    Key? key,
     required this.suggestion,
     required this.isMySuggestionsPage,
   }) : super(key: key);

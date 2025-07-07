@@ -31,7 +31,7 @@ class ProfileModel extends ProfileEntity {
       age: json['age'] as int,
       gender: json['gender'] as String,
       skills: (json['skills'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
-      fields: (json['volunteer_fields'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      fields: (json['fields'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -49,7 +49,7 @@ class ProfileModel extends ProfileEntity {
       'age': age,
       'gender': gender,
       'skills': skills,
-      'volunteer_fields': fields,
+      'fields': fields,
       'created_at': createdAt.toIso8601String(),
     };
   }

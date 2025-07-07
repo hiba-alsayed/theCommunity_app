@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project/core/app_color.dart';
 import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/suggestions/domain/entities/Suggestions.dart';
 import '../../../../core/widgets/glowing_gps.dart';
+import '../../../../core/widgets/snack_bar.dart';
+import '../../../profile/presentation/pages/get_profile_by_userid_page.dart';
 import '../bloc/suggestion_bloc.dart';
 import '../widgets/vote_widget.dart';
 import '../../../../core pages/location_map_view_page.dart';
@@ -25,7 +28,11 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
     if (widget.suggestion.location.latitude == null ||
         widget.suggestion.location.longitude == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('إحداثيات الموقع غير متوفرة')),
+        buildGlassySnackBar(
+          message: 'إحداثيات الموقع غير متوفرة',
+          color: AppColors.CedarOlive,
+          context: context,
+        ),
       );
       return;
     }
@@ -42,9 +49,31 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
     );
   }
 
+  final Map<String, Map<String, dynamic>> categoryIcons = {
+    'تنظيف وتزيين الأماكن العامة': {
+      'icon': Icons.cleaning_services,
+      'color': Colors.lightBlue,
+    },
+    'حملات تشجير': {'icon': Icons.nature, 'color': Colors.green},
+    'يوم خيري': {'icon': Icons.volunteer_activism, 'color': Colors.pink},
+    'ترميم أضرار (كوارث , عدوان)': {
+      'icon': Icons.home_repair_service,
+      'color': Colors.brown,
+    },
+    'إنارة الشوارع بالطاقة الشمسية': {
+      'icon': Icons.lightbulb,
+      'color': Colors.amber,
+    },
+  };
+
   @override
   Widget build(BuildContext context) {
     final imageUrl = widget.suggestion.imageUrl;
+    final suggestion = widget.suggestion;
+
+    final categoryData =
+        categoryIcons[widget.suggestion.category] ??
+        {'icon': Icons.category, 'color': Colors.grey};
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -82,10 +111,10 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
                             height: 34,
                             width: 34,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.4),
+                              color: Colors.black.withOpacity(0.4),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.arrow_back_ios,
                               size: 16,
                               color: Colors.white,
@@ -106,73 +135,132 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
                   ),
                   child: const Center(child: Text('لا توجد صورة')),
                 ),
-
-              // User info + date
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.suggestion.user.createdBy,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      widget.suggestion.createdat,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
               // Title +category
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.suggestion.title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        widget.suggestion.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
+                    const SizedBox(
+                      width: 16,
+                    ),
                     Container(
-                      height: 50,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
+                        horizontal: 10,
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Center(
-                        child: Text(
-                          widget.suggestion.category,
-                          style: const TextStyle(fontSize: 14),
+                        color: categoryData['color'].withOpacity(
+                          0.2,
                         ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: categoryData['color'],
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            categoryData['icon'],
+                            size: 16, // Icon size
+                            color: categoryData['color'],
+                          ),
+                          const SizedBox(
+                            width: 6,
+                          ),
+                          Text(
+                            widget.suggestion.category,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color:
+                                  categoryData['color'],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 16),
-
+              // User info + date
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => GetProfileByUserIdPage(
+                              userId: suggestion.user.userid,
+                              userName: suggestion.user.createdBy,),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          const Icon(Icons.person,
+                              size: 14, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(
+                          "بواسطة: ${widget.suggestion.user.createdBy }",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today,
+                            size: 14,
+                            color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(
+                          widget.suggestion.createdat,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[700]),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               // Description
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   widget.suggestion.description,
-                  style: const TextStyle(fontSize: 16),
+                  style: TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: Colors.grey[800]),
                 ),
               ),
               const SizedBox(height: 24),
+              // Location
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
@@ -195,18 +283,19 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
                               fontSize: 16,
                             ),
                           ),
-                          const SizedBox(height:10),
+                          const SizedBox(height: 10),
                           Row(
                             children: [
                               GlowingGPSIcon(),
-                              const SizedBox(width:4),
+                              const SizedBox(width: 4),
                               if (widget.suggestion.location.name != null)
                                 Text(widget.suggestion.location.name!),
                               const SizedBox(width: 8),
                               Text(
                                 '(اضغط لعرض الموقع على الخريطة)',
                                 style: TextStyle(
-                                  color:Colors.grey[600],
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
                                   // decoration: TextDecoration.underline,
                                 ),
                               ),
@@ -226,43 +315,66 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               // Stats
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        'إجمالي التصويتات',
-                        widget.suggestion.likes.toString(),
-                        Icons.how_to_vote,
+              BlocConsumer<SuggestionBloc, SuggestionState>(
+                listener: (context, state) {
+                  if (state is VoteOnSuggestionSuccess) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      buildGlassySnackBar(
+                        message: 'تم التصويت بنجاح',
+                        color: AppColors.CedarOlive,
+                        context: context,
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildStatCard(
-                        'المشاركون',
-                        widget.suggestion.numberOfParticipants.toString(),
-                        Icons.people,
+                    );
+                  } else if (state is VoteOnSuggestionFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      buildGlassySnackBar(
+                        message: 'لقد قمت بالتصويت بالفعل',
+                        color: AppColors.RichBerry,
+                        context: context,
                       ),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  final currentSuggestion = (state is VoteOnSuggestionSuccess)
+                      ? state.updatedSuggestion
+                      : widget.suggestion;
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildStatCard(
+                            'إجمالي التصويتات',
+                            currentSuggestion.likes.toString(), // Use currentSuggestion.likes
+                            Icons.how_to_vote,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildStatCard(
+                            'المشاركون',
+                            currentSuggestion.numberOfParticipants.toString(), // Use currentSuggestion.numberOfParticipants
+                            Icons.people,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildStatCard(
+                            'المبلغ المطلوب',
+                            currentSuggestion.requiredAmount, // Use currentSuggestion.requiredAmount
+                            Icons.attach_money,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildStatCard(
-                        'المبلغ المطلوب',
-                        widget.suggestion.requiredAmount,
-                        Icons.attach_money,
-                      ),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
-
               const SizedBox(height: 24),
-
               // Voting
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -284,25 +396,12 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        BlocConsumer<SuggestionBloc, SuggestionState>(
-                          listener: (context, state) {
-                            if (state is VoteOnSuggestionSuccess) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('تم التصويت بنجاح'),
-                                ),
-                              );
-                            } else if (state is VoteOnSuggestionFailure) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(state.message)),
-                              );
-                            }
-                          },
+                        BlocBuilder<SuggestionBloc, SuggestionState>(
                           builder: (context, state) {
                             final currentSuggestion =
-                                (state is VoteOnSuggestionSuccess)
-                                    ? state.updatedSuggestion
-                                    : widget.suggestion;
+                            (state is VoteOnSuggestionSuccess)
+                                ? state.updatedSuggestion
+                                : widget.suggestion;
                             return VotingSlider(suggestion: currentSuggestion);
                           },
                         ),
@@ -323,19 +422,23 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Icon(icon, size: 24, color: Color(0xFF0172B2)),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(title, style: const TextStyle(fontSize: 12)),
-          ],
+      child: SizedBox(
+        width: 110,
+        height: 120,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            children: [
+              Icon(icon, size: 24, color: Color(0xFF0172B2)),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(title, style: const TextStyle(fontSize: 11)),
+            ],
+          ),
         ),
       ),
     );
