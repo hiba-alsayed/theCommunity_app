@@ -3,7 +3,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:page_transition/page_transition.dart';
-import '../features/login/presentation/pages/login_page.dart';
+import '../features/auth/presentation/pages/login_page.dart';
+
 
 
 class SplashScreen extends StatelessWidget {

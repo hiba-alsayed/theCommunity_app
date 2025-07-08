@@ -2,11 +2,10 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/login_entity.dart';
-import '../repositories/login_repository.dart';
+import '../repositories/auth_repository.dart';
 
 class LogIn {
-  final LoginRepository repository;
-
+  final AuthRepository repository;
   LogIn(this.repository);
 
   Future<Either<Failure, LoginEntity>> call({

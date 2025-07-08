@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:graduation_project/core/widgets/loading_widget.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../../../notifications/presentation/firebase/api_notification_firebase.dart';
-import '../bloc/login_bloc.dart';
+import '../bloc/auth_bloc.dart';
 import '../widgets/animated_widget.dart';
 
 
@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
       if (mounted) {
-        context.read<LoginBloc>().add(
+        context.read<AuthBloc>().add(
           PerformLogin(
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<LoginBloc, LoginState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is LoginFailure) {
             ScaffoldMessenger.of(context).showSnackBar(

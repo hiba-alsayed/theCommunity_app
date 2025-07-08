@@ -4,11 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:graduation_project/features/Donation/presentation/bloc/donation_bloc.dart';
-import 'package:graduation_project/features/login/presentation/bloc/login_bloc.dart';
+import 'package:graduation_project/features/auth/presentation/pages/login_page.dart';
 import 'package:graduation_project/features/notifications/presentation/bloc/notification_bloc.dart';
 import 'package:graduation_project/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:graduation_project/navigation/main_navigation_page.dart';
 import 'core/app_theme.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/pages/signup-page.dart';
 import 'features/campaigns/presentation/bloc/campaign_bloc.dart';
 import 'features/complaints/presentation/bloc/complaint_bloc.dart';
 import 'features/notifications/presentation/firebase/api_notification_firebase.dart';
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<SuggestionBloc>(create: (_) => di.sl<SuggestionBloc>()),
         BlocProvider<CampaignBloc>(create: (_) => di.sl<CampaignBloc>()),
-        BlocProvider<LoginBloc>(create: (_) => di.sl<LoginBloc>()),
+        BlocProvider<AuthBloc>(create: (_) => di.sl<AuthBloc>()),
         BlocProvider<ComplaintBloc>(create: (_) => di.sl<ComplaintBloc>()),
         BlocProvider<NotificationBloc>(
           create: (_) => di.sl<NotificationBloc>(),
@@ -67,7 +68,7 @@ class MyApp extends StatelessWidget {
             child: child!,
           );
         },
-        home:MainNavigationPage(),
+        home:SignUpPage(),
       ),
     );
   }

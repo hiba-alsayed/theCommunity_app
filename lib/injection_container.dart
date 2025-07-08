@@ -25,6 +25,14 @@ import 'features/Donation/data/datasources/donation_remote_data_source.dart';
 import 'features/Donation/data/repositories/donation_repository_imp.dart';
 import 'features/Donation/domain/repository/donation_repository.dart';
 import 'features/Donation/presentation/bloc/donation_bloc.dart';
+import 'features/auth/data/datasources/auth_remote_data_source.dart';
+import 'features/auth/data/repositories/auth_repository_imp.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/domain/usecase/confirm_regestration.dart';
+import 'features/auth/domain/usecase/log_in.dart';
+import 'features/auth/domain/usecase/resend_code.dart';
+import 'features/auth/domain/usecase/sign_up.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/campaigns/data/datasources/campaigns_local_data_source.dart';
 import 'features/campaigns/data/datasources/campaigns_remote_data_source.dart';
 import 'features/campaigns/data/repositories/campaign_repository_imp.dart';
@@ -44,11 +52,6 @@ import 'features/complaints/domain/usecases/get_complaints_by_category.dart';
 import 'features/complaints/domain/usecases/get_nearby_complaints.dart';
 import 'features/complaints/domain/usecases/grt_my_complaints.dart';
 import 'features/complaints/presentation/bloc/complaint_bloc.dart';
-import 'features/login/data/datasources/login_remote_data_source.dart';
-import 'features/login/data/repositories/login_repository_imp.dart';
-import 'features/login/domain/repositories/login_repository.dart';
-import 'features/login/domain/usecase/log_in.dart';
-import 'features/login/presentation/bloc/login_bloc.dart';
 import 'features/notifications/data/datasource/notification_remote_data_source.dart';
 import 'features/notifications/data/repository/notification_repository_imp.dart';
 import 'features/notifications/presentation/bloc/notification_bloc.dart';
@@ -98,8 +101,8 @@ sl.registerFactory<CampaignBloc>(
     ),
 );
 
-  sl.registerFactory<LoginBloc>(
-        () => LoginBloc(sl()),
+  sl.registerFactory<AuthBloc>(
+        () => AuthBloc(logIn: sl(), signUp: sl(), confirmRegistrationUseCase: sl(), resendCodeUseCase: sl()),
   );
   sl.registerFactory<ComplaintBloc>(
         ()=>ComplaintBloc(
@@ -149,9 +152,11 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
   sl.registerLazySingleton<GetRecommendedCampaigns>(()=>GetRecommendedCampaigns(sl()));
   sl.registerLazySingleton<GetPromotedCampaigns >(()=>GetPromotedCampaigns (sl()));
 
-  sl.registerLazySingleton<LogIn>(
-        () => LogIn(sl()),
-  );
+  sl.registerLazySingleton<LogIn>(() => LogIn(sl()));
+  sl.registerLazySingleton<SignUp>(() => SignUp(sl()));
+  sl.registerLazySingleton<ConfirmRegistrationUseCase>(() => ConfirmRegistrationUseCase(sl()));
+  sl.registerLazySingleton<ResendCode>(() => ResendCode(sl()));
+
 
   sl.registerLazySingleton<GetComplaintsCategoriesUseCase>(()=>GetComplaintsCategoriesUseCase(sl()));
   sl.registerLazySingleton<GetAllComplaintsUseCase>(()=>GetAllComplaintsUseCase(sl()));
@@ -186,8 +191,8 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
       networkInfo: sl(),
     ),
   );
-  sl.registerLazySingleton<LoginRepository>(
-        () => LoginRepositoryImpl(
+  sl.registerLazySingleton<AuthRepository>(
+        () => AuthRepositoryImpl(
       sl(),
     ),
   );
@@ -235,9 +240,7 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
   );
   sl.registerLazySingleton<AuthRemoteDataSource>(
         () => AuthRemoteDataSourceImpl(
-      client: sl(),
-      baseUrl: baseUrl,
-          tokenProvider:  sl(),
+      client: sl(), tokenProvider:  sl(),
     ),
   );
   sl.registerLazySingleton<ComplaintsRemoteDataSource>(
