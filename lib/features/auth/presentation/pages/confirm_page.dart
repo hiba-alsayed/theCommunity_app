@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project/core/app_color.dart';
 import 'package:graduation_project/navigation/main_navigation_page.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../bloc/auth_bloc.dart';
@@ -31,7 +32,7 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Confirm Your Account'),
+        title: const Text('قم بتأكيد حسابك'),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -42,7 +43,7 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
           if (state is ConfirmRegistrationSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Account confirmed successfully!'),
+                content: Text('تم تأكيد الحساب بنجاح!'),
                 backgroundColor: Colors.green,
               ),
             );
@@ -66,7 +67,7 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
                 children: [
                   const SizedBox(height: 40),
                   Text(
-                    'Enter the 6-digit code sent to ${widget.email}',
+                    'أدخل الرمز المكون من 6 أرقام المرسل إلى${widget.email}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
@@ -84,12 +85,12 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
                       borderRadius: BorderRadius.circular(8),
                       fieldHeight: 50,
                       fieldWidth: 40,
-                      activeFillColor: Colors.blue.withOpacity(0.05),
+                      activeFillColor:AppColors.OceanBlue.withOpacity(0.05),
                       inactiveFillColor: Colors.grey.withOpacity(0.1),
-                      selectedFillColor: Colors.blue.withOpacity(0.1),
-                      activeColor: Colors.blue,
+                      selectedFillColor: AppColors.OceanBlue.withOpacity(0.1),
+                      activeColor: AppColors.OceanBlue,
                       inactiveColor: Colors.grey,
-                      selectedColor: Colors.blue,
+                      selectedColor: AppColors.OceanBlue,
                     ),
                     animationDuration: const Duration(milliseconds: 300),
                     backgroundColor: Colors.transparent,
@@ -124,7 +125,7 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
                           ? () => _confirmRegistration(context)
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: AppColors.OceanBlue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -133,7 +134,7 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
                       child: state is ConfirmRegistrationLoading
                           ? const CircularProgressIndicator(color: Colors.white)
                           : const Text(
-                        'Verify',
+                        'تأكيد',
                         style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ),
@@ -146,12 +147,12 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
                         ResendCodeEvent(email: widget.email),
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Resend code functionality not yet implemented.')),
+                        const SnackBar(content: Text('لم يتم تنفيذ وظيفة إعادة إرسال الكود بعد.')),
                       );
                     }
                         : null,
                     child: const Text(
-                      'Resend Code',
+                      'إعادة إرسال الرمز',
                       style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.w600,

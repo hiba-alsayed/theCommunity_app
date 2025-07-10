@@ -184,7 +184,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                         ),
                         const SizedBox(width: 65),
                         const Text(
-                          'التصويت على المقترحات',
+                          'التصويت على المبادرات',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

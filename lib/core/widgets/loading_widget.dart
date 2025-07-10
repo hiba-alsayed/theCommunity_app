@@ -26,15 +26,15 @@ class LoadingWidget extends StatelessWidget {
               child: const SpinKitChasingDots(color: Colors.white, size: 40.0),
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'جارٍ التحميل...',
-            style: TextStyle(
-              color: AppColors.OliveMid,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          // const SizedBox(height: 8),
+          // const Text(
+          //   'جارٍ التحميل...',
+          //   style: TextStyle(
+          //     color: AppColors.OliveMid,
+          //     fontSize: 14,
+          //     fontWeight: FontWeight.w500,
+          //   ),
+          // ),
         ],
       ),
     );

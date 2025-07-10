@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:graduation_project/navigation/main_navigation_page.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core pages/location_picker_page.dart';
 import '../bloc/auth_bloc.dart';
@@ -126,7 +127,9 @@ class _SignUpPageState extends State<SignUpPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (_) => ConfirmationPage(email: state.user.email),
+                builder: (_) =>
+                    // MainNavigationPage()
+                    ConfirmationPage(email: state.user.email),
               ),
             );
           } else if (state is SignUpFailure) {
@@ -400,7 +403,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       Center(
                         child: ElevatedButton.icon(
                           onPressed:
-                              (state is SignUpLoading) ? null : _submitSignUp,
+                              // (state is SignUpLoading) ? null :
+                              _submitSignUp,
                           icon: const Icon(Icons.person_add),
                           label: Text(
                             (state is SignUpLoading)

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project/core/app_color.dart';
+import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/profile/domain/entity/profile_entity.dart';
 import 'package:graduation_project/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -8,10 +10,6 @@ import '../features/campaigns/presentation/pages/get_my_campaign.dart';
 import '../features/complaints/presentation/pages/my_complaint_page.dart';
 import '../features/suggestions/presentation/pages/get_my_suggestions_page.dart';
 
-
-
-// These maps are only needed in the UI to get the list of available options
-// and to display the names. They are NOT used for ID conversion in the UI anymore.
 const Map<String, int> skillNameToId = {
   'تمريض': 1,
   'طبخ': 2,
@@ -19,7 +17,6 @@ const Map<String, int> skillNameToId = {
   'تصوير': 4,
   'مهنية': 5,
 };
-
 const Map<String, int> volunteerFieldNameId = {
   'ترميم بيوت': 1,
   'توزيع مساعدات': 2,
@@ -91,10 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     });
   }
-
-  /// Submits the updated profile data to the BLoC.
   void _submitProfileUpdate(ProfileEntity currentProfile) async {
-    // Validate form fields
     if (_formKey.currentState!.validate()) {
       String deviceToken = "some_device_token_placeholder";
       _bloc.add(
@@ -108,7 +102,7 @@ class _ProfilePageState extends State<ProfilePage> {
           longitude: currentProfile.location.longitude,
           latitude: currentProfile.location.latitude,
           area: _areaController.text,
-          skills: _selectedSkills, // Pass List<String>
+          skills: _selectedSkills,
         ),
       );
     }
@@ -171,7 +165,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 });
                 _bloc.add(GetMyProfileEvent());
               }
-              // Handle profile update error
               else if (state is UpdateProfileError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -214,19 +207,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ));
               }
-
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: LoadingWidget());
             },
           ),
         ),
       ),
     );
   }
-
-  /// Builds the main content of the profile page, switching between view and edit modes.
   Widget _buildProfileContent(BuildContext context, ProfileEntity profile) {
     return Form(
-      key: _formKey, // Attach form key for validation
+      key: _formKey,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16.0),
@@ -239,7 +229,7 @@ class _ProfilePageState extends State<ProfilePage> {
               context,
               title: 'معلومات الاتصال',
               children: [
-                _buildInfoRow(Icons.email, profile.email, isEditable: false), // Email is not editable
+                _buildInfoRow(Icons.email, profile.email, isEditable: false),
                 _isEditing
                     ? _buildEditableTextField(
                   controller: _phoneController,
@@ -271,12 +261,10 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             const SizedBox(height: 16),
-            // About Me section
             _buildSectionCard(
               context,
               title: 'عني',
               children: [
-                // Age row
                 _isEditing
                     ? _buildEditableTextField(
                   controller: _ageController,
@@ -295,18 +283,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 )
                     : _buildInfoRow(Icons.cake, 'العمر: ${profile.age}'),
-                // Gender dropdown
                 _isEditing
                     ? _buildGenderDropdown()
                     : _buildInfoRow(Icons.person, 'الجنس: ${profile.gender}'),
                 const SizedBox(height: 12),
-                // Bio field
                 _isEditing
                     ? _buildEditableTextField(
                   controller: _bioController,
                   label: 'السيرة الذاتية',
                   icon: Icons.text_fields,
-                  maxLines: 3, // Allow multiple lines for bio
+                  maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'لا يمكن أن تكون السيرة الذاتية فارغة.';
@@ -352,7 +338,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             const SizedBox(height: 16),
-            // Fields of Interest section
             _buildSectionCard(
               context,
               title: 'مجالات الاهتمام',
@@ -361,7 +346,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? _buildMultiSelectDropdown(
                   label: 'مجالات الاهتمام',
                   icon: Icons.category,
-                  options: volunteerFieldNameId.keys.toList(), // Use the globally defined map
+                  options: volunteerFieldNameId.keys.toList(),
                   selectedItems: _selectedVolunteerFields,
                   onChanged: (List<String> newSelected) {
                     setState(() {
@@ -382,16 +367,17 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             const SizedBox(height: 16),
-            // New Navigation Section
-            if (!_isEditing) // Only show navigation links in view mode
+
+            if (!_isEditing)
               _buildSectionCard(
                 context,
                 title: 'أنشطتي',
                 children: [
                   _buildNavigationTile(
                     context,
-                    title: 'شكواي',
+                    title: 'شكاويي',
                     icon: Icons.report_problem_outlined,
+                    iconColor: AppColors.RichBerry,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -401,8 +387,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   _buildNavigationTile(
                     context,
-                    title: 'اقتراحاتي',
+                    title: 'مبادراتي',
                     icon: Icons.lightbulb_outline,
+                    iconColor:  AppColors.OceanBlue,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -414,6 +401,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     context,
                     title: 'حملاتي',
                     icon: Icons.campaign_outlined,
+                    iconColor:  AppColors.SunsetOrange,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -434,7 +422,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// Helper widget to build editable TextFormFields.
   Widget _buildEditableTextField({
     required TextEditingController controller,
     required String label,
@@ -467,7 +454,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// Helper widget to build the Gender Dropdown.
   Widget _buildGenderDropdown() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -539,9 +525,9 @@ class _ProfilePageState extends State<ProfilePage> {
               borderRadius: BorderRadius.circular(8.0),
             ),
             filled: true,
-            fillColor: _isEditing ? Colors.grey[100] : Colors.grey[50], // Slightly different background if not editable
-            enabled: _isEditing, // Disable input if not editing
-            errorText: validator?.call(selectedItems), // Use validator here
+            fillColor: _isEditing ? Colors.grey[100] : Colors.grey[50],
+            enabled: _isEditing,
+            errorText: validator?.call(selectedItems),
           ),
           child: selectedItems.isEmpty
               ? Text(
@@ -554,14 +540,14 @@ class _ProfilePageState extends State<ProfilePage> {
             children: selectedItems
                 .map((item) => Chip(
               label: Text(item),
-              onDeleted: _isEditing // Only allow deletion in edit mode
+              onDeleted: _isEditing
                   ? () {
                 setState(() {
                   selectedItems.remove(item);
-                  onChanged(selectedItems); // Update the state
+                  onChanged(selectedItems);
                 });
               }
-                  : null, // No delete button if not editing
+                  : null,
               backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.primary,
@@ -576,7 +562,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// Helper widget to build the profile header (display-only).
   Widget _buildProfileHeader(ProfileEntity profile) {
     return Column(
       children: [
@@ -589,13 +574,13 @@ class _ProfilePageState extends State<ProfilePage> {
             size: 70,
             color: Colors.grey.shade600,
           )
-              : (profile.imageUrl.startsWith('http') // Check if imageUrl is a valid URL
+              : (profile.imageUrl.startsWith('http')
               ? ClipOval(
             child: Image.network(
               profile.imageUrl,
               fit: BoxFit.cover,
-              width: 120, // Match radius * 2
-              height: 120, // Match radius * 2
+              width: 120,
+              height: 120,
               errorBuilder: (context, error, stackTrace) => Icon(
                 Icons.person,
                 size: 70,
@@ -603,25 +588,24 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           )
-              : Icon(Icons.person, size: 70, color: Colors.grey.shade600)), // Fallback for invalid/empty URL
+              : Icon(Icons.person, size: 70, color: Colors.grey.shade600)),
         ),
         const SizedBox(height: 16),
         Text(
-          profile.name, // Name is not editable via the API
+          profile.name,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
         Text(
-          profile.email, // Email is not editable via the API
+          profile.email,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
         ),
       ],
     );
   }
 
-  /// Helper widget to build a section card with a title and children widgets.
   Widget _buildSectionCard(BuildContext context,
       {required String title, required List<Widget> children}) {
     return Card(
@@ -637,10 +621,10 @@ class _ProfilePageState extends State<ProfilePage> {
               title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
+                color: AppColors.OliveGrove,
               ),
             ),
-            const Divider(height: 24, thickness: 1),
+            const Divider(height: 24, thickness: 1,color: Colors.black12,),
             ...children,
           ],
         ),
@@ -648,7 +632,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// Helper widget to build a display-only information row.
   Widget _buildInfoRow(IconData icon, String text, {bool isEditable = true}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
@@ -660,7 +643,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Text(
               text,
               style: Theme.of(context).textTheme.bodyLarge,
-              overflow: TextOverflow.ellipsis, // Prevents text overflow
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -668,7 +651,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// Helper widget to build skill/interest chips.
   Widget _buildChips(List<String> items) {
     return Wrap(
       spacing: 8.0,
@@ -687,14 +669,14 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// New helper widget to build navigation tiles.
   Widget _buildNavigationTile(BuildContext context, {
     required String title,
     required IconData icon,
+    required Color iconColor,
     required VoidCallback onTap,
   }) {
     return Card(
-      elevation: 1, // Slightly less elevation for individual tiles within the card
+      elevation: 1,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: InkWell(
@@ -704,7 +686,7 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
+              Icon(icon, size: 24, color: iconColor),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -723,7 +705,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-// MultiSelectDialog widget (remains the same)
 class MultiSelectDialog extends StatefulWidget {
   final String title;
   final List<String> options;
@@ -739,7 +720,6 @@ class MultiSelectDialog extends StatefulWidget {
   @override
   State<MultiSelectDialog> createState() => _MultiSelectDialogState();
 }
-
 class _MultiSelectDialogState extends State<MultiSelectDialog> {
   late List<String> _tempSelectedItems;
 

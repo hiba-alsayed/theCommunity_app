@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/app_color.dart';
+import '../../../../navigation/main_navigation_page.dart';
 import '../../domain/entity/notification_entity.dart';
 import '../bloc/notification_bloc.dart';
 
@@ -19,38 +21,107 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   Future<void> _onRefresh() async {
-    // On pull-to-refresh, dispatch the event again.
     context.read<NotificationBloc>().add(GetNotificationEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('الإشعارات'),
-        backgroundColor: Theme.of(context).canvasColor,
-        elevation: 1,
-      ),
-      body: BlocBuilder<NotificationBloc, NotificationState>(
-        builder: (context, state) {
-          // Based on the state, we build a different UI.
-          switch (state) {
-            case NotificationLoading():
-            case NotificationInitial():
-              return _buildLoadingShimmer();
-            case NotificationLoaded():
-              if (state.notifications.isEmpty) {
-                return _buildEmptyState();
-              }
-              return _buildNotificationList(state.notifications);
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.CedarOlive, Colors.white],
+            stops: [0.0, 0.2],
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 20.0,
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.WhisperWhite,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.CedarOlive.withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.black,
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => const MainNavigationPage(),
+                                  ),
+                                );
+                              },
+                              tooltip: 'العودة',
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          'الإشعارات',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: BlocBuilder<NotificationBloc, NotificationState>(
+                      builder: (context, state) {
+                        switch (state) {
+                          case NotificationLoading():
+                          case NotificationInitial():
+                            return _buildLoadingShimmer();
+                          case NotificationLoaded():
+                            if (state.notifications.isEmpty) {
+                              return _buildEmptyState();
+                            }
+                            return _buildNotificationList(state.notifications);
 
-            case NotificationError():
-              return _buildErrorWidget(state.message);
-
-            default:
-              return const Center(child: Text('An unexpected state occurred.'));
-          }
-        },
+                          case NotificationError():
+                            return _buildErrorWidget(state.message);
+                          default:
+                            return const Center(
+                              child: Text('An unexpected state occurred.'),
+                            );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -82,7 +153,6 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// The widget to display when the list of notifications is empty.
   Widget _buildEmptyState() {
     return RefreshIndicator(
       onRefresh: _onRefresh,
@@ -124,7 +194,6 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// The widget to display when an error occurs.
   Widget _buildErrorWidget(String message) {
     return Center(
       child: Padding(
@@ -135,7 +204,7 @@ class _NotificationPageState extends State<NotificationPage> {
             Icon(Icons.error_outline, color: Colors.red[400], size: 60),
             const SizedBox(height: 20),
             Text(
-              'Oh no! Something went wrong.',
+              'حدث خطأ ما!',
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -152,7 +221,7 @@ class _NotificationPageState extends State<NotificationPage> {
             const SizedBox(height: 30),
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: const Text('أعد المحاولة'),
               onPressed: _onRefresh,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -167,7 +236,6 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// The main list of notification tiles.
   Widget _buildNotificationList(List<NotificationEntity> notifications) {
     return RefreshIndicator(
       onRefresh: _onRefresh,
@@ -194,7 +262,7 @@ class NotificationTile extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black12,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
@@ -203,10 +271,10 @@ class NotificationTile extends StatelessWidget {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: theme.primaryColor.withOpacity(0.1),
+            color: AppColors.OliveGrove.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.notifications_active, color: theme.primaryColor),
+          child: Icon(Icons.notifications_active, color: AppColors.OliveGrove),
         ),
         title: Text(
           notification.title,
