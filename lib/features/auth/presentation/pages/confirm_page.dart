@@ -75,46 +75,49 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  PinCodeTextField(
-                    appContext: context,
-                    length: 6,
-                    obscureText: false,
-                    animationType: AnimationType.fade,
-                    pinTheme: PinTheme(
-                      shape: PinCodeFieldShape.box,
-                      borderRadius: BorderRadius.circular(8),
-                      fieldHeight: 50,
-                      fieldWidth: 40,
-                      activeFillColor:AppColors.OceanBlue.withOpacity(0.05),
-                      inactiveFillColor: Colors.grey.withOpacity(0.1),
-                      selectedFillColor: AppColors.OceanBlue.withOpacity(0.1),
-                      activeColor: AppColors.OceanBlue,
-                      inactiveColor: Colors.grey,
-                      selectedColor: AppColors.OceanBlue,
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: PinCodeTextField(
+                      appContext: context,
+                      length: 6,
+                      obscureText: false,
+                      animationType: AnimationType.fade,
+                      pinTheme: PinTheme(
+                        shape: PinCodeFieldShape.box,
+                        borderRadius: BorderRadius.circular(8),
+                        fieldHeight: 50,
+                        fieldWidth: 40,
+                        activeFillColor:AppColors.OceanBlue.withOpacity(0.05),
+                        inactiveFillColor: Colors.grey.withOpacity(0.1),
+                        selectedFillColor: AppColors.OceanBlue.withOpacity(0.1),
+                        activeColor: AppColors.OceanBlue,
+                        inactiveColor: Colors.grey,
+                        selectedColor: AppColors.OceanBlue,
+                      ),
+                      animationDuration: const Duration(milliseconds: 300),
+                      backgroundColor: Colors.transparent,
+                      enableActiveFill: true,
+                      controller: _pinCodeController,
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        setState(() {
+                          _isButtonEnabled = value.length == 6;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the code';
+                        } else if (value.length < 6) {
+                          return 'Code must be 6 digits';
+                        }
+                        return null;
+                      },
+                      onCompleted: (v) {
+                        if (_isButtonEnabled) {
+                          _confirmRegistration(context);
+                        }
+                      },
                     ),
-                    animationDuration: const Duration(milliseconds: 300),
-                    backgroundColor: Colors.transparent,
-                    enableActiveFill: true,
-                    controller: _pinCodeController,
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      setState(() {
-                        _isButtonEnabled = value.length == 6;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the code';
-                      } else if (value.length < 6) {
-                        return 'Code must be 6 digits';
-                      }
-                      return null;
-                    },
-                    onCompleted: (v) {
-                      if (_isButtonEnabled) {
-                        _confirmRegistration(context);
-                      }
-                    },
                   ),
                   const SizedBox(height: 30),
                   SizedBox(
@@ -145,9 +148,6 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
                         ? () {
                       BlocProvider.of<AuthBloc>(context).add(
                         ResendCodeEvent(email: widget.email),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('لم يتم تنفيذ وظيفة إعادة إرسال الكود بعد.')),
                       );
                     }
                         : null,

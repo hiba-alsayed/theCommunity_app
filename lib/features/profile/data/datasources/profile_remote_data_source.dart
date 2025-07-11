@@ -104,68 +104,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource{
     }
   }
 
-  // @override
-  // Future<String> updateClientProfile({
-  //   required int age,
-  //   required String phone,
-  //   required String gender,
-  //   required String bio,
-  //   required String deviceToken,
-  //   required List<String> volunteerFields,
-  //   required String longitude,
-  //   required String latitude,
-  //   required String area,
-  //   required List<String> skills,
-  // }) async {
-  //   final skillsIds = skills.map((skill) => skillNameToId[skill]).toList();
-  //   final volunteerFieldsIds =
-  //   volunteerFields.map((field) => volunteerFieldNameId[field]).toList();
-  //
-  //   final token = await tokenProvider.getToken();
-  //   final Map<String, dynamic> requestBody = {
-  //     'age': age,
-  //     'phone': phone,
-  //     'gender': gender,
-  //     'bio': bio,
-  //     'device_token': deviceToken,
-  //     'volunteer_fields': json.encode(volunteerFieldsIds), // Encode list to JSON string
-  //     'longitude': longitude,
-  //     'latitude': latitude,
-  //     'area': area,
-  //     'skills': json.encode(skillsIds), // Encode list to JSON string
-  //     // ----------------------------
-  //   };
-  //   try {
-  //     final response = await client.post(
-  //       Uri.parse("$baseUrl/api/client/profile/update"),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Accept": "application/json",
-  //         "Authorization": "Bearer $token",
-  //       },
-  //       body: json.encode(requestBody), // Encode the entire map to a JSON string
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       final Map<String, dynamic> responseBody = json.decode(response.body);
-  //       if (responseBody['status'] == true) {
-  //         return responseBody['message'] as String;
-  //       } else {
-  //         throw ServerException(message: responseBody['message'] ?? 'Failed to update profile.');
-  //       }
-  //     }  else {
-  //       print('Failed to update profile. Status code: ${response.statusCode}');
-  //       print('Response body: ${response.body}');
-  //       throw ServerException(
-  //         statusCode: response.statusCode,
-  //         message: json.decode(response.body)['message'] ?? 'Server error: ${response.statusCode}',
-  //       );
-  //     }
-  //   } on Exception catch (e) {
-  //     print('Error in updateClientProfile remote data source: $e');
-  //     throw ServerException(message: e.toString());
-  //   }
-  // }
+
   @override
   Future<String> updateClientProfile({
     required int age,

@@ -1,37 +1,44 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/app_color.dart'; // Make sure this import is correct for AppColors
-import '../../../../navigation/main_navigation_page.dart'; // Import MainNavigationPage
-import '../../../suggestions/presentation/pages/submit_suggestion_page.dart';
-import '../../domain/entities/category.dart';
+import '../../../../core/app_color.dart';
+import '../../../../navigation/main_navigation_page.dart';
 import '../bloc/campaign_bloc.dart';
 import '../widgets/campaign_list_widget.dart';
-
 class GetNearbyCampaignsPage extends StatefulWidget {
   const GetNearbyCampaignsPage({Key? key}) : super(key: key);
 
   @override
   State<GetNearbyCampaignsPage> createState() => _GetNearbyCampaignsPageState();
 }
-
 class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
   bool _hasInteractedWithSlider = false;
   double _selectedDistance = 2.0;
   int? _selectedCategoryId;
-  List<MyCategory> _categories = [];
-  bool _loadingCategories = true;
-  String? _errorMessage;
+  final Map<String, Map<String, dynamic>> categoryIcons = {
+    'تنظيف وتزيين الأماكن العامة': {
+      'icon': Icons.cleaning_services,
+      'color': Colors.lightBlue,
+    },
+    'حملات تشجير': {'icon': Icons.nature, 'color': Colors.green},
+    'يوم خيري': {
+      'icon': Icons.volunteer_activism,
+      'color': Colors.pink,
+    },
+    'ترميم أضرار (كوارث , عدوان)': {
+      'icon': Icons.home_repair_service,
+      'color': Colors.brown,
+    },
+    'إنارة الشوارع بالطاقة الشمسية': {'icon': Icons.lightbulb, 'color': Colors.amber},
+  };
+  final Map<String, dynamic> defaultCategoryIcon = {
+    'icon': Icons.category,
+    'color': Colors.grey,
+  };
 
   @override
   void initState() {
     super.initState();
-    _fetchCategories();
-  }
-
-  void _fetchCategories() async {
-    final bloc = context.read<CampaignBloc>();
-    bloc.add(GetCategoriesEvent());
   }
 
   void _onCategorySelected(int? id) {
@@ -42,6 +49,7 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
 
   void _openCategorySelector() {
     context.read<CampaignBloc>().add(GetCategoriesEvent());
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -74,16 +82,22 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
                         Navigator.pop(context);
                       },
                     ),
-                    ...categories.map((category) {
-                      return ListTile(
-                        leading: Icon(Icons.category, color: Colors.grey),
-                        title: Text(category.name),
-                        onTap: () {
-                          _onCategorySelected(category.id);
-                          Navigator.pop(context);
-                        },
-                      );
-                    }).toList(),
+                    if (categories.isNotEmpty)
+                      ...categories.map((category) {
+                        final iconData = categoryIcons[category.name]?['icon'] ?? defaultCategoryIcon['icon'];
+                        final iconColor = categoryIcons[category.name]?['color'] ?? defaultCategoryIcon['color'];
+
+                        return ListTile(
+                          leading: Icon(iconData, color: iconColor),
+                          title: Text(category.name),
+                          onTap: () {
+                            _onCategorySelected(category.id);
+                            Navigator.pop(context);
+                          },
+                        );
+                      }).toList(),
+                    if (categories.isEmpty && state is! LoadingCategories)
+                      const Text('لا توجد تصنيفات لعرضها.'),
                   ],
                 ),
               );
@@ -96,7 +110,12 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
                 ),
               );
             }
-            return const SizedBox.shrink();
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text('جاري تحميل التصنيفات...'),
+              ),
+            );
           },
         );
       },
@@ -195,14 +214,14 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
                         children: [
                           ElevatedButton.icon(
                             onPressed: _openCategorySelector,
-                            icon: Icon(Icons.category),
+                            icon: const Icon(Icons.category),
                             label: Text(_selectedCategoryId == null ? 'اختر التصنيف' : 'تم اختيار تصنيف'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF0172B2),
+                              backgroundColor: const Color(0xFF0172B2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                               elevation: 3,
                             ),
                           ),
@@ -212,7 +231,7 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
                             children: [
                               Text(
                                 'اختر المسافة (كم): ${_selectedDistance.toStringAsFixed(1)}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.normal,
                                   color: Color(0xFF848484),
@@ -230,7 +249,7 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
                                   max: 20.0,
                                   divisions: 19,
                                   label: '${_selectedDistance.toStringAsFixed(1)} كم',
-                                  activeColor: _hasInteractedWithSlider ? Color(0xFF0172B2) : Colors.grey,
+                                  activeColor: _hasInteractedWithSlider ? const Color(0xFF0172B2) : Colors.grey,
                                   onChanged: (value) {
                                     setState(() {
                                       _selectedDistance = value;
@@ -244,17 +263,17 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
 
                           ElevatedButton.icon(
                             onPressed: _selectedCategoryId != null ? _searchNearbyCampaigns : null,
-                            icon: Icon(Icons.search, color: Colors.white),
-                            label: Text(
+                            icon: const Icon(Icons.search, color: Colors.white),
+                            label: const Text(
                               'عرض الحملات',
                               style: TextStyle(color: Colors.white),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF0172B2),
+                              backgroundColor: const Color(0xFF0172B2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                               elevation: 3,
                             ),
                           ),
@@ -263,16 +282,16 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
                             child: BlocBuilder<CampaignBloc, CampaignState>(
                               builder: (context, state) {
                                 if (state is LoadingNearbyCampaigns) {
-                                  return Center(child: CircularProgressIndicator());
+                                  return const Center(child: CircularProgressIndicator());
                                 } else if (state is NearbyCampaignsLoaded) {
                                   if (state.nearbyCampaigns.isEmpty) {
-                                    return Center(child: Text('لا توجد حملات قريبة'));
+                                    return const Center(child: Text('لا توجد حملات قريبة'));
                                   }
                                   return CampaignListWidget(campaigns: state.nearbyCampaigns);
                                 } else if (state is NearbyCampaignsError) {
-                                  return Center(child: Text(state.message, style: TextStyle(color: Colors.red)));
+                                  return Center(child: Text(state.message, style: const TextStyle(color: Colors.red)));
                                 }
-                                return Center(child: Text('اختر تصنيفًا ومسافة لعرض النتائج'));
+                                return const Center(child: Text('اختر تصنيفًا ومسافة لعرض النتائج'));
                               },
                             ),
                           ),

@@ -2,11 +2,26 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:graduation_project/navigation/main_navigation_page.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core pages/location_picker_page.dart';
+import '../../../notifications/presentation/firebase/api_notification_firebase.dart';
 import '../bloc/auth_bloc.dart';
 import 'confirm_page.dart';
+const Map<String, int> skillNameToId = {
+  'تمريض': 1,
+  'طبخ': 2,
+  'جمع تبرعات': 3,
+  'تصوير': 4,
+  'مهنية': 5,
+};
+const Map<String, int> volunteerFieldNameId = {
+  'ترميم بيوت': 1,
+  'توزيع مساعدات': 2,
+  'تنظيم فعالية': 3,
+  'إغاثة الكوارث': 4,
+  'مساعدات الطريق': 5,
+  'تنظيف البيئة': 6,
+};
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -33,25 +48,9 @@ class _SignUpPageState extends State<SignUpPage> {
   List<String> _selectedVolunteerFields = [];
   String? _imagePath;
   LatLng? _selectedLocation;
+  final firebaseApi = FirebaseApi();
 
-  // Example lists for dropdowns/multi-select
   final List<String> _genders = ['male', 'female'];
-  final List<String> _availableSkills = [
-    'تمريض',
-    'طبخ',
-    'جمع تبرعات',
-    'تصوير',
-    'مهنية',
-  ];
-  final List<String> _availableVolunteerFields = [
-    'ترميم بيوت',
-    'توزيع مساعدات',
-    'تنظيم فعالية',
-    'اغاثة كوارث',
-    'مساعدات الطريق',
-    'تنظيف البيئة'
-  ];
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -75,7 +74,16 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  void _submitSignUp() {
+  Future<void> _submitSignUp() async {
+    final String? fcmToken = await firebaseApi.getFCMToken();
+    if (fcmToken == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not get notification token. Please check your connection and try again.')),
+        );
+      }
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedLocation == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,7 +91,6 @@ class _SignUpPageState extends State<SignUpPage> {
         );
         return;
       }
-
       // Dispatch PerformSignUp event to AuthBloc
       context.read<AuthBloc>().add(
         PerformSignUp(
@@ -93,9 +100,9 @@ class _SignUpPageState extends State<SignUpPage> {
           name: _nameController.text.trim(),
           age: int.tryParse(_ageController.text.trim()) ?? 0,
           phone: _phoneController.text.trim(),
-          gender: _selectedGender ?? '', // Ensure a gender is selected
+          gender: _selectedGender ?? '',
           bio: _bioController.text.trim(),
-          // deviceToken: 'YOUR_DEVICE_TOKEN_HERE', // Get this from Firebase Messaging or similar
+          deviceToken: fcmToken,
           skills: _selectedSkills,
           volunteerFields: _selectedVolunteerFields,
           longitude: _selectedLocation!.longitude,
@@ -344,7 +351,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       _buildSectionTitle('المهارات ومجالات التطوع'),
                       _buildMultiSelectChip(
                         'المهارات',
-                        _availableSkills,
+                        skillNameToId.keys.toList(),
                         _selectedSkills,
                         (selectedList) {
                           setState(() {
@@ -355,7 +362,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       const SizedBox(height: 16),
                       _buildMultiSelectChip(
                         'مجالات التطوع',
-                        _availableVolunteerFields,
+                        volunteerFieldNameId.keys.toList(),
                         _selectedVolunteerFields,
                         (selectedList) {
                           setState(() {

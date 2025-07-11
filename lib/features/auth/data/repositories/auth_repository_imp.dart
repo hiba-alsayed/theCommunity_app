@@ -4,6 +4,7 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/login_entity.dart';
 import '../../domain/entities/signup_entity.dart';
+import '../../domain/entities/signup_user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 
@@ -56,16 +57,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, SignUpEntity>> confirmRegistration({
+  Future<Either<Failure, SignUpResponseEntity>> confirmRegistration({
     required String email,
     required String code,
   }) async {
     try {
-      final signUpModel = await remoteDataSource.confirmRegistration(
+      final SignUpResponseModel  = await remoteDataSource.confirmRegistration(
         email: email,
         code: code,
       );
-      return Right(signUpModel);
+      return Right(SignUpResponseModel);
     } on ServerException catch (e) {
       return Left(ServerFailure());
     }

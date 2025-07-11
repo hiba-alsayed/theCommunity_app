@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/login_entity.dart';
 import '../entities/signup_entity.dart';
+import '../entities/signup_user_entity.dart';
 
 abstract class AuthRepository{
   Future<Either<Failure, LoginEntity>> login({
@@ -26,7 +27,7 @@ abstract class AuthRepository{
     required String area,
     String? image,
   });
-  Future<Either<Failure, SignUpEntity>> confirmRegistration({
+  Future<Either<Failure, SignUpResponseEntity>> confirmRegistration({
     required String email,
     required String code,
   });

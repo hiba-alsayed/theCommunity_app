@@ -58,12 +58,12 @@ class ConfirmRegistrationLoading extends AuthState {
   const ConfirmRegistrationLoading();
 }
 class ConfirmRegistrationSuccess extends AuthState {
-  final SignUpEntity user;
+  final SignUpResponseEntity signUpResponseEntity;
 
-  const ConfirmRegistrationSuccess(this.user);
+  const ConfirmRegistrationSuccess(this.signUpResponseEntity);
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [signUpResponseEntity];
 }
 class ConfirmRegistrationFailure extends AuthState {
   final String message;

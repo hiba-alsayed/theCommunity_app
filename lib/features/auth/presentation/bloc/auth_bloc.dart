@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/login_entity.dart';
 import '../../domain/entities/signup_entity.dart';
+import '../../domain/entities/signup_user_entity.dart';
 import '../../domain/usecase/confirm_regestration.dart';
 import '../../domain/usecase/log_in.dart';
 import '../../domain/usecase/resend_code.dart';
@@ -73,7 +74,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       result.fold(
             (failure) => emit(ConfirmRegistrationFailure(_mapFailureToMessage(failure))),
-            (user) => emit(ConfirmRegistrationSuccess(user)),
+            (signUpResponseEntity) => emit(ConfirmRegistrationSuccess(signUpResponseEntity)),
       );
     });
     //resend

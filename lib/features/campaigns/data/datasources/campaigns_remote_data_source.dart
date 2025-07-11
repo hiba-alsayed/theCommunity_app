@@ -203,9 +203,9 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
 
   @override
   Future<List<CampaignModel>> getNearbyCampaigns(
-    int categoryId,
-    double distance,
-  ) async {
+      int categoryId,
+      double distance,
+      ) async {
     try {
       final token = await tokenProvider.getToken();
       final response = await client.post(
@@ -220,28 +220,35 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
-
-        if (decoded['data'] == null || decoded['data'] is! List) {
-          throw ServerException();
+        if (decoded['data'] == null ||
+            decoded['data'] is! List ||
+            (decoded['data'] as List).isEmpty) {
+          print('API returned no nearby campaigns. Returning empty list.');
+          return [];
         }
 
         final List<dynamic> dataList = decoded['data'];
-        final nearbyCampaigns =
-            dataList.map((item) {
-              if (item['image_url'] == "null") {
-                item['image_url'] = null;
-              }
-              return CampaignModel.fromJson(item);
-            }).toList();
+        final nearbyCampaigns = dataList.map((item) {
+          if (item['image_url'] == "null") {
+            item['image_url'] = null;
+          }
+          return CampaignModel.fromJson(item);
+        }).toList();
 
         return nearbyCampaigns;
       } else {
-        throw ServerException();
+        print('Server responded with status code: ${response.statusCode}. Body: ${response.body}');
+        throw ServerException(message: 'Server Error: ${response.statusCode}');
       }
     } catch (e) {
-      throw ServerException();
+      print('Error fetching nearby campaigns: $e');
+      if (e is FormatException) {
+        throw ServerException(message: 'Invalid response format from server.');
+      }
+      throw ServerException(message: 'An unexpected error occurred: ${e.toString()}');
     }
   }
+
   @override
   Future<Either<Failure, Unit>> rateCompletedCampaign(
     int campaignId,
