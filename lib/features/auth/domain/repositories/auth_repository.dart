@@ -34,4 +34,14 @@ abstract class AuthRepository{
   Future<Either<Failure, Unit>> resendCode({
     required String email,
   });
+  Future<Either<Failure, Unit>> resetPassword({
+    required String email,
+  });
+  Future<Either<Failure, UserEntity>> confirmResetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  });
+  Future<Either<Failure, Unit>> logout();
 }

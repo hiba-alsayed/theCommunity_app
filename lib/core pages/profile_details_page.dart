@@ -6,9 +6,11 @@ import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/profile/domain/entity/profile_entity.dart';
 import 'package:graduation_project/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:get_it/get_it.dart';
+import '../features/auth/presentation/pages/login_page.dart';
 import '../features/campaigns/presentation/pages/get_my_campaign.dart';
 import '../features/complaints/presentation/pages/my_complaint_page.dart';
 import '../features/suggestions/presentation/pages/get_my_suggestions_page.dart';
+import 'package:graduation_project/features/auth/presentation/bloc/auth_bloc.dart';
 
 const Map<String, int> skillNameToId = {
   'تمريض': 1,
@@ -26,7 +28,6 @@ const Map<String, int> volunteerFieldNameId = {
   'تنظيف البيئة': 6,
 };
 
-
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -35,7 +36,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late final ProfileBloc _bloc;
+  late final ProfileBloc _profileBloc;
+  late final AuthBloc _authBloc;
   bool _isEditing = false;
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -49,8 +51,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _bloc = GetIt.instance<ProfileBloc>();
-    _bloc.add(GetMyProfileEvent());
+    _profileBloc = GetIt.instance<ProfileBloc>();
+    _authBloc = GetIt.instance<AuthBloc>();
+    _profileBloc.add(GetMyProfileEvent());
   }
 
   @override
@@ -71,8 +74,9 @@ class _ProfilePageState extends State<ProfilePage> {
     _selectedSkills = List.from(profile.skills);
     _selectedVolunteerFields = List.from(profile.fields);
   }
+
   Future<void> _onRefresh() async {
-    _bloc.add(GetMyProfileEvent());
+    _profileBloc.add(GetMyProfileEvent());
     await Future.delayed(const Duration(milliseconds: 500));
     if (_isEditing) {
       setState(() {
@@ -80,6 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     }
   }
+
   void _toggleEditMode(ProfileEntity? profile) {
     setState(() {
       _isEditing = !_isEditing;
@@ -88,10 +93,11 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     });
   }
+
   void _submitProfileUpdate(ProfileEntity currentProfile) async {
     if (_formKey.currentState!.validate()) {
       String deviceToken = "some_device_token_placeholder";
-      _bloc.add(
+      _profileBloc.add(
         UpdateClientProfileEvent(
           age: int.tryParse(_ageController.text) ?? 0,
           phone: _phoneController.text,
@@ -108,112 +114,231 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _bloc,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('ملفي الشخصي'),
-          elevation: 0,
-          centerTitle: true,
-          actions: [
-            BlocBuilder<ProfileBloc, ProfileState>(
-              buildWhen: (previous, current) =>
-              current is ProfileLoaded ||
-                  current is UpdateProfileLoading ||
-                  current is UpdateProfileSuccess ||
-                  current is UpdateProfileError,
-              builder: (context, state) {
-                if (state is ProfileLoaded) {
-                  return IconButton(
-                    icon: Icon(_isEditing ? Icons.save : Icons.edit),
-                    onPressed: () {
-                      if (_isEditing) {
-                        _submitProfileUpdate(state.profile);
-                      } else {
-                        _toggleEditMode(state.profile);
-                      }
-                    },
-                  );
-                } else if (state is UpdateProfileLoading) {
-                  return const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(color: Colors.white),
-                  );
-                }
-                return const SizedBox.shrink();
+  void _confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('تأكيد الخروج'),
+          content: const Text('هل أنت متأكد أنك تريد تسجيل الخروج؟'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
               },
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _authBloc.add(const PerformLogout());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('تأكيد'),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(
+          value: _profileBloc,
         ),
-        body: RefreshIndicator(
-          onRefresh: _onRefresh,
-          child: BlocConsumer<ProfileBloc, ProfileState>(
-            listener: (context, state) {
-              if (state is ProfileError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
+        BlocProvider.value(
+          value: _authBloc,
+        ),
+      ],
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, authState) {
+          if (authState is LogoutLoading) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Logging out...')),
+            );
+          } else if (authState is LogoutSuccess) {
+            ScaffoldMessenger.of(context)
+                .hideCurrentSnackBar(); // Hide any loading snackbar
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Logged out successfully!')),
+            );
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (Route<dynamic> route) => false,
+            );
+          } else if (authState is LogoutFailure) {
+            ScaffoldMessenger.of(context)
+                .hideCurrentSnackBar(); // Hide any loading snackbar
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(authState.message)),
+            );
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('ملفي الشخصي',style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+            ),),
+            elevation: 0,
+            centerTitle: true,
+            leading: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                return IconButton(
+                  icon: authState is LogoutLoading
+                      ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                      : Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.WhisperWhite,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.CedarOlive.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.logout,)),
+                  onPressed: authState is LogoutLoading ? null : _confirmLogout,
+                  tooltip: 'Logout',
                 );
-              }
-              else if (state is UpdateProfileSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-                setState(() {
-                  _isEditing = false;
-                });
-                _bloc.add(GetMyProfileEvent());
-              }
-              else if (state is UpdateProfileError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-              }
-            },
-            builder: (context, state) {
-              if (state is ProfileLoading || state is UpdateProfileLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              else if (state is ProfileLoaded) {
-                if (!_isEditing) {
-                  _populateControllers(state.profile);
+              },
+            ),
+            actions: [
+              BlocBuilder<ProfileBloc, ProfileState>(
+                buildWhen: (previous, current) =>
+                current is ProfileLoaded ||
+                    current is UpdateProfileLoading ||
+                    current is UpdateProfileSuccess ||
+                    current is UpdateProfileError,
+                builder: (context, state) {
+                  if (state is ProfileLoaded) {
+                    return Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.WhisperWhite,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.CedarOlive.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(_isEditing ? Icons.save : Icons.edit),
+                        onPressed: () {
+                          if (_isEditing) {
+                            _submitProfileUpdate(state.profile);
+                          } else {
+                            _toggleEditMode(state.profile);
+                          }
+                        },
+                        tooltip: _isEditing ? 'Save Profile' : 'Edit Profile',
+                      ),
+                    );
+                  } else if (state is UpdateProfileLoading) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(color: Colors.white),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
+          ),
+          body: RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: BlocConsumer<ProfileBloc, ProfileState>(
+              listener: (context, state) {
+                if (state is ProfileError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                } else if (state is UpdateProfileSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                  setState(() {
+                    _isEditing = false;
+                  });
+                  _profileBloc.add(GetMyProfileEvent());
+                } else if (state is UpdateProfileError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
                 }
-                return _buildProfileContent(context, state.profile);
-              }
-              else if (state is ProfileError) {
-                return Center(
+              },
+              builder: (context, state) {
+                if (state is ProfileLoading || state is UpdateProfileLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is ProfileLoaded) {
+                  if (!_isEditing) {
+                    _populateControllers(state.profile);
+                  }
+                  return _buildProfileContent(context, state.profile);
+                } else if (state is ProfileError) {
+                  return Center(
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                          const Icon(Icons.error_outline,
+                              color: Colors.red, size: 60),
                           const SizedBox(height: 16),
                           Text(
                             state.message,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.red),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(color: Colors.red),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
                             onPressed: () {
-                              _bloc.add(GetMyProfileEvent());
+                              _profileBloc.add(GetMyProfileEvent());
                             },
                             icon: const Icon(Icons.refresh),
                             label: const Text('إعادة المحاولة'),
                           ),
                         ],
                       ),
-                    ));
-              }
-              return const Center(child: LoadingWidget());
-            },
+                    ),
+                  );
+                }
+                return const Center(child: LoadingWidget());
+              },
+            ),
           ),
         ),
       ),
     );
   }
+
   Widget _buildProfileContent(BuildContext context, ProfileEntity profile) {
     return Form(
       key: _formKey,
@@ -276,7 +401,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (value == null || value.isEmpty) {
                       return 'لا يمكن أن يكون العمر فارغًا.';
                     }
-                    if (int.tryParse(value) == null || int.parse(value) <= 0) {
+                    if (int.tryParse(value) == null ||
+                        int.parse(value) <= 0) {
                       return 'الرجاء إدخال عمر صالح.';
                     }
                     return null;
@@ -381,7 +507,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MyComplaintsPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const MyComplaintsPage()),
                       );
                     },
                   ),
@@ -389,11 +516,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     context,
                     title: 'مبادراتي',
                     icon: Icons.lightbulb_outline,
-                    iconColor:  AppColors.OceanBlue,
+                    iconColor: AppColors.OceanBlue,
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MySuggestionsPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const MySuggestionsPage()),
                       );
                     },
                   ),
@@ -401,11 +529,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     context,
                     title: 'حملاتي',
                     icon: Icons.campaign_outlined,
-                    iconColor:  AppColors.SunsetOrange,
+                    iconColor: AppColors.SunsetOrange,
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MyCampaignsPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const MyCampaignsPage()),
                       );
                     },
                   ),
@@ -414,8 +543,12 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 24),
             Text(
               'تاريخ إنشاء الملف: ${profile.createdAt.toLocal().toIso8601String().split('T')[0]}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.grey),
             ),
+            const SizedBox(height: 24), // Added space at the bottom for consistency
           ],
         ),
       ),
@@ -486,6 +619,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+
   Widget _buildMultiSelectDropdown({
     required String label,
     required IconData icon,
@@ -532,7 +666,10 @@ class _ProfilePageState extends State<ProfilePage> {
           child: selectedItems.isEmpty
               ? Text(
             hintText ?? 'Select items',
-            style: TextStyle(color: _isEditing ? Theme.of(context).hintColor : Colors.grey[600]),
+            style: TextStyle(
+                color: _isEditing
+                    ? Theme.of(context).hintColor
+                    : Colors.grey[600]),
           )
               : Wrap(
             spacing: 8.0,
@@ -548,12 +685,22 @@ class _ProfilePageState extends State<ProfilePage> {
                 });
               }
                   : null,
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withOpacity(0.1),
+              labelStyle: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
               ),
-              side: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+              side: BorderSide(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withOpacity(0.3)),
             ))
                 .toList(),
           ),
@@ -567,7 +714,9 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         CircleAvatar(
           radius: 60,
-          backgroundColor: profile.imageUrl.isEmpty ? Colors.grey.shade300 : Theme.of(context).primaryColor.withOpacity(0.1),
+          backgroundColor: profile.imageUrl.isEmpty
+              ? Colors.grey.shade300
+              : Theme.of(context).primaryColor.withOpacity(0.1),
           child: profile.imageUrl.isEmpty
               ? Icon(
             Icons.person,
@@ -600,7 +749,10 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         Text(
           profile.email,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: Colors.grey[600]),
         ),
       ],
     );
@@ -624,7 +776,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 color: AppColors.OliveGrove,
               ),
             ),
-            const Divider(height: 24, thickness: 1,color: Colors.black12,),
+            const Divider(
+              height: 24,
+              thickness: 1,
+              color: Colors.black12,
+            ),
             ...children,
           ],
         ),
@@ -658,23 +814,25 @@ class _ProfilePageState extends State<ProfilePage> {
       children: items
           .map((item) => Chip(
         label: Text(item),
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        backgroundColor:
+        Theme.of(context).colorScheme.primary.withOpacity(0.1),
         labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
+          color: AppColors.OliveMid,
           fontWeight: FontWeight.bold,
         ),
-        side: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+        side: BorderSide(color: Theme.of(context).colorScheme.primary),
       ))
           .toList(),
     );
   }
 
-  Widget _buildNavigationTile(BuildContext context, {
-    required String title,
-    required IconData icon,
-    required Color iconColor,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildNavigationTile(
+      BuildContext context, {
+        required String title,
+        required IconData icon,
+        required Color iconColor,
+        required VoidCallback onTap,
+      }) {
     return Card(
       elevation: 1,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -720,6 +878,7 @@ class MultiSelectDialog extends StatefulWidget {
   @override
   State<MultiSelectDialog> createState() => _MultiSelectDialogState();
 }
+
 class _MultiSelectDialogState extends State<MultiSelectDialog> {
   late List<String> _tempSelectedItems;
 

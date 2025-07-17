@@ -405,37 +405,38 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Donation Progress Bar and Text
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${campaign.donationTotal.toStringAsFixed(2)} تم جمعها , ${campaign.requiredAmount} مطلوب ",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                if (campaign.status== "نشطة")...[
+                  // Donation Progress Bar and Text
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${campaign.donationTotal.toStringAsFixed(2)} تم جمعها , ${campaign.requiredAmount} مطلوب ",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      AnimatedBuilder(
-                        animation: _progressAnimation,
-                        builder: (context, child) {
-                          return LinearProgressIndicator(
-                            value: _progressAnimation.value,
-                            backgroundColor: Colors.grey[300],
-                            color: Colors.green,
-                            minHeight: 10,
-                            borderRadius: BorderRadius.circular(5),
-                          );
-                        },
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        AnimatedBuilder(
+                          animation: _progressAnimation,
+                          builder: (context, child) {
+                            return LinearProgressIndicator(
+                              value: _progressAnimation.value,
+                              backgroundColor: Colors.grey[300],
+                              color: Colors.green,
+                              minHeight: 10,
+                              borderRadius: BorderRadius.circular(5),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20)],
                 // User info + date
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -675,7 +676,6 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                                   ],
                                 ),
                               ),
-
                               // Tab 2: Ratings for Completed Campaign
                               SingleChildScrollView(
                                 padding: const EdgeInsets.all(16.0),

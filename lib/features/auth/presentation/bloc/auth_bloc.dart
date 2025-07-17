@@ -6,8 +6,11 @@ import '../../domain/entities/login_entity.dart';
 import '../../domain/entities/signup_entity.dart';
 import '../../domain/entities/signup_user_entity.dart';
 import '../../domain/usecase/confirm_regestration.dart';
+import '../../domain/usecase/confirm_reset_password.dart';
 import '../../domain/usecase/log_in.dart';
+import '../../domain/usecase/log_out.dart';
 import '../../domain/usecase/resend_code.dart';
+import '../../domain/usecase/reset_password.dart';
 import '../../domain/usecase/sign_up.dart';
 
 part 'auth_event.dart';
@@ -19,8 +22,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignUp signUp;
   final ConfirmRegistrationUseCase confirmRegistrationUseCase;
   final ResendCode resendCodeUseCase;
+  final ResetPassword resetPasswordUseCase;
+  final ConfirmResetPassword confirmResetPasswordUseCase;
+  final LogOut logOut;
 
-  AuthBloc({required this.logIn,required this.signUp,required this.confirmRegistrationUseCase,required this.resendCodeUseCase,  }) : super(AuthInitialState()) {
+  AuthBloc({required this.logIn,required this.signUp,required this.confirmRegistrationUseCase,required this.resendCodeUseCase,required this.resetPasswordUseCase,required this.confirmResetPasswordUseCase,required this.logOut }) : super(AuthInitialState()) {
     //login
     on<PerformLogin>((event, emit) async {
       emit(LoginLoading());
@@ -87,6 +93,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       result.fold(
             (failure) => emit(ResendCodeFailure(_mapFailureToMessage(failure))),
             (_) => emit(const ResendCodeSuccess()),
+      );
+    });
+    //reset
+    on<ResetPasswordEvent>((event, emit) async {
+      emit(const ResetPasswordLoading());
+
+      final result = await resetPasswordUseCase(
+        email: event.email,
+      );
+
+      result.fold(
+            (failure) => emit(ResetPasswordFailure(_mapFailureToMessage(failure))),
+            (_) => emit(ResetPasswordSuccess(message: 'A password reset link has been sent to your email.',
+              email: event.email,)),
+      );
+    });
+    //confirm reset
+    on<ConfirmResetPasswordEvent>((event, emit) async {
+      emit(const ConfirmResetPasswordLoading());
+
+      final result = await confirmResetPasswordUseCase(
+        email: event.email,
+        code: event.code,
+        newPassword: event.newPassword,
+        newPasswordConfirmation: event.newPasswordConfirmation,
+      );
+
+      result.fold(
+            (failure) => emit(ConfirmResetPasswordFailure(_mapFailureToMessage(failure))),
+            (userEntity) => emit(ConfirmResetPasswordSuccess(user: userEntity)),
+      );
+    });
+    //logout
+    on<PerformLogout>((event, emit) async {
+      emit(const LogoutLoading());
+      final result = await logOut();
+      result.fold(
+            (failure) => emit(LogoutFailure(_mapFailureToMessage(failure))),
+            (_) => emit(const LogoutSuccess()),
       );
     });
   }

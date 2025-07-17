@@ -1,16 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart'; // Added for animations
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:graduation_project/features/complaints/domain/entites/complaint_category_entity.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core pages/location_picker_page.dart';
-import '../../../../navigation/main_navigation_page.dart'; // Added for back navigation
+import '../../../../navigation/main_navigation_page.dart';
 import '../../domain/entites/regions_entity.dart';
 import '../bloc/complaint_bloc.dart';
-import 'package:graduation_project/core/app_color.dart'; // Assuming this defines AppColors.OceanBlue
+import 'package:graduation_project/core/app_color.dart';
 
 class SubmitComplaintPage extends StatefulWidget {
   const SubmitComplaintPage({super.key});

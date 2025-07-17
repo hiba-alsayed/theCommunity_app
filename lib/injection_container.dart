@@ -1,5 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:graduation_project/features/Donation/domain/usecase/make_donation.dart';
+import 'package:graduation_project/features/auth/domain/usecase/confirm_reset_password.dart';
+import 'package:graduation_project/features/auth/domain/usecase/log_out.dart';
+import 'package:graduation_project/features/auth/domain/usecase/reset_password.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/get_my_campaigns.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/get_promoted_campaigns.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/join_campaign.dart';
@@ -102,7 +105,7 @@ sl.registerFactory<CampaignBloc>(
 );
 
   sl.registerFactory<AuthBloc>(
-        () => AuthBloc(logIn: sl(), signUp: sl(), confirmRegistrationUseCase: sl(), resendCodeUseCase: sl()),
+        () => AuthBloc(logIn: sl(), signUp: sl(), confirmRegistrationUseCase: sl(), resendCodeUseCase: sl(), resetPasswordUseCase: sl(), confirmResetPasswordUseCase: sl(), logOut: sl()),
   );
   sl.registerFactory<ComplaintBloc>(
         ()=>ComplaintBloc(
@@ -156,6 +159,9 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
   sl.registerLazySingleton<SignUp>(() => SignUp(sl()));
   sl.registerLazySingleton<ConfirmRegistrationUseCase>(() => ConfirmRegistrationUseCase(sl()));
   sl.registerLazySingleton<ResendCode>(() => ResendCode(sl()));
+  sl.registerLazySingleton<ResetPassword>(() => ResetPassword(sl()));
+  sl.registerLazySingleton<ConfirmResetPassword>(() => ConfirmResetPassword(sl()));
+  sl.registerLazySingleton<LogOut>(() => LogOut(sl()));
 
 
   sl.registerLazySingleton<GetComplaintsCategoriesUseCase>(()=>GetComplaintsCategoriesUseCase(sl()));

@@ -97,3 +97,41 @@ class ResendCodeEvent extends AuthEvent {
   @override
   List<Object?> get props => [email];
 }
+//reset password
+class ResetPasswordEvent extends AuthEvent {
+  final String email;
+
+  const ResetPasswordEvent({required this.email});
+
+  @override
+  List<Object?> get props => [email];
+}
+//confirm reset password
+class ConfirmResetPasswordEvent extends AuthEvent {
+  final String email;
+  final String code;
+  final String newPassword;
+  final String newPasswordConfirmation;
+
+  const ConfirmResetPasswordEvent({
+    required this.email,
+    required this.code,
+    required this.newPassword,
+    required this.newPasswordConfirmation,
+  });
+
+  @override
+  List<Object?> get props => [
+    email,
+    code,
+    newPassword,
+    newPasswordConfirmation,
+  ];
+}
+//logout
+class PerformLogout extends AuthEvent {
+  const PerformLogout();
+
+  @override
+  List<Object?> get props => [];
+}

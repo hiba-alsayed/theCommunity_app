@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../navigation/main_navigation_page.dart';
+import '../../../campaigns/domain/entities/category.dart';
 import '../bloc/suggestion_bloc.dart';
 import '../../../../core pages/location_picker_page.dart';
 
@@ -14,14 +15,6 @@ class SubmitSuggestionPage extends StatefulWidget {
   @override
   _SubmitSuggestionPageState createState() => _SubmitSuggestionPageState();
 }
-
-class Category {
-  final int id;
-  final String name;
-
-  Category({required this.id, required this.name});
-}
-
 class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
@@ -31,17 +24,13 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
   final TextEditingController _requiredAmountController =
       TextEditingController();
   File? _imageFile;
-  Category? _selectedCategory;
+   MyCategory?_selectedCategory;
   LatLng? _selectedLocation;
-
-  final List<Category> _categories = [
-    Category(id: 1, name: 'إنارة الشوارع بالطاقة الشمسية'),
-    Category(id: 2, name: 'تنظيف وتزيين الأماكن العامة'),
-    Category(id: 3, name: 'يوم خيري'),
-    Category(id: 4, name: 'حملات تشجير'),
-    Category(id: 5, name: 'ترميم أضرار'),
-  ];
-
+  @override
+  void initState() {
+    super.initState();
+    context.read<SuggestionBloc>().add(LoadSuggestionCategoriesEvent());
+  }
   @override
   void dispose() {
     _titleController.dispose();
@@ -327,39 +316,50 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                               ],
                             ),
                             SizedBox(height: 16),
-                            DropdownButtonFormField<Category>(
-                                  decoration: InputDecoration(
-                                    labelText: 'الفئة',
-                                    labelStyle: TextStyle(
-                                      // Label style
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.normal,
-                                      color: Color(0xFF848484),
-                                    ),
-                                    prefixIcon: Icon(
-                                      Icons.category,
-                                      color: Color(0xFF0172B2),
-                                    ),
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  items:
-                                      _categories.map((Category category) {
-                                        return DropdownMenuItem<Category>(
-                                          value: category,
-                                          child: Text(category.name),
-                                        );
-                                      }).toList(),
-                                  onChanged: (Category? value) {
-                                    setState(() {
-                                      _selectedCategory = value;
-                                    });
-                                  },
-                                  validator:
-                                      (value) =>
-                                          value == null
-                                              ? 'الرجاء اختيار الفئة'
-                                              : null,
-                                ),
+                            // DropdownButtonFormField<Category>(
+                            //       decoration: InputDecoration(
+                            //         labelText: 'الفئة',
+                            //         labelStyle: TextStyle(
+                            //           // Label style
+                            //           fontSize: 11,
+                            //           fontWeight: FontWeight.normal,
+                            //           color: Color(0xFF848484),
+                            //         ),
+                            //         prefixIcon: Icon(
+                            //           Icons.category,
+                            //           color: Color(0xFF0172B2),
+                            //         ),
+                            //         border: OutlineInputBorder(),
+                            //       ),
+                            //       items:
+                            //           _categories.map((Category category) {
+                            //             return DropdownMenuItem<Category>(
+                            //               value: category,
+                            //               child: Text(category.name),
+                            //             );
+                            //           }).toList(),
+                            //       onChanged: (Category? value) {
+                            //         setState(() {
+                            //           _selectedCategory = value;
+                            //         });
+                            //       },
+                            //       validator:
+                            //           (value) =>
+                            //               value == null
+                            //                   ? 'الرجاء اختيار الفئة'
+                            //                   : null,
+                            //     ),
+                            BlocBuilder<SuggestionBloc, SuggestionState>(
+                              buildWhen: (previous, current) =>
+                              current is SuggestionCategoriesLoaded ||
+                                  current is LoadingSuggestionCategories,
+                              builder: (context, state) {
+                                if (state is SuggestionCategoriesLoaded) {
+                                  return _buildCategoryDropdown(state.categories);
+                                }
+                                return _buildLoadingDropdown('جاري تحميل التصنيفات...');
+                              },
+                            ).animate().fade(duration: 350.ms).slideY(begin: 0.2, curve: Curves.easeOut),
                             SizedBox(height: 16),
                             _buildFormField(
                               controller: _requiredAmountController,
@@ -528,6 +528,54 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
       ),
       keyboardType: keyboardType,
       validator: validator,
+    );
+  }
+  Widget _buildCategoryDropdown(List<MyCategory> categories) {
+    return DropdownButtonFormField<MyCategory>(
+      decoration: const InputDecoration(
+        labelText: 'تصنيف المبادرة',
+        labelStyle: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.normal,
+          color: Color(0xFF848484),
+        ),
+        prefixIcon: Icon(Icons.category, color:Color(0xFF0172B2)),
+        border: OutlineInputBorder(),
+      ),
+      items: categories.map((category) {
+        return DropdownMenuItem<MyCategory>(
+          value: category,
+          child: Text(category.name),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedCategory = value;
+        });
+      },
+      validator: (value) => value == null ? 'الرجاء اختيار التصنيف' : null,
+      value: _selectedCategory,
+    );
+  }
+  Widget _buildLoadingDropdown(String label) {
+    return TextFormField(
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.normal,
+          color: Color(0xFF848484),
+        ),
+        prefixIcon: const Icon(Icons.hourglass_top, color: Color(0xFF0172B2)
+        ),
+        border: const OutlineInputBorder(),
+        suffixIcon: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0172B2)
+          ),
+        ),
+      ),
     );
   }
 }

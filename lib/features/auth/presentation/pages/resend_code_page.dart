@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
-
 class ConfirmRegistrationScreen extends StatefulWidget {
 
   final String email;
@@ -11,20 +10,19 @@ class ConfirmRegistrationScreen extends StatefulWidget {
   @override
   State<ConfirmRegistrationScreen> createState() => _ConfirmRegistrationScreenState();
 }
-
 class _ConfirmRegistrationScreenState extends State<ConfirmRegistrationScreen> {
-
-
+  final _emailController = TextEditingController();
+   final _codeController =TextEditingController();
   @override
   void initState() {
     super.initState();
     // If you have an email input field, initialize its text:
-    // _emailController.text = widget.email;
+    _emailController.text = widget.email;
   }
 
   @override
   void dispose() {
-    // _emailController.dispose(); // Dispose if used
+    _emailController.dispose(); // Dispose if used
     super.dispose();
   }
 
@@ -44,7 +42,6 @@ class _ConfirmRegistrationScreenState extends State<ConfirmRegistrationScreen> {
             ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Hide loading snackbar
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('code_resent_success' ?? 'Code resent successfully!')),
-
             );
             // Optionally, restart a timer for the new code expiration
           } else if (state is ResendCodeFailure) {
@@ -61,24 +58,24 @@ class _ConfirmRegistrationScreenState extends State<ConfirmRegistrationScreen> {
             // ... other UI elements for code input, etc.
             children: [
               // Example: Your code input field
-              // TextFormField(
-              //   controller: _codeController, // Assuming you have a _codeController
-              //   decoration: InputDecoration(labelText: 'Verification Code'),
-              // ),
+              TextFormField(
+                controller: _codeController, // Assuming you have a _codeController
+                decoration: InputDecoration(labelText: 'Verification Code'),
+              ),
               const SizedBox(height: 20),
               // Your Confirm Registration button (if applicable)
-              // ElevatedButton(
-              //   onPressed: () {
-              //     BlocProvider.of<AuthBloc>(context).add(
-              //       PerformConfirmRegistration(
-              //         email: widget.email, // or _emailController.text
-              //         code: _codeController.text,
-              //       ),
-              //     );
-              //   },
-              //   child: Text('Confirm'),
-              // ),
-              // const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  BlocProvider.of<AuthBloc>(context).add(
+                    PerformConfirmRegistration(
+                      email: widget.email, // or _emailController.text
+                      code: _codeController.text,
+                    ),
+                  );
+                },
+                child: Text('Confirm'),
+              ),
+              const SizedBox(height: 10),
 
               // Your Resend Code Button
               BlocBuilder<AuthBloc, AuthState>(

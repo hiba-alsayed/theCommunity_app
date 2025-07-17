@@ -37,7 +37,16 @@ abstract class AuthRemoteDataSource {
     required String code,
   });
   Future<Unit> resendCode({required String email});
+  Future<Unit> resetPassword({required String email});
+  Future<UserModel> confirmResetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  });
+  Future<Unit> logout();
 }
+
 const Map<String, int> skillNameToId = {
   'تمريض': 1,
   'طبخ': 2,
@@ -166,7 +175,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // print('Status Code: ${response.statusCode}');
       // print('Headers: ${response.headers}');
       // print('Body (Raw): ${response.body}');
-      // print('------------------------------------');
+
       Map<String, dynamic> jsonData;
       try {
         jsonData = json.decode(response.body);
@@ -283,4 +292,88 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } else {
       throw ServerException(message: 'Failed to resend code: ${response.statusCode}');
     }
-}}
+}
+
+  @override
+  Future<Unit> resetPassword({required String email}) async {
+    try {
+      final response = await client.post(
+        Uri.parse('$baseUrl/api/client/reset_password'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email}),
+      );
+
+      final jsonData = json.decode(response.body);
+
+      if (response.statusCode == 200 && jsonData['status'] == true) {
+        return unit;
+      } else {
+        throw ServerException(message: jsonData['message'] ?? 'Failed to reset password');
+      }
+    }  on FormatException {
+      throw ServerException(message: 'Invalid response format from server.');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+}
+
+  @override
+  Future<UserModel> confirmResetPassword({required String email, required String code, required String newPassword, required String newPasswordConfirmation}) async {
+    try {
+      final response = await client.post(
+        Uri.parse('$baseUrl/api/client/confirm_reset_password'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': email,
+          'reset_code': code,
+          'new_password': newPassword,
+          'new_password_confirmation': newPasswordConfirmation,
+        }),
+      );
+
+      final jsonData = json.decode(response.body);
+
+      if (response.statusCode == 200 && jsonData['status'] == true) {
+        return UserModel.fromJson(jsonData['data'] as Map<String, dynamic>);
+      } else {
+        throw ServerException(message: jsonData['message'] ?? 'Failed to confirm password reset');
+      }
+    } on FormatException {
+      throw ServerException(message: 'Invalid response format from server.');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<Unit> logout() async {
+    try {
+      final String? token = await tokenProvider.getToken();
+      if (token == null) {
+        return unit;
+      }
+      final response = await client.post(
+        Uri.parse('$baseUrl/api/client/logout'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      final jsonData = json.decode(response.body);
+      if (response.statusCode == 200 && jsonData['status'] == true) {
+        await tokenProvider.clearToken();
+        return unit;
+      } else if (response.statusCode == 401) {
+        await tokenProvider.clearToken();
+        throw ServerException(message: jsonData['message'] ?? 'Unauthorized: Token invalid or expired. Please log in again.');
+      } else {
+        throw ServerException(message: jsonData['message'] ?? 'Logout failed');
+      }
+    } on FormatException {
+      throw ServerException(message: 'Invalid response format from server during logout.');
+    } on http.ClientException catch (e) {
+      throw ServerException(message: 'Network error during logout: ${e.message}');
+    } catch (e) {
+      throw ServerException(message: 'An unexpected error occurred during logout: ${e.toString()}');
+    }
+  }}

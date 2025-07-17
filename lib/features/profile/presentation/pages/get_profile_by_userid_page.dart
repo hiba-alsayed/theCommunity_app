@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/features/profile/domain/entity/profile_entity.dart';
 import 'package:graduation_project/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:get_it/get_it.dart';
-
+import 'package:graduation_project/core/app_color.dart';
 
 class GetProfileByUserIdPage extends StatefulWidget {
   final int userId;
@@ -67,17 +67,22 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                        const Icon(Icons.error_outline,
+                            color: Colors.red, size: 60),
                         const SizedBox(height: 16),
                         Text(
                           state.message,
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.red),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Colors.red),
                         ),
                         const SizedBox(height: 24),
                         ElevatedButton.icon(
                           onPressed: () {
-                            _bloc.add(GetProfileByUserIdEvent(userId: widget.userId));
+                            _bloc.add(GetProfileByUserIdEvent(
+                                userId: widget.userId));
                           },
                           icon: const Icon(Icons.refresh),
                           label: const Text('Retry'),
@@ -153,8 +158,12 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
           const SizedBox(height: 24),
           Text(
             'Profile created: ${profile.createdAt.toLocal().toIso8601String().split('T')[0]}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Colors.grey),
           ),
+          const SizedBox(height: 24), // Added space at the bottom for consistency
         ],
       ),
     );
@@ -174,33 +183,21 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
             size: 70,
             color: Colors.grey.shade600,
           )
-              : ClipOval(
+              : (profile.imageUrl.startsWith('http')
+              ? ClipOval(
             child: Image.network(
               profile.imageUrl,
+              fit: BoxFit.cover,
               width: 120,
               height: 120,
-              fit: BoxFit.cover, // Ensure the image covers the circle
-              errorBuilder: (context, error, stackTrace) {
-                // Provide a fallback icon if the image fails to load (e.g., 404, network error)
-                return Icon(
-                  Icons.person,
-                  size: 70,
-                  color: Colors.grey.shade600,
-                );
-              },
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                        : null,
-                  ),
-                );
-              },
+              errorBuilder: (context, error, stackTrace) => Icon(
+                Icons.person,
+                size: 70,
+                color: Colors.grey.shade600,
+              ),
             ),
-          ),
+          )
+              : Icon(Icons.person, size: 70, color: Colors.grey.shade600)),
         ),
         const SizedBox(height: 16),
         Text(
@@ -212,7 +209,10 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
         ),
         Text(
           profile.email,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: Colors.grey[600]),
         ),
       ],
     );
@@ -233,10 +233,14 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
               title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
+                color: AppColors.OliveGrove, // Using color from AppColors
               ),
             ),
-            const Divider(height: 24, thickness: 1),
+            const Divider(
+              height: 24,
+              thickness: 1,
+              color: Colors.black12,
+            ),
             ...children,
           ],
         ),
@@ -270,12 +274,14 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
       children: items
           .map((item) => Chip(
         label: Text(item),
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        backgroundColor:
+        Theme.of(context).colorScheme.primary.withOpacity(0.1),
         labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
+          color: AppColors.OliveMid,
           fontWeight: FontWeight.bold,
         ),
-        side: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+        side: BorderSide(
+            color: Theme.of(context).colorScheme.primary),
       ))
           .toList(),
     );
