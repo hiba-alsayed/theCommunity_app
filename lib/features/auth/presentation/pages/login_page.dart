@@ -419,7 +419,8 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.black, Color(0xFF00B4D8)],
+                    // colors: [Colors.black, Color(0xFF00B4D8)],
+                    colors: [Colors.white, Color(0xFF0172B2)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -542,7 +543,10 @@ class _LoginPageState extends State<LoginPage> {
                           Container(
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Colors.black, Color(0xFF00B4D8)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomCenter,
+                                // tileMode: TileMode.repeated,
+                                colors: [Colors.white, Color(0xFF0172B2)],
                               ),
                               borderRadius: BorderRadius.circular(16),
                             ),

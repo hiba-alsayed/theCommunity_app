@@ -58,7 +58,7 @@ class _AnimatedCircleBackgroundState extends State<AnimatedCircleBackground> wit
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: const LinearGradient(
-            colors: [Colors.black, Color(0xFF00B4D8)],
+            colors: [Colors.white, Color(0xFF0172B2)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

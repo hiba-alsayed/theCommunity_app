@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:page_transition/page_transition.dart';
 import '../features/auth/presentation/pages/login_page.dart';
+import '../features/auth/presentation/pages/signup-page.dart';
 
 
 
@@ -12,7 +13,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
       splash: SplashContent(),
-      nextScreen: LoginPage(),
+      nextScreen: SignUpPage(),
       splashTransition: SplashTransition.fadeTransition,
       pageTransitionType: PageTransitionType.fade,
       backgroundColor: Colors.transparent,

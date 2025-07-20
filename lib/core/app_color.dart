@@ -19,7 +19,9 @@ class AppColors {
 
   // --- Prominent & Contrasting Accents ---
   static const Color SunsetOrange = Color(0xFFE57B5D); // A more vibrant, warm orange/coral
-  static const Color OceanBlue = Color(0xFF5A80B7);   // A clear, elegant blue for cool contrast
+  static const Color OceanBlue = Color(0xFF5A80B7);
+  static const Color MidGreen = Color(0xC5558C2E);
+  static const Color DeepGreen = Color(0xC53C611E);// A clear, elegant blue for cool contrast
   static const Color RichBerry = Color(0xFF9E5C8D);   // A unique, deeper berry/plum for strong accent
 
   // --- Neutrals (Essential for balance) ---

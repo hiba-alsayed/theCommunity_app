@@ -147,7 +147,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.OceanBlue, Colors.white],
+            colors: [AppColors.MidGreen, Colors.white],
             stops: [0.0, 0.2],
           ),
         ),
@@ -170,7 +170,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.OceanBlue.withOpacity(0.5),
+                                color: AppColors.MidGreen.withOpacity(0.5),
                                 spreadRadius: 2,
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
@@ -201,7 +201,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.OceanBlue.withOpacity(0.5),
+                            color: AppColors.MidGreen.withOpacity(0.5),
                             spreadRadius: 2,
                             blurRadius: 8,
                             offset: const Offset(0, 4),
@@ -247,7 +247,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: _refreshSuggestions,
-                  color: AppColors.OceanBlue,
+                  color: AppColors.MidGreen,
                   backgroundColor: AppColors.WhisperWhite,
                   child: BlocConsumer<SuggestionBloc, SuggestionState>(
                     listener: (context, state) {

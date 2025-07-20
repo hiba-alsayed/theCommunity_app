@@ -18,11 +18,11 @@ class BottomNavBar extends StatelessWidget {
     Color getTopLineColor(int index) {
       switch (index) {
         case 0:
-          return AppColors.OliveGrove;
+          return AppColors.OceanBlue;
         case 1:
           return AppColors.SunsetOrange;
         case 2:
-          return AppColors.OceanBlue;
+          return AppColors.MidGreen;
         case 3:
           return AppColors.RichBerry;
         case 4:
@@ -51,7 +51,7 @@ class BottomNavBar extends StatelessWidget {
           SalomonBottomBarItem(
             icon: Icon(Icons.home),
             title: Text("الرئيسية"),
-            selectedColor: AppColors.OliveGrove,
+            selectedColor: AppColors.OceanBlue,
           ),
           SalomonBottomBarItem(
             icon: Icon(Icons.campaign),
@@ -61,7 +61,7 @@ class BottomNavBar extends StatelessWidget {
           SalomonBottomBarItem(
             icon: Icon(Icons.lightbulb),
             title: Text("المبادرات"),
-            selectedColor: AppColors.OceanBlue,
+            selectedColor: AppColors.MidGreen,
           ),
           SalomonBottomBarItem(
             icon: Icon(Icons.report_problem),

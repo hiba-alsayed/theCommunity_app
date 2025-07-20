@@ -155,7 +155,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                           bottomRight: Radius.circular(14),
                           bottomLeft: Radius.circular(14),
                         ),
-                          color: AppColors.OceanBlue,
+                          color: AppColors.MidGreen,
 
                       ),
                     ),
@@ -216,7 +216,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0172B2),
+                                color: Color(0xC53C611E),
                               ),
                             ),
                             SizedBox(height: 8),
@@ -274,7 +274,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                                           ),
                                           prefixIcon: Icon(
                                             Icons.gps_fixed,
-                                            color: Color(0xFF0172B2),
+                                            color: Color(0xC53C611E),
                                           ),
                                           border: OutlineInputBorder(),
                                         ),
@@ -283,7 +283,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                                     SizedBox(width: 8),
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.OceanBlue,
+                                        backgroundColor: AppColors.MidGreen,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             8,
@@ -415,7 +415,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                                               Icon(
                                                 Icons.camera_alt,
                                                 size: 28,
-                                                color: Color(0xFF0172B2),
+                                                color: Color(0xC53C611E),
                                               ),
                                               SizedBox(height: 8),
                                               Text(
@@ -445,7 +445,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                                 ),
                                 prefixIcon: Icon(
                                   Icons.description,
-                                  color: Color(0xFF0172B2),
+                                  color: Color(0xC53C611E),
                                 ),
                                 border: OutlineInputBorder(),
                               ),
@@ -474,7 +474,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.OceanBlue,
+                                  backgroundColor: AppColors.MidGreen,
                                   padding: EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -523,7 +523,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
           fontWeight: FontWeight.normal,
           color: Color(0xFF848484),
         ),
-        prefixIcon: Icon(icon, color: Color(0xFF0172B2)),
+        prefixIcon: Icon(icon, color: Color(0xC53C611E)),
         border: const OutlineInputBorder(),
       ),
       keyboardType: keyboardType,
@@ -539,7 +539,7 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
           fontWeight: FontWeight.normal,
           color: Color(0xFF848484),
         ),
-        prefixIcon: Icon(Icons.category, color:Color(0xFF0172B2)),
+        prefixIcon: Icon(Icons.category, color:Color(0xC53C611E)),
         border: OutlineInputBorder(),
       ),
       items: categories.map((category) {
@@ -567,12 +567,12 @@ class _SubmitSuggestionPageState extends State<SubmitSuggestionPage> {
           fontWeight: FontWeight.normal,
           color: Color(0xFF848484),
         ),
-        prefixIcon: const Icon(Icons.hourglass_top, color: Color(0xFF0172B2)
+        prefixIcon: const Icon(Icons.hourglass_top, color: Color(0xC53C611E)
         ),
         border: const OutlineInputBorder(),
         suffixIcon: const Padding(
           padding: EdgeInsets.all(8.0),
-          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0172B2)
+          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xC53C611E)
           ),
         ),
       ),

@@ -510,6 +510,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:graduation_project/features/auth/presentation/pages/login_page.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core pages/location_picker_page.dart';
 import '../../../notifications/presentation/firebase/api_notification_firebase.dart';
@@ -700,7 +701,7 @@ class _SignUpPageState extends State<SignUpPage> {
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.black, Color(0xFF00B4D8)],
+                    colors: [Colors.white, Color(0xFF0172B2)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -818,7 +819,9 @@ class _SignUpPageState extends State<SignUpPage> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
-                                    colors: [Colors.black, Color(0xFF00B4D8)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomCenter,
+                                    colors: [Colors.white, Color(0xFF0172B2)],
                                   ),
                                   borderRadius: BorderRadius.circular(16.r),
                                 ),
@@ -847,7 +850,9 @@ class _SignUpPageState extends State<SignUpPage> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
-                                    colors: [Colors.black, Color(0xFF00B4D8)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomCenter,
+                                    colors: [Colors.white, Color(0xFF0172B2)],
                                   ),
                                   borderRadius: BorderRadius.circular(16.r),
                                 ),
@@ -889,7 +894,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       Center(
                         child: TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(); // Go back to login
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => LoginPage()));
                           },
                           child: Text(
                             'لدي حساب بالفعل؟ تسجيل الدخول',
@@ -1131,7 +1136,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00B4D8),
+                  backgroundColor: const Color(0xFF0172B2),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 15.h),
                   shape: RoundedRectangleBorder(
@@ -1265,7 +1270,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
-              borderSide: const BorderSide(color: Color(0xFF00B4D8)),
+              borderSide: const BorderSide(color: Color(0xFF0172B2)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
@@ -1325,14 +1330,14 @@ class _SignUpPageState extends State<SignUpPage> {
                   onSelectionChanged(selectedOptions);
                 });
               },
-              selectedColor: const Color(0xFF00B4D8),
+              selectedColor: const Color(0xFF0172B2),
               checkmarkColor: Colors.white,
               backgroundColor: Colors.grey[200],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.r),
                 side: BorderSide(
                   color:
-                  isSelected ? const Color(0xFF00B4D8) : Colors.grey.shade300,
+                  isSelected ? const Color(0xFF0172B2) : Colors.grey.shade300,
                   width: 1.w,
                 ),
               ),

@@ -59,7 +59,7 @@ class _RecommendedCarouselWidgetState extends State<RecommendedCarouselWidget> {
                   borderRadius: BorderRadius.circular(4.0),
                   color: (Theme.of(context).brightness == Brightness.dark
                       ? Colors.white
-                      : AppColors.CedarOlive)
+                      : AppColors.OceanBlue)
                       .withOpacity(_current == entry.key ? 0.9 : 0.4),
                 ),
               ),
