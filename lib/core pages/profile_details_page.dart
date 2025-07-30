@@ -164,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           } else if (authState is LogoutSuccess) {
             ScaffoldMessenger.of(context)
-                .hideCurrentSnackBar(); // Hide any loading snackbar
+                .hideCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Logged out successfully!')),
             );
@@ -174,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           } else if (authState is LogoutFailure) {
             ScaffoldMessenger.of(context)
-                .hideCurrentSnackBar(); // Hide any loading snackbar
+                .hideCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(authState.message)),
             );

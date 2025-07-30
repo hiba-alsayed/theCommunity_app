@@ -85,7 +85,7 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
                                 userId: widget.userId));
                           },
                           icon: const Icon(Icons.refresh),
-                          label: const Text('Retry'),
+                          label: const Text('إعادة المحاولة'),
                         ),
                       ],
                     ),
@@ -111,7 +111,7 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
           const SizedBox(height: 24),
           _buildSectionCard(
             context,
-            title: 'Contact Information',
+            title: 'معلومات الاتصال',
             children: [
               _buildInfoRow(Icons.email, profile.email),
               _buildInfoRow(Icons.phone, profile.phone),
@@ -121,10 +121,10 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
           const SizedBox(height: 16),
           _buildSectionCard(
             context,
-            title: 'About Me',
+            title: 'عني',
             children: [
-              _buildInfoRow(Icons.cake, 'Age: ${profile.age}'),
-              _buildInfoRow(Icons.person, 'Gender: ${profile.gender}'),
+              _buildInfoRow(Icons.cake, 'العمر: ${profile.age}'),
+              _buildInfoRow(Icons.person, 'الجنس: ${profile.gender}'),
               const SizedBox(height: 12),
               Text(
                 profile.bio,
@@ -136,23 +136,23 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
           const SizedBox(height: 16),
           _buildSectionCard(
             context,
-            title: 'Skills',
+            title: 'المهارات',
             children: [
               if (profile.skills.isNotEmpty)
                 _buildChips(profile.skills)
               else
-                const Text('No skills listed yet.'),
+                const Text('لاتوجد مهارات حاليا.'),
             ],
           ),
           const SizedBox(height: 16),
           _buildSectionCard(
             context,
-            title: 'Fields of Interest',
+            title: 'مجالات الاهتمام',
             children: [
               if (profile.fields.isNotEmpty)
                 _buildChips(profile.fields)
               else
-                const Text('No fields of interest listed yet.'),
+                const Text('لايوجد مجالات اهتمام بعد.'),
             ],
           ),
           const SizedBox(height: 24),
@@ -163,7 +163,7 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
                 .bodySmall
                 ?.copyWith(color: Colors.grey),
           ),
-          const SizedBox(height: 24), // Added space at the bottom for consistency
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -233,7 +233,7 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
               title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.OliveGrove, // Using color from AppColors
+                color: AppColors.OliveGrove,
               ),
             ),
             const Divider(

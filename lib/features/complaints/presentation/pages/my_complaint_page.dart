@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/complaints/presentation/bloc/complaint_bloc.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
@@ -94,15 +95,16 @@ class _MyComplaintsPageState extends State<MyComplaintsPage> {
                       builder: (context, state) {
                         if (state is LoadingMyComplaints) {
                           return const Center(
-                            child: CircularProgressIndicator(),
+                            child: LoadingWidget(),
                           );
-                        } else if (state is MyComplaintsLoaded) {
+                        }
+                        else if (state is MyComplaintsLoaded) {
                           if (state.complaints.isEmpty) {
                             return const Center(
                               child: Text(
                                 'لا يوجد لديك شكاوى حالياً',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   color: Colors.grey,
                                 ),
                               ),
@@ -111,12 +113,13 @@ class _MyComplaintsPageState extends State<MyComplaintsPage> {
                           return ComplaintListView(
                             complaints: state.complaints,
                           );
-                        } else if (state is ComplaintErrorState) {
+                        }
+                        else if (state is ComplaintErrorState) {
                           return Center(
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Text(
-                                'حدث خطأ: ${state.message}',
+                                'حدث خطأ أثناء تحميل الشكاوي: ${state.message}',
                                 style: const TextStyle(
                                   color: Colors.red,
                                   fontSize: 16,
@@ -126,7 +129,9 @@ class _MyComplaintsPageState extends State<MyComplaintsPage> {
                             ),
                           );
                         }
-                        return const Center(child: CircularProgressIndicator());
+                        return const Center(
+                          child: LoadingWidget(),
+                        );
                       },
                     ),
                   ),

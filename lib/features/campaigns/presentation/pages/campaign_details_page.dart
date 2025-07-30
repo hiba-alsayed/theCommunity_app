@@ -1,33 +1,39 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:graduation_project/core/app_color.dart';
+import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/campaigns/domain/entities/campaigns.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/widgets/glowing_gps.dart';
+import '../../../../core/widgets/snack_bar.dart';
 import '../../../Donation/presentation/bloc/donation_bloc.dart';
 import '../../../../core pages/location_map_view_page.dart';
 import '../../../profile/presentation/pages/get_profile_by_userid_page.dart';
 import '../bloc/campaign_bloc.dart';
+import '../widgets/campaign_summary_stats.dart';
+import 'all_rating_page.dart';
+
 class CampaignDetailsPage extends StatefulWidget {
   final Campaigns campaign;
 
   const CampaignDetailsPage({Key? key, required this.campaign})
-      : super(key: key);
+    : super(key: key);
 
   @override
   State<CampaignDetailsPage> createState() => _CampaignDetailsPageState();
 }
-class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTickerProviderStateMixin {
+
+class _CampaignDetailsPageState extends State<CampaignDetailsPage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _amountController = TextEditingController();
-  bool _alreadyRated = false;
   int _userRating = 0;
   final TextEditingController _commentController = TextEditingController();
   bool joined = false;
-  final _formKey = GlobalKey<FormState>();
   late AnimationController _animationController;
   late Animation<double> _progressAnimation;
-
   final Map<String, Map<String, dynamic>> categoryIcons = {
     'تنظيف وتزيين الأماكن العامة': {
       'icon': Icons.cleaning_services,
@@ -43,35 +49,165 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
       'icon': Icons.lightbulb,
       'color': Colors.amber,
     },
-    // Add more campaign categories as needed from your data
-    'طوارئ': {'icon': Icons.crisis_alert, 'color': Colors.red},
-    'صحة': {'icon': Icons.health_and_safety, 'color': Colors.purple},
-    'تعليم': {'icon': Icons.school, 'color': Colors.deepOrange},
+    // 'طوارئ': {'icon': Icons.crisis_alert, 'color': Colors.red},
+    // 'صحة': {'icon': Icons.health_and_safety, 'color': Colors.purple},
+    // 'تعليم': {'icon': Icons.school, 'color': Colors.deepOrange},
   };
+  void _showAnimatedDonationDialog({
+    required BuildContext buildContext, // The context from the page
+    required GlobalKey<FormState> formKey,
+    required TextEditingController amountController,
+    required int campaignId,
+  }) {
+    showGeneralDialog(
+      context: buildContext, // Use the page context to show the dialog
+      barrierDismissible: true,
+      barrierLabel: 'Close',
+      transitionDuration: 400.ms,
+      transitionBuilder: (context, anim1, anim2, child) {
+        return Animate(
+          effects: [
+            FadeEffect(duration: 400.ms, curve: Curves.easeOut),
+            ScaleEffect(duration: 400.ms, curve: Curves.easeOut),
+          ],
+          child: child,
+        );
+      },
+      pageBuilder: (dialogContext, anim1, anim2) {
+        // 'dialogContext' is the context for inside the dialog
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              color: Theme.of(dialogContext).canvasColor,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 35,
+                  backgroundColor: AppColors.OceanBlue.withOpacity(0.1),
+                  child: Icon(Icons.credit_card_rounded, size: 30, color: AppColors.OceanBlue),
+                ).animate().fadeIn(delay: 200.ms).shake(hz: 3, duration: 800.ms),
 
+                const SizedBox(height: 16),
+
+                Text(
+                  'تبرع للحملة',
+                  style: Theme.of(dialogContext).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.5, duration: 600.ms),
+
+                const SizedBox(height: 24),
+
+                // Use the formKey and amountController passed into the function
+                Form(
+                  key: formKey,
+                  child: TextFormField(
+                    controller: amountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: 'المبلغ',
+                      prefixIcon: Icon(Icons.monetization_on_outlined, color: Colors.grey.shade600),
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'الرجاء إدخال مبلغ';
+                      if (double.tryParse(value) == null || double.parse(value) <= 0) {
+                        return 'الرجاء إدخال مبلغ صحيح';
+                      }
+                      return null;
+                    },
+                  ),
+                ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.5, duration: 600.ms),
+
+                const SizedBox(height: 24),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext), // Pop the dialog
+                      child: const Text('إلغاء'),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: LinearGradient(
+                          colors: [AppColors.OceanBlue, Colors.blue.shade400],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.OceanBlue.withOpacity(0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (formKey.currentState?.validate() ?? false) {
+                            final amount = double.parse(amountController.text);
+                            // Use the 'buildContext' from the page to access the BLoC
+                            buildContext.read<DonationBloc>().add(
+                              MakeDonationEvent(
+                                projectId: campaignId, // Use the passed-in ID
+                                amount: amount,
+                              ),
+                            );
+                            Navigator.pop(dialogContext); // Close the dialog
+                          }
+                        },
+                        icon: const Icon(Icons.payment, size: 18),
+                        label: const Text('تبرع الآن'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.5, duration: 600.ms),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      vsync:this,
+      vsync: this,
       duration: const Duration(milliseconds: 3000),
     );
-    double requiredAmountValue = double.tryParse(widget.campaign.requiredAmount) ?? 0.0;
-    double targetProgress = requiredAmountValue > 0 ? widget.campaign.donationTotal / requiredAmountValue : 0.0;
+    double requiredAmountValue =
+        double.tryParse(widget.campaign.requiredAmount) ?? 0.0;
+    double targetProgress =
+        requiredAmountValue > 0
+            ? widget.campaign.donationTotal / requiredAmountValue
+            : 0.0;
     if (targetProgress > 1.0) targetProgress = 1.0;
 
-    // Define the animation tween
-    _progressAnimation = Tween<double>(
-      begin: 0.0,
-      end: targetProgress,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
-
-    // Start the animation
+    _progressAnimation = Tween<double>(begin: 0.0, end: targetProgress).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
     _animationController.forward();
   }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -79,81 +215,77 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
     _amountController.dispose();
     super.dispose();
   }
+
   void _joinCampaign() {
     if (!joined) {
       context.read<CampaignBloc>().add(JoinCampaignEvent(widget.campaign.id));
     }
   }
+
   Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not launch $urlString')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not launch $urlString')));
     }
   }
   void _donateToCampaign() {
     final TextEditingController amountController = TextEditingController();
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('تبرع للحملة'),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: amountController,
-              keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'المبلغ'),
-              validator: (value) {
-                if (value == null || value.isEmpty) return 'الرجاء إدخال مبلغ';
-                if (double.tryParse(value) == null || double.parse(value) <= 0) {
-                  return 'الرجاء إدخال مبلغ صحيح';
-                }
-                return null;
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('إلغاء')),
-            ElevatedButton(
-              onPressed: () {
-                if (formKey.currentState?.validate() ?? false) {
-                  final amount = double.parse(amountController.text);
-                  print(
-                      "✅ UI LAYER: Triggering event with projectId: ${widget.campaign.id}, amount: $amount");
-                  context.read<DonationBloc>().add(
-                    MakeDonationEvent(projectId: widget.campaign.id, amount: amount),
-                  );
-                  Navigator.pop(dialogContext);
-                }
-              },
-              child: const Text('تبرع الآن'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-  void _showMessageDialog(String message) {
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('نجاح'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('حسناً'),
-          ),
-        ],
-      ),
+    // showDialog(
+    //   context: context,
+    //   builder: (dialogContext) {
+    //     return AlertDialog(
+    //       title: const Text('تبرع للحملة'),
+    //       content: Form(
+    //         key: formKey,
+    //         child: TextFormField(
+    //           controller: amountController,
+    //           keyboardType: const TextInputType.numberWithOptions(
+    //             decimal: true,
+    //           ),
+    //           decoration: const InputDecoration(labelText: 'المبلغ'),
+    //           validator: (value) {
+    //             if (value == null || value.isEmpty) return 'الرجاء إدخال مبلغ';
+    //             if (double.tryParse(value) == null ||
+    //                 double.parse(value) <= 0) {
+    //               return 'الرجاء إدخال مبلغ صحيح';
+    //             }
+    //             return null;
+    //           },
+    //         ),
+    //       ),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () => Navigator.pop(dialogContext),
+    //           child: const Text('إلغاء'),
+    //         ),
+    //         ElevatedButton(
+    //           onPressed: () {
+    //             if (formKey.currentState?.validate() ?? false) {
+    //               final amount = double.parse(amountController.text);
+    //               context.read<DonationBloc>().add(
+    //                 MakeDonationEvent(
+    //                   projectId: widget.campaign.id,
+    //                   amount: amount,
+    //                 ),
+    //               );
+    //               Navigator.pop(dialogContext);
+    //             }
+    //           },
+    //           child: const Text('تبرع الآن'),
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
+    // _showAnimatedDonationDialog();
+    _showAnimatedDonationDialog(
+      buildContext: context, // Pass the page's context
+      formKey: formKey,
+      amountController: amountController,
+      campaignId: widget.campaign.id,
     );
   }
   void _openMap(BuildContext context) {
@@ -167,38 +299,13 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LocationMapPage(
-          latitude: widget.campaign.campaignLocation.latitude!,
-          longitude: widget.campaign.campaignLocation.longitude!,
-          locationName: widget.campaign.campaignLocation.name ?? 'موقع المقترح',
-        ),
-      ),
-    );
-  }
-  Widget _buildStatCard(String title, String value, IconData icon) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        width: 110,
-        height: 120,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 24, color: const Color(0xFF0172B2)),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(title, style: const TextStyle(fontSize: 11), textAlign: TextAlign.center),
-            ],
-          ),
-        ),
+        builder:
+            (context) => LocationMapPage(
+              latitude: widget.campaign.campaignLocation.latitude!,
+              longitude: widget.campaign.campaignLocation.longitude!,
+              locationName:
+                  widget.campaign.campaignLocation.name ?? 'موقع المقترح',
+            ),
       ),
     );
   }
@@ -207,27 +314,52 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
   Widget build(BuildContext context) {
     final campaign = widget.campaign;
 
-    double requiredAmountValue = double.tryParse(campaign.requiredAmount) ?? 0.0;
-    double progress = requiredAmountValue > 0 ? campaign.donationTotal / requiredAmountValue : 0.0;
+    double requiredAmountValue =
+        double.tryParse(campaign.requiredAmount) ?? 0.0;
+    double progress =
+        requiredAmountValue > 0
+            ? campaign.donationTotal / requiredAmountValue
+            : 0.0;
     if (progress > 1.0) progress = 1.0;
-    final categoryData = categoryIcons[campaign.category] ??
+    final categoryData =
+        categoryIcons[campaign.category] ??
         {'icon': Icons.category, 'color': Colors.grey};
 
     return MultiBlocListener(
       listeners: [
         BlocListener<CampaignBloc, CampaignState>(
+          listenWhen: (previous, current) {
+            return previous != current;
+          },
           listener: (context, state) {
             if (state is CampaignJoinedSuccessfully) {
               setState(() {
                 joined = true;
               });
-              _showMessageDialog(state.message);
+              ScaffoldMessenger.of(context).showSnackBar(
+                buildGlassySnackBar(
+                  message: 'شكرا لمشاركتك!',
+                  color: AppColors.CedarOlive,
+                  context: context,
+                ),
+              );
             } else if (state is AlreadyJoinedState) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.message)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                buildGlassySnackBar(
+                  message: 'لقد قمت بالانضمام مسبقًا!',
+                  color: AppColors.RichBerry,
+                  context: context,
+                ),
+              );
             } else if (state is RatingCampaignSuccess) {
-              print("✅ RatingCampaignSuccess: ${state.message}");
-              _showMessageDialog(state.message);
+              // print("✅ RatingCampaignSuccess: ${state.message}");
+              ScaffoldMessenger.of(context).showSnackBar(
+                buildGlassySnackBar(
+                  message: 'تم التقييم بنجاح',
+                  color: AppColors.CedarOlive,
+                  context: context,
+                ),
+              );
               setState(() {
                 _userRating = 0;
                 _commentController.clear();
@@ -235,23 +367,18 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
             } else if (state is RatingCampaignError) {
               print("❌ RatingCampaignError: ${state.message}");
               if (state.message == "لقد قمت بتقييم هذا المشروع مسبقًا.") {
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text("تنبيه"),
-                    content: Text(state.message),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text("حسناً"),
-                      ),
-                    ],
+                ScaffoldMessenger.of(context).showSnackBar(
+                  buildGlassySnackBar(
+                    message: 'لقد قمت بتقييم هذا المشروع مسبقًا!',
+                    color: AppColors.RichBerry,
+                    context: context,
                   ),
                 );
               }
             } else if (state is CampaignErrorState) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.message)));
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
             }
           },
         ),
@@ -259,22 +386,20 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
           listener: (context, state) {
             if (state is DonationLoading) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('جاري معالجة طلب التبرع...')),
+                buildGlassySnackBar(
+                  message: 'جاري معالجة طلب التبرع ...',
+                  color: AppColors.RichBerry,
+                  context: context,
+                ),
               );
             } else if (state is DonationSuccess) {
               _launchURL(state.donationEntity.url);
             } else if (state is DonationFailure) {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('فشل التبرع'),
-                  content: Text(state.errorMessage),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('حسناً'),
-                    ),
-                  ],
+              ScaffoldMessenger.of(context).showSnackBar(
+                buildGlassySnackBar(
+                  message: 'فشل التبرع',
+                  color: AppColors.RichBerry,
+                  context: context,
                 ),
               );
             }
@@ -301,17 +426,13 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                         Image.network(
                           campaign.imageUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, _) =>
-                          const Center(child: Text("فشل تحميل الصورة")),
+                          errorBuilder:
+                              (context, error, _) =>
+                                  const Center(child: Text("فشل تحميل الصورة")),
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
                             return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
+                              child: LoadingWidget(),
                             );
                           },
                         ),
@@ -372,9 +493,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: categoryData['color'].withOpacity(
-                            0.2,
-                          ),
+                          color: categoryData['color'].withOpacity(0.2),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: categoryData['color'],
@@ -405,22 +524,49 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                   ),
                 ),
                 const SizedBox(height: 20),
-                if (campaign.status== "نشطة")...[
+                if (campaign.status == "نشطة") ...[
                   // Donation Progress Bar and Text
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "${campaign.donationTotal.toStringAsFixed(2)} تم جمعها , ${campaign.requiredAmount} مطلوب ",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                        // --- NEW ANIMATED WIDGET ---
+                        // This widget now animates the donation number from 0 to the final total.
+                        Animate(
+                          effects: [
+                            CustomEffect(
+                              duration: 1500.ms, // A rapid but smooth animation duration
+                              curve: Curves.easeOutCirc,
+                              builder: (context, value, child) {
+                                // 'value' animates from 0.0 to 1.0.
+                                final animatedTotal = value * campaign.donationTotal;
+
+                                // We build the text with the animated number.
+                                return Text(
+                                  "${animatedTotal.toStringAsFixed(2)} تم جمعها , ${campaign.requiredAmount} مطلوب ",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                          // A dummy child is provided because the CustomEffect builder creates the final widget.
+                          child: Text(
+                            "0.00 تم جمعها , ${campaign.requiredAmount} مطلوب ",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
+
+                        // --- YOUR EXISTING PROGRESS BAR (UNCHANGED) ---
                         AnimatedBuilder(
                           animation: _progressAnimation,
                           builder: (context, child) {
@@ -436,7 +582,8 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20)],
+                  const SizedBox(height: 20),
+                ],
                 // User info + date
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -447,17 +594,21 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => GetProfileByUserIdPage(
-                                userId: campaign.campaignUser.userid,
-                                userName: campaign.campaignUser.createdBy,
-                              ),
+                              builder:
+                                  (context) => GetProfileByUserIdPage(
+                                    userId: campaign.campaignUser.userid,
+                                    userName: campaign.campaignUser.createdBy,
+                                  ),
                             ),
                           );
                         },
                         child: Row(
                           children: [
-                            const Icon(Icons.person,
-                                size: 14, color: Colors.grey),
+                            const Icon(
+                              Icons.person,
+                              size: 14,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               "بواسطة: ${campaign.campaignUser.createdBy}",
@@ -473,12 +624,18 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          const Icon(Icons.calendar_today,
-                              size: 14, color: Colors.grey),
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 14,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             campaign.createdAt,
-                            style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[700],
+                            ),
                           ),
                         ],
                       ),
@@ -492,9 +649,10 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                   child: Text(
                     campaign.description,
                     style: TextStyle(
-                        fontSize: 15,
-                        height: 1.5,
-                        color: Colors.grey[800]),
+                      fontSize: 15,
+                      height: 1.5,
+                      color: Colors.grey[800],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -527,11 +685,15 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                               children: [
                                 GlowingGPSIcon(),
                                 const SizedBox(width: 4),
-                                if (widget.campaign.campaignLocation.name != null)
+                                if (widget.campaign.campaignLocation.name !=
+                                    null)
                                   Expanded(
                                     child: Text(
                                       widget.campaign.campaignLocation.name!,
-                                      style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.grey[700],
+                                      ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -546,11 +708,15 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                               ],
                             ),
                             const SizedBox(height: 8),
-                            if (widget.campaign.campaignLocation.latitude != null &&
-                                widget.campaign.campaignLocation.longitude != null)
+                            if (widget.campaign.campaignLocation.latitude !=
+                                    null &&
+                                widget.campaign.campaignLocation.longitude !=
+                                    null)
                               LocationPreview(
-                                latitude: widget.campaign.campaignLocation.latitude!,
-                                longitude: widget.campaign.campaignLocation.longitude!,
+                                latitude:
+                                    widget.campaign.campaignLocation.latitude!,
+                                longitude:
+                                    widget.campaign.campaignLocation.longitude!,
                               ),
                             const SizedBox(height: 8),
                           ],
@@ -560,40 +726,14 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                   ),
                 ),
                 const SizedBox(height: 24),
-
                 // Conditional UI based on campaign status
                 if (campaign.status == "نشطة") ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatCard(
-                          'المبلغ الذي تم جمعه',
-                          "${campaign.donationTotal.toStringAsFixed(2)}",
-                          Icons.attach_money,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildStatCard(
-                          'المشاركون',
-                          campaign.joinedParticipants.toString(),
-                          Icons.people,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildStatCard(
-                          'المبلغ المطلوب',
-                          campaign.requiredAmount,
-                          Icons.request_quote,
-                        ),
-                      ],
-                    ),
-                  ),
+                  CampaignSummaryStats(campaign: campaign),
                   const SizedBox(height: 24),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: [
-                        if (!joined)
                           ElevatedButton(
                             onPressed: _joinCampaign,
                             style: ElevatedButton.styleFrom(
@@ -606,22 +746,26 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                             ),
                             child: const Text(
                               "انضم للحملة",
-                              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         const SizedBox(height: 10),
                         Container(
                           height: 50,
-                          decoration: BoxDecoration(
-                             color: Colors.white
-                          ),
+                          decoration: BoxDecoration(color: Colors.white),
                           child: GestureDetector(
                             onTap: _donateToCampaign,
-                            child:  Padding(
+                            child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
                                 "تبرع للحملة",
-                                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.OceanBlue),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.OceanBlue,
+                                ),
                               ),
                             ),
                           ),
@@ -635,166 +779,299 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage> with SingleTi
                   DefaultTabController(
                     length: 2,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TabBar(
-                          indicatorColor: AppColors.OceanBlue,
-                          labelColor: AppColors.OceanBlue,
-                          unselectedLabelColor: Colors.grey,
-                          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          tabs: const [
-                            Tab(text: 'التفاصيل'),
-                            Tab(text: 'التقييمات'),
-                          ],
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
-                          child: TabBarView(
-                            children: [
-                              // Tab 1: Details for Completed Campaign
-                              SingleChildScrollView(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildStatCard(
-                                      'المبلغ الذي تم جمعه',
-                                      "${campaign.donationTotal.toStringAsFixed(2)}",
-                                      Icons.attach_money,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildStatCard(
-                                      'عدد المشاركين النهائي',
-                                      campaign.joinedParticipants.toString(),
-                                      Icons.people,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildStatCard(
-                                      'متوسط التقييم',
-                                      widget.campaign.avgRating?.toStringAsFixed(1) ?? 'غير متوفر',
-                                      Icons.star,
-                                    ),
-                                  ],
+                        Container(
+                          height: 45,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 8.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(25.0),
+                          ),
+                          child: TabBar(
+                            dividerColor: Colors.transparent,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            indicator: BoxDecoration(
+                              color: AppColors.OceanBlue,
+                              borderRadius: BorderRadius.circular(25.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.OceanBlue.withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
-                              ),
-                              // Tab 2: Ratings for Completed Campaign
-                              SingleChildScrollView(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("قيم الحملة",
-                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 10),
-                                    RatingBar.builder(
-                                      initialRating: _userRating.toDouble(),
-                                      minRating: 1,
-                                      direction: Axis.horizontal,
-                                      allowHalfRating: false,
-                                      itemCount: 5,
-                                      itemBuilder: (context, _) =>
-                                      const Icon(Icons.star, color: Colors.amber),
-                                      onRatingUpdate: (rating) {
-                                        setState(() {
-                                          _userRating = rating.toInt();
-                                        });
-                                      },
-                                    ),
-                                    const SizedBox(height: 10),
-                                    TextField(
-                                      controller: _commentController,
-                                      decoration: const InputDecoration(
-                                        labelText: "أضف تعليقاً (اختياري)",
-                                        border: OutlineInputBorder(),
-                                      ),
-                                      maxLines: 3,
-                                    ),
-                                    const SizedBox(height: 10),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        if (_userRating == 0) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('يرجى اختيار تقييم')),
-                                          );
-                                          return;
-                                        }
-                                        context.read<CampaignBloc>().add(RateCompletedCampaignEvent(
-                                          campaignId: campaign.id,
-                                          rating: _userRating,
-                                          comment: _commentController.text,
-                                        ));
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.OceanBlue,
-                                        foregroundColor: Colors.white,
+                              ],
+                            ),
+                            labelColor: Colors.white,
+                            unselectedLabelColor: Colors.black87,
+                            labelStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                            tabs: const [
+                              Tab(text: 'التفاصيل النهائية'),
+                              Tab(text: 'التقييمات'),
+                            ],
+                          ),
+                        ),
+
+                        // --- TAB BAR VIEW ---
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: 400,
+                              maxHeight: MediaQuery.of(context).size.height,
+                            ),
+                            child: TabBarView(
+                              children: [
+                                // --- TAB 1 ---
+                                CampaignSummaryStats (campaign: campaign),
+                                // --- TAB 2---
+                                SingleChildScrollView(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Card(
+                                        elevation: 2,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
-                                        minimumSize: const Size(double.infinity, 0),
-                                      ),
-                                      child: const Text("إرسال التقييم",style:TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),),
-                                    ),
-                                    const SizedBox(height: 20),
-                                    if (widget.campaign.ratings != null &&
-                                        widget.campaign.ratings!.isNotEmpty)
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text("التقييمات السابقة", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                                          const SizedBox(height: 10),
-                                          ...widget.campaign.ratings!.map((rating) => Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                            child: Card(
-                                              elevation: 1,
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(12.0),
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        const Icon(Icons.person, size: 18, color: Colors.grey),
-                                                        const SizedBox(width: 4),
-                                                        Text(
-                                                          rating.user,
-                                                          style: const TextStyle(fontWeight: FontWeight.bold),
-                                                        ),
-                                                        const Spacer(),
-                                                        Text(
-                                                          rating.date,
-                                                          style: const TextStyle(color: Colors.grey, fontSize: 12),
-                                                        ),
-                                                      ],
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "شاركنا رأيك في الحملة",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
-                                                    const SizedBox(height: 4),
-                                                    Row(
-                                                      children: List.generate(
-                                                        rating.rating,
-                                                            (index) => const Icon(Icons.star,
-                                                            color: Colors.amber, size: 18),
+                                              ),
+                                              const SizedBox(height: 16),
+                                              Center(
+                                                child: RatingBar.builder(
+                                                  initialRating:
+                                                      _userRating.toDouble(),
+                                                  minRating: 1,
+                                                  direction: Axis.horizontal,
+                                                  allowHalfRating: false,
+                                                  itemCount: 5,
+                                                  itemPadding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 4.0,
                                                       ),
-                                                    ),
-                                                    if (rating.comment.isNotEmpty) ...[
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        rating.comment,
-                                                        style: const TextStyle(fontSize: 14),
-                                                      ),
-                                                    ],
-                                                  ],
+                                                  itemBuilder:
+                                                      (context, _) =>
+                                                          const Icon(
+                                                            Icons.star_rounded,
+                                                            color: Colors.amber,
+                                                          ),
+                                                  onRatingUpdate: (rating) {
+                                                    setState(() {
+                                                      _userRating =
+                                                          rating.toInt();
+                                                    });
+                                                  },
                                                 ),
                                               ),
-                                            ),
-                                          )),
-                                        ],
+                                              const SizedBox(height: 16),
+                                              TextField(
+                                                controller: _commentController,
+                                                decoration: const InputDecoration(
+                                                  hintText:
+                                                      "أضف تعليقاً (اختياري)",
+                                                  border: OutlineInputBorder(),
+                                                  filled: true,
+                                                  fillColor: Color.fromARGB(
+                                                    255,
+                                                    245,
+                                                    245,
+                                                    245,
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                          color:
+                                                              Colors
+                                                                  .transparent,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                              Radius.circular(
+                                                                8,
+                                                              ),
+                                                            ),
+                                                      ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                          color:
+                                                              AppColors
+                                                                  .OceanBlue,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                              Radius.circular(
+                                                                8,
+                                                              ),
+                                                            ),
+                                                      ),
+                                                ),
+                                                maxLines: 3,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  if (_userRating == 0) {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          'يرجى اختيار تقييم أولاً',
+                                                        ),
+                                                      ),
+                                                    );
+                                                    return;
+                                                  }
+                                                  context.read<CampaignBloc>().add(
+                                                    RateCompletedCampaignEvent(
+                                                      campaignId: campaign.id,
+                                                      rating: _userRating,
+                                                      comment:
+                                                          _commentController
+                                                              .text,
+                                                    ),
+                                                  );
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      AppColors.OceanBlue,
+                                                  foregroundColor: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 14,
+                                                      ),
+                                                  minimumSize: const Size(
+                                                    double.infinity,
+                                                    0,
+                                                  ),
+                                                ),
+                                                child: const Text(
+                                                  "إرسال التقييم",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                  ],
+                                      const SizedBox(height: 24),
+                                      if (widget.campaign.ratings != null &&
+                                          widget.campaign.ratings!.isNotEmpty)
+                                        Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "التقييمات السابقة (${widget.campaign.ratings!.length})",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                ),
+                                                if (widget
+                                                        .campaign
+                                                        .ratings!
+                                                        .length >
+                                                    3)
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder:
+                                                              (
+                                                                context,
+                                                              ) => AllRatingsPage(
+                                                                ratings:
+                                                                    widget
+                                                                        .campaign
+                                                                        .ratings!,
+                                                                campaignTitle:
+                                                                    widget
+                                                                        .campaign
+                                                                        .title,
+                                                                campaign:
+                                                                    widget
+                                                                        .campaign,
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: const Text(
+                                                      "عرض الكل",
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors.OceanBlue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 10),
+                                            ListView.builder(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              itemCount: min(
+                                                3,
+                                                widget.campaign.ratings!.length,
+                                              ),
+                                              itemBuilder: (context, index) {
+                                                final rating =
+                                                    widget
+                                                        .campaign
+                                                        .ratings![index];
+                                                return RatingCard(
+                                                  rating: rating,
+                                                );
+                                              },
+                                            ).animate().fadeIn(delay: 400.ms ,duration: 800.ms).slideX(begin: 0.5),
+                                          ],
+                                        ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],

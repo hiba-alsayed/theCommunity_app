@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project/core/widgets/loading_widget.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../bloc/campaign_bloc.dart';
@@ -95,7 +96,7 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
                       builder: (context, state) {
                         if (state is MyCampaignsLoading) {
                           return const Center(
-                            child: CircularProgressIndicator(),
+                            child: LoadingWidget(),
                           );
                         } else if (state is MyCampaignsLoaded) {
                           final List<Campaigns> activeCampaigns =
@@ -115,9 +116,7 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
                         } else if (state is MyCampaignsError) {
                           return Center(child: Text(state.message));
                         } else {
-                          return const Center(
-                            child: Text('لا توجد بيانات للعرض.'),
-                          );
+                          return const SizedBox();
                         }
                       },
                     ),

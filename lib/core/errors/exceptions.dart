@@ -12,10 +12,7 @@ class OfflineException implements Exception {}
 
 class WrongDataException implements Exception {}
 
-class AlreadyJoinedException implements Exception {
-  final String message;
-  AlreadyJoinedException(this.message);
-}
+class AlreadyJoinedException implements Exception {}
 
 class DuplicateVoteException implements Exception {
   final String message;

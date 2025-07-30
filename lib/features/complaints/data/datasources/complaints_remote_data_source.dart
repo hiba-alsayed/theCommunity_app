@@ -132,8 +132,39 @@ class ComplaintsRemoteDataSourceImp implements ComplaintsRemoteDataSource {
     }
   }
 
+  // @override
+  // Future<List<ComplaintModel>> getMyComplaints() async{
+  //   final token = await tokenProvider.getToken();
+  //   final response = await client.post(
+  //     Uri.parse("$baseUrl/api/client/complaint/all"),
+  //     headers: {
+  //       "Accept": "application/json",
+  //       "Content-Type": "application/json",
+  //       "Authorization": "Bearer $token",
+  //     },
+  //     body: json.encode({
+  //       'userComplaints': '1',
+  //     }),
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     final decoded = json.decode(response.body);
+  //     if (decoded['data'] is Map &&
+  //         decoded['data']['complaints'] != null &&
+  //         decoded['data']['complaints'] is List) {
+  //       final List<dynamic> complaintsList = decoded['data']['complaints'];
+  //       final complaints =
+  //       complaintsList.map((json) => ComplaintModel.fromJson(json)).toList();
+  //       return complaints;
+  //     } else {
+  //       return [];
+  //     }
+  //   } else {
+  //     throw ServerException();
+  //   }
+  // }
   @override
-  Future<List<ComplaintModel>> getMyComplaints() async{
+  Future<List<ComplaintModel>> getMyComplaints() async {
     final token = await tokenProvider.getToken();
     final response = await client.post(
       Uri.parse("$baseUrl/api/client/complaint/all"),
@@ -159,11 +190,19 @@ class ComplaintsRemoteDataSourceImp implements ComplaintsRemoteDataSource {
       } else {
         return [];
       }
-    } else {
+    }
+    else if (response.statusCode == 500) {
+      final decoded = json.decode(response.body);
+      if (decoded['message']?.toString().contains('No complaints found') == true) {
+        return [];
+      } else {
+        throw ServerException();
+      }
+    }
+    else {
       throw ServerException();
     }
   }
-
   @override
   Future<List<ComplaintModel>> getNearbyComplaints(double distance, int categoryId) async{
     final token = await tokenProvider.getToken();

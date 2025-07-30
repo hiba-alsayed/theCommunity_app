@@ -206,7 +206,6 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
                       ],
                     ),
                   ),
-
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),

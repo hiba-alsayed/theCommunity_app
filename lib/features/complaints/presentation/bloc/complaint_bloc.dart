@@ -108,7 +108,7 @@ class ComplaintBloc extends Bloc<ComplaintEvent, ComplaintState> {
       );
     });
 
-    // جلب جميع الشكاوي القريبة ()
+    // جلب جميع الشكاوي القريبة
     on<GetAllNearbyComplaintsEvent>((event, emit) async {
       emit(LoadingAllNearbyComplaints());
       final result = await getAllNearbyComplaintsUseCase();

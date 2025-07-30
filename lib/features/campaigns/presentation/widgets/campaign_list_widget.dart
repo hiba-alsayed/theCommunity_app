@@ -8,8 +8,6 @@ import '../../../Donation/presentation/bloc/donation_bloc.dart';
 import '../../domain/entities/campaigns.dart';
 import '../pages/campaign_details_page.dart';
 
-
-//list
 class CampaignListWidget extends StatefulWidget {
   final List<Campaigns> campaigns;
 
@@ -280,7 +278,7 @@ class CampaignCard extends StatelessWidget {
                                     Icon(Icons.people_outline, size: 16, color: Colors.grey),
                                     const SizedBox(width: 6),
                                     Text(
-                                      '${campaign.numberOfParticipants ?? 0}',
+                                      '${campaign.joinedParticipants ?? 0}',
                                       style: Theme.of(context).textTheme.labelMedium,
                                     ),
                                   ],

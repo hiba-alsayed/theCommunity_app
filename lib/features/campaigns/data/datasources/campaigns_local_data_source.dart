@@ -8,12 +8,10 @@ abstract class CampaignLocalDataSource {
   Future<List<CampaignModel>> getCachedCampaigns();
   Future<Unit> cacheCampaigns(List<CampaignModel> campaignModels);
 }
-
 const CACHED_CAMPAIGNS = "CACHED_CAMPAIGNS";
 
 class CampaignLocalDataSourceImpl implements CampaignLocalDataSource {
   final SharedPreferences sharedPreferences;
-
   CampaignLocalDataSourceImpl({required this.sharedPreferences});
 
   @override

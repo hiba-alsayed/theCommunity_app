@@ -9,7 +9,6 @@ sealed class ComplaintEvent extends Equatable{
 
 // جلب التصنيفات
 class GetCategoriesEvent extends ComplaintEvent {}
-
 // جلب جميع الشكاوي
 class GetAllComplaintsEvent extends ComplaintEvent {}
 // جلب الشكاوي حسب التصنيف

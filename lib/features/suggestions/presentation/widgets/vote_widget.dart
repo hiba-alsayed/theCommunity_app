@@ -35,12 +35,10 @@ class _VotingSliderState extends State<VotingSlider> {
       });
     }
   }
-
   Future<void> _saveVoteStatus(int vote) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('suggestion_vote_${widget.suggestion.id}', vote);
   }
-
   void _handleVote(int value) {
     if (_hasVoted) return;
 

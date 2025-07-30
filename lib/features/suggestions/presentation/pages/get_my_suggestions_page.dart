@@ -118,7 +118,7 @@ class _MySuggestionsPageState extends State<MySuggestionsPage> {
                                   'لا يوجد لديك مقترحات.',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.blueGrey,
+                                    color: Colors.grey,
                                   ),
                                 ),
                               );

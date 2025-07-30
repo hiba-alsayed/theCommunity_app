@@ -73,11 +73,8 @@ class MyCampaignsLoaded extends CampaignState {
 }
 class MyCampaignsError extends CampaignState {
   final String message;
-
   const MyCampaignsError(this.message);
-
  @override
-  // TODO: implement props
   List<Object> get props => [message];
 }
 
