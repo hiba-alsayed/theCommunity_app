@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/core/widgets/loading_widget.dart';
 import '../../../../core/app_color.dart';
+import '../../../notifications/presentation/page/notification_page.dart';
 import '../../domain/entities/campaigns.dart';
 import '../bloc/campaign_bloc.dart';
 import '../widgets/campaign_list_widget.dart';
@@ -23,6 +24,7 @@ class _CampaignsPageState extends State<CampaignsPage> {
     super.initState();
     _refreshCampaigns();
   }
+
   Future<void> _refreshCampaigns() async {
     setState(() {
       _selectedCategory = null;
@@ -30,7 +32,6 @@ class _CampaignsPageState extends State<CampaignsPage> {
     });
     context.read<CampaignBloc>().add(GetAllCampaignsEvent());
   }
-
 
   void _openFilterDialog() {
     context.read<CampaignBloc>().add(GetCategoriesEvent());
@@ -98,12 +99,12 @@ class _CampaignsPageState extends State<CampaignsPage> {
                     ),
                     ...categories.map((category) {
                       final match = categoryIcons.entries.firstWhere(
-                            (entry) => category.name.contains(entry.key),
+                        (entry) => category.name.contains(entry.key),
                         orElse:
                             () => MapEntry('', {
-                          'icon': Icons.category,
-                          'color': Colors.grey,
-                        }),
+                              'icon': Icons.category,
+                              'color': Colors.grey,
+                            }),
                       );
 
                       return ListTile(
@@ -156,13 +157,48 @@ class _CampaignsPageState extends State<CampaignsPage> {
           ),
         ),
         child: SafeArea(
-          child: Stack(
+          child: Column(
             children: [
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 20.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.WhisperWhite,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.SunsetOrange.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          // Replace NotificationPage() with your actual notification page widget
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const NotificationPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Text(
                       'جميع الحملات',
                       style: TextStyle(
                         color: Colors.white,
@@ -170,115 +206,118 @@ class _CampaignsPageState extends State<CampaignsPage> {
                         fontSize: 18,
                       ),
                     ),
-                  ),
-                  if (_selectedCategory != null)
                     Container(
-                      color: Colors.grey.shade200,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'التصنيف: $_selectedCategory',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          TextButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                _selectedCategory = null;
-                                _selectedCategoryId = null;
-                              });
-                              context.read<CampaignBloc>().add(
-                                GetAllCampaignsEvent(),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.close,
-                              size: 18,
-                              color: Colors.red,
-                            ),
-                            label: const Text(
-                              'إزالة الفلتر',
-                              style: TextStyle(color: Colors.red),
-                            ),
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.WhisperWhite,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.SunsetOrange.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
+                      child: IconButton(
+                        onPressed: _openFilterDialog,
+                        icon: const Icon(
+                          Icons.filter_list,
+                          color: Colors.black,
+                        ),
+                        tooltip: 'فلترة الحملات',
+                      ),
                     ),
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _refreshCampaigns,
-                      color: AppColors.SunsetOrange,
-                      backgroundColor: AppColors.WhisperWhite,
-                      child: BlocConsumer<CampaignBloc, CampaignState>(
-                        listener: (context, state) {
-                          if (state is AllCampaignsLoaded) {
-                            _cachedCampaigns = state.campaigns;
-                          }
-                          if (state is CampaignsByCategoryLoaded) {
-                            _cachedCampaigns = state.campaigns;
-                          }
+                  ],
+                ),
+              ),
+              if (_selectedCategory != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          size: 20,
+                          color: AppColors.SunsetOrange,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _selectedCategory = null;
+                            _selectedCategoryId = null;
+                          });
+                          context.read<CampaignBloc>().add(
+                            GetAllCampaignsEvent(),
+                          );
                         },
-                        builder: (context, state) {
-                          final List<Campaigns>? campaignsToDisplay =
-                          (_selectedCategory != null && state is CampaignsByCategoryLoaded)
+                      ),
+                      Text(
+                        'التصنيف: $_selectedCategory',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: _refreshCampaigns,
+                  color: AppColors.SunsetOrange,
+                  backgroundColor: AppColors.WhisperWhite,
+                  child: BlocConsumer<CampaignBloc, CampaignState>(
+                    listener: (context, state) {
+                      if (state is AllCampaignsLoaded) {
+                        _cachedCampaigns = state.campaigns;
+                      }
+                      if (state is CampaignsByCategoryLoaded) {
+                        _cachedCampaigns = state.campaigns;
+                      }
+                    },
+                    builder: (context, state) {
+                      final List<Campaigns>? campaignsToDisplay =
+                          (_selectedCategory != null &&
+                                  state is CampaignsByCategoryLoaded)
                               ? state.campaigns
                               : _cachedCampaigns;
 
-                          if (state is LoadingAllCampaigns ||
-                              state is LoadingCampaignsByCategory) {
-                            return const Center(child: LoadingWidget());
-                          } else if (campaignsToDisplay != null && campaignsToDisplay.isNotEmpty) {
-                            return CampaignListWidget(campaigns: campaignsToDisplay);
-                          } else if (state is CampaignErrorState) {
-                            return Center(
+                      if (state is LoadingAllCampaigns ||
+                          state is LoadingCampaignsByCategory) {
+                        return const Center(child: LoadingWidget());
+                      } else if (campaignsToDisplay != null &&
+                          campaignsToDisplay.isNotEmpty) {
+                        return CampaignListWidget(
+                          campaigns: campaignsToDisplay,
+                        );
+                      } else if (state is CampaignErrorState) {
+                        // Make this part scrollable for RefreshIndicator
+                        return ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            Center(
                               child: Text(
                                 state.message,
                                 style: const TextStyle(color: Colors.red),
                               ),
-                            );
-                          } else {
-                            String message = 'لا توجد حملات متاحة حالياً.';
-                            if (_selectedCategory != null) {
-                              message = 'لا توجد حملات في هذا التصنيف.';
-                            }
-                            return Center(child: Text(message));
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.WhisperWhite,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.SunsetOrange.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    onPressed: _openFilterDialog,
-                    icon: const Icon(Icons.filter_list, color: Colors.black),
-                    tooltip: 'فلترة الحملات',
-                    //elevation: 4,
+                            ),
+                          ],
+                        );
+                      } else {
+                        String message = 'لا توجد حملات متاحة حالياً.';
+                        if (_selectedCategory != null) {
+                          message = 'لا توجد حملات في هذا التصنيف.';
+                        }
+                        // Make this part scrollable for RefreshIndicator
+                        return ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [Center(child: Text(message))],
+                        );
+                      }
+                    },
                   ),
                 ),
               ),

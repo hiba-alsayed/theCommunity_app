@@ -71,7 +71,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
             if (state is LoadingSuggestionCategories) {
               return const SizedBox(
                 height: 200,
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: LoadingWidget()),
               );
             } else if (state is SuggestionCategoriesLoaded) {
               final categories = state.categories;
@@ -228,7 +228,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.close, size: 20, color: Color(0xFF00B4D8)),
+                        icon: const Icon(Icons.close, size: 20, color: AppColors.DeepGreen),
                         onPressed: () {
                           setState(() {
                             _selectedCategory = null;

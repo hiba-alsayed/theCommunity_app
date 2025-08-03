@@ -86,6 +86,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       final result = await joinCampaign(event.campaignId);
       result.fold(
             (failure) {
+              // print('--- DEBUG: BLOC --- Received Failure of type: ${failure.runtimeType}');
           if (failure is AlreadyJoinedFailure) {
             emit(AlreadyJoinedState(message: 'لقد قمت بالانضمام بالفعل'));
           } else {
@@ -116,6 +117,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       );
     });
 
+    //تقييم حملة
     on<RateCompletedCampaignEvent>((event, emit) async {
       emit(RatingCampaignLoading());
 
@@ -136,6 +138,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
             (_) => emit(RatingCampaignSuccess(message: 'تم إرسال التقييم بنجاح')),
       );
     });
+
     // جلب الحملات الموصى بها
     on<GetRecommendedCampaignsEvent>((event, emit) async {
       emit(LoadingRecommendedCampaigns());
@@ -146,6 +149,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
             (campaigns) => emit(RecommendedCampaignsLoaded(recommendedCampaigns: campaigns)),
       );
     });
+
     // جلب الحملات معاد نشرها
     on<GetPromotedCampaignsEvent>((event, emit) async {
       emit(LoadingPromotedCampaigns());

@@ -8,6 +8,7 @@ import 'package:graduation_project/features/suggestions/presentation/pages/submi
 
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/network_info.dart';
+import '../../../../core/strings/failures.dart';
 import '../datasources/campaigns_local_data_source.dart';
 
 class CampaignRepositoryImp implements CampaignRepository {
@@ -70,11 +71,13 @@ class CampaignRepositoryImp implements CampaignRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> joinCampaign(int campaignId) async{
+  Future<Either<Failure, Unit>> joinCampaign(int campaignId) async {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.joinCampaign(campaignId);
         return const Right(unit);
+      } on AlreadyJoinedException {
+        return Left(AlreadyJoinedFailure(message: AlreadyJoinedMessage));
       } on ServerException {
         return Left(ServerFailure());
       }

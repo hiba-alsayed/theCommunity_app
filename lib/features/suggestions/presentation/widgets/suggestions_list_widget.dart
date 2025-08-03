@@ -32,9 +32,8 @@ class _SuggestionsListWidgetState extends State<SuggestionsListWidget> with Sing
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _animationController.forward();
+      duration: const Duration(milliseconds: 200),
+    )..forward();
   }
 
   @override
@@ -46,41 +45,45 @@ class _SuggestionsListWidgetState extends State<SuggestionsListWidget> with Sing
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      separatorBuilder: (context,index) => Divider(thickness: 0.5,color: AppColors.MidGreen,endIndent: 16,indent: 16),
-      padding: const EdgeInsets.all(14),
+      separatorBuilder: (context, index) => const Divider(
+        thickness: 0.3,
+        color: AppColors.MidGreen,
+        endIndent: 20,
+        indent: 20,
+        height: 20,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       itemCount: widget.suggestion.length,
       itemBuilder: (context, index) {
         final suggestion = widget.suggestion[index];
-        final animationDelay = Duration(milliseconds: 100 + index * 50);
+        final animationDelay = Duration(milliseconds: 400);
 
-        return FadeTransition(
-          opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-            CurvedAnimation(
-              parent: _animationController,
-              curve: Interval(
-                animationDelay.inMilliseconds / _animationController.duration!.inMilliseconds,
-                1.0,
-                curve: Curves.easeOutCubic,
-              ),
+        return Animate(
+          effects: [
+            FadeEffect(
+              duration: const Duration(milliseconds: 400),
+              delay: animationDelay,
+              curve: Curves.easeOut,
             ),
-          ),
-          child: SlideTransition(
-            position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-              CurvedAnimation(
-                parent: _animationController,
-                curve: Interval(
-                  animationDelay.inMilliseconds / _animationController.duration!.inMilliseconds,
-                  1.0,
-                  curve: Curves.easeOutCubic,
-                ),
-              ),
+            SlideEffect(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+              duration: const Duration(milliseconds: 400),
+              delay: animationDelay,
+              curve: Curves.easeOut,
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: SuggestionCard(
-                suggestion: suggestion,
-                showIconButton: widget.isMySuggestionsPage,
-              ),
+            ScaleEffect(
+              begin: const Offset(0.95, 0.95),
+              end: const Offset(1, 1),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            ),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: SuggestionCard(
+              suggestion: suggestion,
+              showIconButton: widget.isMySuggestionsPage,
             ),
           ),
         );
@@ -103,15 +106,68 @@ class SuggestionCard extends StatefulWidget {
   State<SuggestionCard> createState() => _SuggestionCardState();
 }
 
-class _SuggestionCardState extends State<SuggestionCard> {
+class _SuggestionCardState extends State<SuggestionCard> with SingleTickerProviderStateMixin {
+  late AnimationController _voteController;
+  late Animation<double> _likeAnimation;
+  late Animation<double> _dislikeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _voteController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..forward();
+    _likeAnimation = Tween<double>(begin: 0, end: widget.suggestion.likes.toDouble()).animate(
+      CurvedAnimation(parent: _voteController, curve: Curves.easeOutCubic),
+    );
+    _dislikeAnimation = Tween<double>(begin: 0, end: widget.suggestion.dislikes.toDouble()).animate(
+      CurvedAnimation(parent: _voteController, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant SuggestionCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.suggestion.likes != widget.suggestion.likes ||
+        oldWidget.suggestion.dislikes != widget.suggestion.dislikes) {
+      _likeAnimation = Tween<double>(
+        begin: _likeAnimation.value,
+        end: widget.suggestion.likes.toDouble(),
+      ).animate(
+        CurvedAnimation(parent: _voteController, curve: Curves.easeOutCubic),
+      );
+      _dislikeAnimation = Tween<double>(
+        begin: _dislikeAnimation.value,
+        end: widget.suggestion.dislikes.toDouble(),
+      ).animate(
+        CurvedAnimation(parent: _voteController, curve: Curves.easeOutCubic),
+      );
+      _voteController
+        ..reset()
+        ..forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _voteController.dispose();
+    super.dispose();
+  }
+
   void _showDeleteConfirmationDialog() {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('تأكيد الحذف'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        title: const Text('تأكيد الحذف', style: TextStyle(fontWeight: FontWeight.bold)),
         content: const Text('هل أنت متأكد من حذف هذا المقترح؟'),
         actions: [
-          TextButton(child: const Text('إلغاء'), onPressed: () => Navigator.pop(context)),
+          TextButton(
+            child: const Text('إلغاء', style: TextStyle(color: AppColors.MidGreen)),
+            onPressed: () => Navigator.pop(context),
+          ),
           TextButton(
             child: const Text('حذف', style: TextStyle(color: Colors.red)),
             onPressed: () {
@@ -122,176 +178,224 @@ class _SuggestionCardState extends State<SuggestionCard> {
             },
           ),
         ],
-      ),
+      ).animate().fadeIn(duration: const Duration(milliseconds: 300)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final suggestion = widget.suggestion;
-    return InkWell(
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shadowColor: Colors.black.withOpacity(0.1),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
         onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SuggestionDetailsPage(
-                  suggestion: widget.suggestion,
-                ),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SuggestionDetailsPage(
+                suggestion: widget.suggestion,
               ),
-            );
-          },
-      // margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      // elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Header (Avatar + Name + Menu)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, color: Colors.white),
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      suggestion.user.createdBy,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    // SizedBox(height: 12,),
-                    Row(
+            ),
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.white.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+            )]
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header (Avatar + Name + Menu)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppColors.MidGreen.withOpacity(0.2),
+                    child: const Icon(Icons.person, color: AppColors.MidGreen),
+                  ).animate().scale(duration: const Duration(milliseconds: 500)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // const Icon(Icons.gps_fixed, size: 18, color: Colors.red),
-                        GlowingGPSIcon(size: 18),
-                         SizedBox(width: 6),
-                        Text(
-                          suggestion.location.name ?? 'غير محدد',
-                          style: Theme.of(context).textTheme.labelMedium,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                if (widget.showIconButton)
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'delete') _showDeleteConfirmationDialog();
-                    },
-                    itemBuilder: (_) => [
-                      const PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Row(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(Icons.delete_outline, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('حذف', style: TextStyle(color: Colors.red)),
+                            Text(
+                              suggestion.user.createdBy,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              suggestion.createdat ?? 'غير محدد',
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.grey[600]),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            GlowingGPSIcon(size: 18),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                suggestion.location.name ?? 'غير محدد',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(color: Colors.grey[600]),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        // Row(
+                        //   children: [
+                        //     const Icon(Icons.people_outline, size: 18, color: AppColors.CedarOlive),
+                        //     const SizedBox(width: 6),
+                        //     Text(
+                        //       'المشاركون المطلوبون: ${suggestion.numberOfParticipants}',
+                        //       style: Theme.of(context)
+                        //           .textTheme
+                        //           .labelMedium
+                        //           ?.copyWith(color: Colors.grey[600]),
+                        //       overflow: TextOverflow.ellipsis,
+                        //     ),
+                        //   ],
+                        // ),
+                      ],
+                    ),
                   ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            /// Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: suggestion.imageUrl != null && suggestion.imageUrl!.isNotEmpty
-                  ? Image.network(
-                suggestion.imageUrl!,
-                width: double.infinity,
-                height: 160,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(height: 160, color: Colors.white),
-                  );
-                },
-                errorBuilder: (_, __, ___) => Container(
-                  height: 160,
-                  color: Colors.grey[200],
-                  child: Icon(Icons.broken_image, size: 60, color: Colors.grey[400]),
-                ),
-              )
-                  : Container(
-                height: 160,
-                color: Colors.grey[100],
-                child: const Center(child: Icon(Icons.image_not_supported, size: 60)),
+                  if (widget.showIconButton)
+                    PopupMenuButton<String>(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 8,
+                      onSelected: (value) {
+                        if (value == 'delete') _showDeleteConfirmationDialog();
+                      },
+                      itemBuilder: (_) => [
+                        PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.delete_outline, color: Colors.red),
+                              const SizedBox(width: 8),
+                              const Text('حذف', style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ).animate().fadeIn(delay: const Duration(milliseconds: 300)),
+                ],
               ),
-            ),
-
-            const SizedBox(height: 12),
-
-            /// Description
-            Text(
-              suggestion.description,
-              style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            const SizedBox(height: 12),
-
-            /// Meta Info (Location & Date)
-            Row(
-              children: [
-                // const Icon(Icons.place_outlined, size: 18, color: Colors.grey),
-                // const SizedBox(width: 6),
-                // Expanded(
-                //   child: Text(
-                //     suggestion.location.name ?? 'غير محدد',
-                //     style: Theme.of(context).textTheme.labelMedium,
-                //     overflow: TextOverflow.ellipsis,
-                //   ),
-                // ),
-                const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.MidGreen),
-                SizedBox(width: 6),
-                Text(
-                  suggestion.createdat ?? 'غير محدد',
-                  style: Theme.of(context).textTheme.labelMedium,
+              const SizedBox(height: 16),
+              // Description
+              Text(
+                suggestion.description,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black87),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ).animate().fadeIn(delay: const Duration(milliseconds: 400)),
+              const SizedBox(height: 12),
+              // Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: suggestion.imageUrl != null && suggestion.imageUrl!.isNotEmpty
+                    ? Image.network(
+                  suggestion.imageUrl!,
+                  width: double.infinity,
+                  height: 180,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(height: 180, color: Colors.white),
+                    );
+                  },
+                  errorBuilder: (_, __, ___) => Container(
+                    height: 180,
+                    color: Colors.grey[200],
+                    child: Icon(Icons.broken_image, size: 60, color: Colors.grey[400]),
+                  ),
+                ).animate().fadeIn(duration: const Duration(milliseconds: 600))
+                    : Container(
+                  height: 180,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Center(child: Icon(Icons.image_not_supported, size: 60)),
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            /// Likes / Dislikes
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.thumb_up_outlined, color: Colors.green, size: 20),
-                    const SizedBox(width: 4),
-                    Text('(${suggestion.likes})', style: const TextStyle(color: Colors.green)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.thumb_down_outlined, color: Colors.red, size: 20),
-                    const SizedBox(width: 4),
-                    Text('(${suggestion.dislikes})', style: const TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 16),
+              // Likes / Dislikes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AnimatedBuilder(
+                    animation: _voteController,
+                    builder: (context, _) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.thumb_up_outlined, color: Colors.green, size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            '(${_likeAnimation.value.round()})',
+                            style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ).animate().scale(duration: const Duration(milliseconds: 400)),
+                  AnimatedBuilder(
+                    animation: _voteController,
+                    builder: (context, _) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.thumb_down_outlined, color: Colors.red, size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            '(${_dislikeAnimation.value.round()})',
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ).animate().scale(duration: const Duration(milliseconds: 400)),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-

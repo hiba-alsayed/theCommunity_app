@@ -155,14 +155,22 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
         "Authorization": "Bearer $token",
       },
     );
-
-    if (response.statusCode != 200) {
+     final Map<String, dynamic> decoded;
+    try {
+      decoded = json.decode(response.body);
+    } catch (e) {
       throw ServerException();
     }
-    final decoded = json.decode(response.body);
-    if (decoded['status'] != true) {
-      throw ServerException();
+    final String apiMessage = decoded.containsKey('message')
+        ? decoded['message'].toString().trim()
+        : "";
+    if (apiMessage == 'لقد قمت بالانضمام بالفعل') {
+      throw AlreadyJoinedException();
     }
+    if (response.statusCode == 200 && decoded.containsKey('status') && decoded['status'] == true) {
+      return; // Success!
+    }
+    throw ServerException();
   }
 
 

@@ -5,8 +5,10 @@ import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/suggestions/domain/entities/Suggestions.dart';
 import '../../../../core/widgets/glowing_gps.dart';
 import '../../../../core/widgets/snack_bar.dart';
+import '../widgets/vote_statistics_card.dart';
 import '../../../profile/presentation/pages/get_profile_by_userid_page.dart';
 import '../bloc/suggestion_bloc.dart';
+import '../widgets/suggestions_summery_stats.dart';
 import '../widgets/vote_widget.dart';
 import '../../../../core pages/location_map_view_page.dart';
 
@@ -24,6 +26,7 @@ class SuggestionDetailsPage extends StatefulWidget {
 }
 
 class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
+
   void _openMap(BuildContext context) {
     if (widget.suggestion.location.latitude == null ||
         widget.suggestion.location.longitude == null) {
@@ -341,36 +344,10 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
                   final currentSuggestion = (state is VoteOnSuggestionSuccess)
                       ? state.updatedSuggestion
                       : widget.suggestion;
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            'إجمالي التصويتات',
-                            currentSuggestion.likes.toString(), // Use currentSuggestion.likes
-                            Icons.how_to_vote,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildStatCard(
-                            'المشاركون',
-                            currentSuggestion.numberOfParticipants.toString(), // Use currentSuggestion.numberOfParticipants
-                            Icons.people,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildStatCard(
-                            'المبلغ المطلوب',
-                            currentSuggestion.requiredAmount, // Use currentSuggestion.requiredAmount
-                            Icons.attach_money,
-                          ),
-                        ),
-                      ],
-                    ),
+                  return SuggestionSummaryStats(
+                    totalVotes: currentSuggestion.likes,
+                    requiredParticipants: currentSuggestion.numberOfParticipants,
+                    requiredAmount: currentSuggestion.requiredAmount,
                   );
                 },
               ),
@@ -379,10 +356,11 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
-                  elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  elevation: 4,
+                  shadowColor: Colors.blueGrey.withOpacity(0.3),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -411,32 +389,22 @@ class _SuggestionDetailsPageState extends State<SuggestionDetailsPage> {
                 ),
               ),
               const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+              BlocBuilder<SuggestionBloc, SuggestionState>(
+                builder: (context, state) {
+                  final currentSuggestion = (state is VoteOnSuggestionSuccess)
+                      ? state.updatedSuggestion
+                      : widget.suggestion;
 
-  Widget _buildStatCard(String title, String value, IconData icon) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        width: 110,
-        height: 120,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            children: [
-              Icon(icon, size: 24, color: Color(0xFF0172B2)),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: VoteStatisticsCard(
+                      likes: currentSuggestion.likes,
+                      dislikes: currentSuggestion.dislikes,
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 4),
-              Text(title, style: const TextStyle(fontSize: 11)),
+              const SizedBox(height: 24),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/features/campaigns/presentation/bloc/campaign_bloc.dart';
 import '../../../../core/app_color.dart';
+import '../../../../core/widgets/loading_widget.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../widgets/campaign_list_widget.dart';
 
@@ -16,9 +17,11 @@ class _PromotedCampaignsPageState extends State<PromotedCampaignsPage> {
   @override
   void initState() {
     super.initState();
+    _loadCampaigns();
+  }
+  Future<void> _loadCampaigns() async {
     context.read<CampaignBloc>().add(GetPromotedCampaignsEvent());
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +30,7 @@ class _PromotedCampaignsPageState extends State<PromotedCampaignsPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.CedarOlive, Colors.white],
+            colors: [AppColors.OceanBlue, Colors.white],
             stops: [0.0, 0.2],
           ),
         ),
@@ -82,33 +85,38 @@ class _PromotedCampaignsPageState extends State<PromotedCampaignsPage> {
                     ),
                   ),
                   Expanded(
-                    child: BlocBuilder<CampaignBloc, CampaignState>(
-                      builder: (context, state) {
-                        if (state is LoadingPromotedCampaigns) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else if (state is PromotedCampaignsLoaded) {
-                          if (state.promotedCampaigns.isEmpty) {
+                    child: RefreshIndicator(
+                      color: AppColors.OceanBlue,
+                      backgroundColor: AppColors.WhisperWhite,
+                      onRefresh: _loadCampaigns,
+                      child: BlocBuilder<CampaignBloc, CampaignState>(
+                        builder: (context, state) {
+                          if (state is LoadingPromotedCampaigns) {
                             return const Center(
-                              child: Text('لا توجد حملات مدعومة حالياً.'),
+                              child: LoadingWidget(),
+                            );
+                          } else if (state is PromotedCampaignsLoaded) {
+                            if (state.promotedCampaigns.isEmpty) {
+                              return const Center(
+                                child: Text('لا توجد حملات مدعومة حالياً.'),
+                              );
+                            }
+                            return CampaignListWidget(
+                              campaigns: state.promotedCampaigns,
+                            );
+                          } else if (state is PromotedCampaignsError) {
+                            return Center(
+                              child: Text(
+                                state.message,
+                                style: const TextStyle(color: Colors.red),
+                              ),
                             );
                           }
-                          return CampaignListWidget(
-                            campaigns: state.promotedCampaigns,
+                          return const Center(
+                            child: Text('اسحب للأسفل لتحديث الصفحة'),
                           );
-                        } else if (state is PromotedCampaignsError) {
-                          return Center(
-                            child: Text(
-                              state.message,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          );
-                        }
-                        return const Center(
-                          child: Text('اسحب للأسفل لتحديث الصفحة'),
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
                 ],

@@ -91,7 +91,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(20.0),
-                  child: CircularProgressIndicator(),
+                  child: LoadingWidget(),
                 ),
               );
             } else if (state is CategoriesLoaded) {
@@ -146,7 +146,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                 child: Text('حدث خطأ: ${state.message}', style: const TextStyle(color: Colors.red)),
               );
             }
-            return const Center(child: Padding(padding: EdgeInsets.all(20.0), child: CircularProgressIndicator()));
+            return const Center(child: Padding(padding: EdgeInsets.all(20.0), child: LoadingWidget()));
           },
         );
       },
@@ -437,27 +437,12 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                     ),
                   ),
                 ),
-                // Display selected category
                 if (_selectedCategoryName != null)
                   SliverToBoxAdapter(
-                    child: Container(
-                      color: Colors.grey.shade200,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      margin: const EdgeInsets.only(bottom: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),                           child: Row(
                         children: [
-                          Text(
-                            'التصنيف: $_selectedCategoryName',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          TextButton.icon(
+                          IconButton(
                             onPressed: () {
                               setState(() {
                                 _selectedCategoryName = null;
@@ -470,11 +455,14 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                             icon: const Icon(
                               Icons.close,
                               size: 18,
-                              color: Colors.red,
+                              color: AppColors.RichBerry,
                             ),
-                            label: const Text(
-                              'إزالة الفلتر',
-                              style: TextStyle(color: Colors.red),
+                          ),
+                          Text(
+                            'التصنيف: $_selectedCategoryName',
+                            style: const TextStyle(
+                              fontSize: 14,
+                                color: Colors.grey
                             ),
                           ),
                         ],

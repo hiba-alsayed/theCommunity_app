@@ -54,13 +54,13 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
     // 'تعليم': {'icon': Icons.school, 'color': Colors.deepOrange},
   };
   void _showAnimatedDonationDialog({
-    required BuildContext buildContext, // The context from the page
+    required BuildContext buildContext,
     required GlobalKey<FormState> formKey,
     required TextEditingController amountController,
     required int campaignId,
   }) {
     showGeneralDialog(
-      context: buildContext, // Use the page context to show the dialog
+      context: buildContext,
       barrierDismissible: true,
       barrierLabel: 'Close',
       transitionDuration: 400.ms,
@@ -74,7 +74,6 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
         );
       },
       pageBuilder: (dialogContext, anim1, anim2) {
-        // 'dialogContext' is the context for inside the dialog
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
           child: Container(
@@ -91,17 +90,13 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                   backgroundColor: AppColors.OceanBlue.withOpacity(0.1),
                   child: Icon(Icons.credit_card_rounded, size: 30, color: AppColors.OceanBlue),
                 ).animate().fadeIn(delay: 200.ms).shake(hz: 3, duration: 800.ms),
-
                 const SizedBox(height: 16),
-
                 Text(
                   'تبرع للحملة',
                   style: Theme.of(dialogContext).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                 ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.5, duration: 600.ms),
 
                 const SizedBox(height: 24),
-
-                // Use the formKey and amountController passed into the function
                 Form(
                   key: formKey,
                   child: TextFormField(
@@ -109,7 +104,11 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       labelText: 'المبلغ',
-                      prefixIcon: Icon(Icons.monetization_on_outlined, color: Colors.grey.shade600),
+                      labelStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14
+                      ),
+                      prefixIcon: Icon(Icons.attach_money_sharp, color: Colors.grey.shade600),
                       filled: true,
                       fillColor: Colors.grey.shade100,
                       border: OutlineInputBorder(
@@ -126,15 +125,13 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                     },
                   ),
                 ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.5, duration: 600.ms),
-
                 const SizedBox(height: 24),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.pop(dialogContext), // Pop the dialog
-                      child: const Text('إلغاء'),
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('إلغاء',style: TextStyle(color: Colors.grey),),
                     ),
                     const SizedBox(width: 12),
                     Container(
@@ -157,17 +154,16 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                         onPressed: () {
                           if (formKey.currentState?.validate() ?? false) {
                             final amount = double.parse(amountController.text);
-                            // Use the 'buildContext' from the page to access the BLoC
                             buildContext.read<DonationBloc>().add(
                               MakeDonationEvent(
-                                projectId: campaignId, // Use the passed-in ID
+                                projectId: campaignId,
                                 amount: amount,
                               ),
                             );
-                            Navigator.pop(dialogContext); // Close the dialog
+                            Navigator.pop(dialogContext);
                           }
                         },
-                        icon: const Icon(Icons.payment, size: 18),
+                        // icon: const Icon(Icons.payment, size: 18),
                         label: const Text('تبرع الآن'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
@@ -233,56 +229,8 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
   void _donateToCampaign() {
     final TextEditingController amountController = TextEditingController();
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    // showDialog(
-    //   context: context,
-    //   builder: (dialogContext) {
-    //     return AlertDialog(
-    //       title: const Text('تبرع للحملة'),
-    //       content: Form(
-    //         key: formKey,
-    //         child: TextFormField(
-    //           controller: amountController,
-    //           keyboardType: const TextInputType.numberWithOptions(
-    //             decimal: true,
-    //           ),
-    //           decoration: const InputDecoration(labelText: 'المبلغ'),
-    //           validator: (value) {
-    //             if (value == null || value.isEmpty) return 'الرجاء إدخال مبلغ';
-    //             if (double.tryParse(value) == null ||
-    //                 double.parse(value) <= 0) {
-    //               return 'الرجاء إدخال مبلغ صحيح';
-    //             }
-    //             return null;
-    //           },
-    //         ),
-    //       ),
-    //       actions: [
-    //         TextButton(
-    //           onPressed: () => Navigator.pop(dialogContext),
-    //           child: const Text('إلغاء'),
-    //         ),
-    //         ElevatedButton(
-    //           onPressed: () {
-    //             if (formKey.currentState?.validate() ?? false) {
-    //               final amount = double.parse(amountController.text);
-    //               context.read<DonationBloc>().add(
-    //                 MakeDonationEvent(
-    //                   projectId: widget.campaign.id,
-    //                   amount: amount,
-    //                 ),
-    //               );
-    //               Navigator.pop(dialogContext);
-    //             }
-    //           },
-    //           child: const Text('تبرع الآن'),
-    //         ),
-    //       ],
-    //     );
-    //   },
-    // );
-    // _showAnimatedDonationDialog();
     _showAnimatedDonationDialog(
-      buildContext: context, // Pass the page's context
+      buildContext: context,
       formKey: formKey,
       amountController: amountController,
       campaignId: widget.campaign.id,
@@ -338,7 +286,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
               });
               ScaffoldMessenger.of(context).showSnackBar(
                 buildGlassySnackBar(
-                  message: 'شكرا لمشاركتك!',
+                  message: 'تم الانضمام بنجاح! شكرا لمشاركتك',
                   color: AppColors.CedarOlive,
                   context: context,
                 ),
@@ -365,7 +313,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                 _commentController.clear();
               });
             } else if (state is RatingCampaignError) {
-              print("❌ RatingCampaignError: ${state.message}");
+              // print("❌ RatingCampaignError: ${state.message}");
               if (state.message == "لقد قمت بتقييم هذا المشروع مسبقًا.") {
                 ScaffoldMessenger.of(context).showSnackBar(
                   buildGlassySnackBar(
@@ -531,18 +479,13 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // --- NEW ANIMATED WIDGET ---
-                        // This widget now animates the donation number from 0 to the final total.
                         Animate(
                           effects: [
                             CustomEffect(
-                              duration: 1500.ms, // A rapid but smooth animation duration
+                              duration: 1500.ms,
                               curve: Curves.easeOutCirc,
                               builder: (context, value, child) {
-                                // 'value' animates from 0.0 to 1.0.
                                 final animatedTotal = value * campaign.donationTotal;
-
-                                // We build the text with the animated number.
                                 return Text(
                                   "${animatedTotal.toStringAsFixed(2)} تم جمعها , ${campaign.requiredAmount} مطلوب ",
                                   style: const TextStyle(
@@ -554,7 +497,6 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                               },
                             ),
                           ],
-                          // A dummy child is provided because the CustomEffect builder creates the final widget.
                           child: Text(
                             "0.00 تم جمعها , ${campaign.requiredAmount} مطلوب ",
                             style: const TextStyle(
@@ -566,7 +508,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                         ),
                         const SizedBox(height: 8),
 
-                        // --- YOUR EXISTING PROGRESS BAR (UNCHANGED) ---
+                        // PROGRESS BAR ---
                         AnimatedBuilder(
                           animation: _progressAnimation,
                           builder: (context, child) {

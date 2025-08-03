@@ -19,7 +19,6 @@ class CampaignSummaryStats  extends StatelessWidget {
           : _buildActiveLayout(context),
     );
   }
-
   Widget _buildCompletedLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,32 +174,47 @@ Widget _buildAnimatedCountStat({
     elevation: 4,
     shadowColor: color.withOpacity(0.3),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 32, color: color),
-          const SizedBox(height: 12),
-          Animate(
-            effects: [
-              CustomEffect(
-                duration: 2000.ms,
-                curve: Curves.easeOut,
-                builder: (context, value, child) {
-                  final int currentCount = (value * count).round();
-                  return Text(
-                    "$currentCount",
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                  );
-                },
+    child: SizedBox(
+      height: 120,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 32, color: color),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Center(
+                child: Animate(
+                  effects: [
+                    CustomEffect(
+                      duration: 2000.ms,
+                      curve: Curves.easeOut,
+                      builder: (context, value, child) {
+                        final int currentCount = (value * count).round();
+                        return FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            "$currentCount",
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                  child: const Text(""),
+                ),
               ),
-            ],
-            child: const Text(""),
-          ),
-          const SizedBox(height: 4),
-          Text(title, style: const TextStyle(fontSize: 12), textAlign: TextAlign.center),
-        ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 11),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     ),
   );

@@ -615,27 +615,12 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  // Display selected category and clear filter button
                   if (_selectedCategoryName != null)
                     SliverToBoxAdapter(
-                      child: Container(
-                        color: Colors.grey.shade200,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        margin: const EdgeInsets.only(bottom: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),                        child: Row(
                           children: [
-                            Text(
-                              'التصنيف: $_selectedCategoryName',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            TextButton.icon(
+                            IconButton(
                               onPressed: () {
                                 setState(() {
                                   _selectedCategoryName = null;
@@ -650,18 +635,20 @@ class _HomePageState extends State<HomePage> {
                               icon: const Icon(
                                 Icons.close,
                                 size: 18,
-                                color: Colors.red,
+                                color: AppColors.OceanBlue,
                               ),
-                              label: const Text(
-                                'إزالة الفلتر',
-                                style: TextStyle(color: Colors.red),
+                            ),
+                            Text(
+                              'التصنيف: $_selectedCategoryName',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                  color: Colors.grey
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
-
                   // All Campaigns List
                   BlocConsumer<CampaignBloc, CampaignState>(
                     listener: (context, state) {

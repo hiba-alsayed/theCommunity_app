@@ -76,6 +76,7 @@ class SuggestionBloc extends Bloc<SuggestionEvent, SuggestionState> {
             (categories) => emit(SuggestionCategoriesLoaded(categories)),
       );
     });
+
     //رفع مقترح
     on<SubmitSuggestionEvent>((event, emit) async {
       emit(SubmittingSuggestionState());
@@ -162,6 +163,7 @@ class SuggestionBloc extends Bloc<SuggestionEvent, SuggestionState> {
             (suggestions) => emit(GetMySuggestionsLoaded(suggestions)),
       );
     });
+
     //حذف مقترح
     on<DeleteMySuggestionEvent>((event, emit) async {
       emit(DeleteMySuggestionLoading());

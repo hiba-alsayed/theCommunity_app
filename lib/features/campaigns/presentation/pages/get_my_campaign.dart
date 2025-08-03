@@ -29,7 +29,7 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.CedarOlive, Colors.white],
+            colors: [AppColors.SunsetOrange, Colors.white],
             stops: [0.0, 0.2],
           ),
         ),

@@ -516,7 +516,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     context,
                     title: 'مبادراتي',
                     icon: Icons.lightbulb_outline,
-                    iconColor: AppColors.OceanBlue,
+                    iconColor: AppColors.MidGreen,
                     onTap: () {
                       Navigator.push(
                         context,

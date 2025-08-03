@@ -18,8 +18,11 @@ class _RecommendedPageState extends State<RecommendedPage> {
   void initState() {
     super.initState();
     context.read<CampaignBloc>().add(GetRecommendedCampaignsEvent());
+    _loadRecommendedCampaigns;
   }
-
+  Future<void> _loadRecommendedCampaigns() async {
+    context.read<CampaignBloc>().add(GetRecommendedCampaignsEvent());
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +31,7 @@ class _RecommendedPageState extends State<RecommendedPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.CedarOlive, Colors.white],
+            colors: [AppColors.OceanBlue, Colors.white],
             stops: [0.0, 0.2],
           ),
         ),
@@ -83,30 +86,35 @@ class _RecommendedPageState extends State<RecommendedPage> {
                     ),
                   ),
                   Expanded(
-                    child: BlocBuilder<CampaignBloc, CampaignState>(
-                      builder: (context, state) {
-                        if (state is LoadingRecommendedCampaigns) {
-                          return const Center(child: CircularProgressIndicator());
-                        } else if (state is RecommendedCampaignsLoaded) {
-                          if (state.recommendedCampaigns.isEmpty) {
-                            return const Center(
-                              child: Text('لا توجد حملات موصى بها حالياً.'),
+                    child: RefreshIndicator(
+                      color: AppColors.OceanBlue,
+                      backgroundColor: AppColors.WhisperWhite,
+                      onRefresh: _loadRecommendedCampaigns,
+                      child: BlocBuilder<CampaignBloc, CampaignState>(
+                        builder: (context, state) {
+                          if (state is LoadingRecommendedCampaigns) {
+                            return const Center(child: LoadingWidget());
+                          } else if (state is RecommendedCampaignsLoaded) {
+                            if (state.recommendedCampaigns.isEmpty) {
+                              return const Center(
+                                child: Text('لا توجد حملات موصى بها حالياً.'),
+                              );
+                            }
+                            return CampaignListWidget(
+                              campaigns: state.recommendedCampaigns,
                             );
+                          } else if (state is CampaignErrorState) {
+                            return Center(
+                              child: Text(
+                                'حدث خطأ: ${state.message}',
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            );
+                          } else {
+                            return const Center(child: LoadingWidget());
                           }
-                          return CampaignListWidget(
-                            campaigns: state.recommendedCampaigns,
-                          );
-                        } else if (state is CampaignErrorState) {
-                          return Center(
-                            child: Text(
-                              'حدث خطأ: ${state.message}',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          );
-                        } else {
-                          return const Center(child: LoadingWidget());
-                        }
-                      },
+                        },
+                      ),
                     ),
                   ),
                 ],

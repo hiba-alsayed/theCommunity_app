@@ -8,7 +8,7 @@ class Suggestions extends Equatable {
   final String title;
   final String description;
   final String status;
-  final dynamic createdat;
+  final String createdat;
   final UserModel user;
   final dynamic imageUrl;
   final dynamic category;
