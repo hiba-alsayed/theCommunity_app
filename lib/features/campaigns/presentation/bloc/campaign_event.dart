@@ -68,3 +68,13 @@ class GetRecommendedCampaignsEvent extends CampaignEvent {}
 
 // جلب الحملات معاد نشرها
 class GetPromotedCampaignsEvent extends CampaignEvent {}
+
+// جلب الحملات ذات الصلة
+class GetRelatedCampaignsEvent extends CampaignEvent {
+  final int projectId;
+
+  const GetRelatedCampaignsEvent(this.projectId);
+
+  @override
+  List<Object?> get props => [projectId];
+}

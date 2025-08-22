@@ -17,3 +17,6 @@ class MakeDonationEvent extends DonationEvent {
   @override
   List<Object?> get props => [projectId, amount];
 }
+class GetMyDonationsEvent extends DonationEvent {
+  const GetMyDonationsEvent();
+}

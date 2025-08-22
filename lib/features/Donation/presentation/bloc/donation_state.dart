@@ -23,3 +23,21 @@ final class DonationFailure extends DonationState {
   @override
   List<Object?> get props => [errorMessage];
 }
+
+final class MyDonationsSuccess extends DonationState {
+  final List<DonationItemEntity> donations;
+
+  const MyDonationsSuccess({required this.donations});
+
+  @override
+  List<Object?> get props => [donations];
+}
+final class MyDonationLoading extends DonationState {}
+final class MyDonationFailure extends DonationState {
+  final String errorMessage;
+
+  const MyDonationFailure({required this.errorMessage});
+
+  @override
+  List<Object?> get props => [errorMessage];
+}

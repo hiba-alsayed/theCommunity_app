@@ -6,12 +6,14 @@ import '../../../../core/auth_token_provider.dart';
 import '../../../../core/base_url.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../model/donation_model.dart';
+import '../model/my_donations_model.dart';
 
 abstract class DonationRemoteDataSource {
   Future<DonationModel> makeDonation(
      int projectId,
      double amount,
   );
+  Future<List<DonationItemModel>> getMyDonations();
 }
 class DonationRemoteDataSourceImp implements DonationRemoteDataSource{
   final http.Client client;
@@ -49,6 +51,33 @@ class DonationRemoteDataSourceImp implements DonationRemoteDataSource{
       return DonationModel.fromJson(jsonData);
     } else if (response.statusCode == 422) {
       throw ValidationException(jsonData['message'] ?? 'Invalid data provided.');
+    } else {
+      throw ServerException();
+    }
+  }
+  @override
+  Future<List<DonationItemModel>> getMyDonations() async {
+    final token = await tokenProvider.getToken();
+    if (token == null) {
+      throw ServerException();
+    }
+
+    final response = await client.get(
+      Uri.parse('$baseUrl/api/Donation/myDonations'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    final jsonData = json.decode(response.body);
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
+    if (response.statusCode == 200 && jsonData['status'] == true) {
+      final MyDonationsModel myDonationsModel = MyDonationsModel.fromJson(jsonData);
+      return myDonationsModel.donations as List<DonationItemModel>;
     } else {
       throw ServerException();
     }

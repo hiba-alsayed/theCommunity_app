@@ -6,6 +6,7 @@ import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/profile/domain/entity/profile_entity.dart';
 import 'package:graduation_project/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:get_it/get_it.dart';
+import '../features/Donation/presentation/pages/my_donations_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/campaigns/presentation/pages/get_my_campaign.dart';
 import '../features/complaints/presentation/pages/my_complaint_page.dart';
@@ -535,6 +536,19 @@ class _ProfilePageState extends State<ProfilePage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const MyCampaignsPage()),
+                      );
+                    },
+                  ),
+                  _buildNavigationTile(
+                    context,
+                    title: 'تبرعاتي',
+                    icon: Icons.volunteer_activism,
+                    iconColor: AppColors.OceanBlue,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MyDonationsPage()),
                       );
                     },
                   ),

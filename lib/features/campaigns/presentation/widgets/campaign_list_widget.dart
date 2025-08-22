@@ -90,6 +90,8 @@ class CampaignCard extends StatelessWidget {
         return CampaignStatus.active;
       case 'منجزة':
         return CampaignStatus.completed;
+      case 'ملغية':
+        return CampaignStatus.canceled;
       default:
         return CampaignStatus.unknown;
     }
@@ -100,6 +102,8 @@ class CampaignCard extends StatelessWidget {
         return Colors.green.shade600;
       case CampaignStatus.completed:
         return AppColors.SunsetOrange;
+      case CampaignStatus.canceled:
+        return Colors.red;
       default:
         return Colors.grey.shade500;
     }
@@ -110,6 +114,8 @@ class CampaignCard extends StatelessWidget {
         return Icons.rocket_launch_outlined;
       case CampaignStatus.completed:
         return Icons.check_circle_outline;
+      case CampaignStatus.canceled:
+        return Icons.cancel;
       default:
         return Icons.info_outline;
     }
@@ -333,4 +339,4 @@ class CampaignCard extends StatelessWidget {
     );
   }
 }
-enum CampaignStatus { active, completed, unknown }
+enum CampaignStatus { active, completed,canceled, unknown }

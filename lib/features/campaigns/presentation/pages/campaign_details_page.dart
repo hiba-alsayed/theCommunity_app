@@ -13,6 +13,7 @@ import '../../../Donation/presentation/bloc/donation_bloc.dart';
 import '../../../../core pages/location_map_view_page.dart';
 import '../../../profile/presentation/pages/get_profile_by_userid_page.dart';
 import '../bloc/campaign_bloc.dart';
+import '../widgets/campaign_list_widget.dart';
 import '../widgets/campaign_summary_stats.dart';
 import 'all_rating_page.dart';
 
@@ -75,7 +76,9 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
       },
       pageBuilder: (dialogContext, anim1, anim2) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
           child: Container(
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
@@ -86,96 +89,133 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 CircleAvatar(
-                  radius: 35,
-                  backgroundColor: AppColors.OceanBlue.withOpacity(0.1),
-                  child: Icon(Icons.credit_card_rounded, size: 30, color: AppColors.OceanBlue),
-                ).animate().fadeIn(delay: 200.ms).shake(hz: 3, duration: 800.ms),
+                      radius: 35,
+                      backgroundColor: AppColors.OceanBlue.withOpacity(0.1),
+                      child: Icon(
+                        Icons.credit_card_rounded,
+                        size: 30,
+                        color: AppColors.OceanBlue,
+                      ),
+                    )
+                    .animate()
+                    .fadeIn(delay: 200.ms)
+                    .shake(hz: 3, duration: 800.ms),
                 const SizedBox(height: 16),
                 Text(
-                  'تبرع للحملة',
-                  style: Theme.of(dialogContext).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.5, duration: 600.ms),
+                      'تبرع للحملة',
+                      style: Theme.of(dialogContext).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    )
+                    .animate()
+                    .fadeIn(delay: 300.ms)
+                    .slideY(begin: 0.5, duration: 600.ms),
 
                 const SizedBox(height: 24),
                 Form(
-                  key: formKey,
-                  child: TextFormField(
-                    controller: amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: 'المبلغ',
-                      labelStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14
+                      key: formKey,
+                      child: TextFormField(
+                        controller: amountController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'المبلغ',
+                          labelStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.attach_money_sharp,
+                            color: Colors.grey.shade600,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'الرجاء إدخال مبلغ';
+                          if (double.tryParse(value) == null ||
+                              double.parse(value) <= 0) {
+                            return 'الرجاء إدخال مبلغ صحيح';
+                          }
+                          return null;
+                        },
                       ),
-                      prefixIcon: Icon(Icons.attach_money_sharp, color: Colors.grey.shade600),
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'الرجاء إدخال مبلغ';
-                      if (double.tryParse(value) == null || double.parse(value) <= 0) {
-                        return 'الرجاء إدخال مبلغ صحيح';
-                      }
-                      return null;
-                    },
-                  ),
-                ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.5, duration: 600.ms),
+                    )
+                    .animate()
+                    .fadeIn(delay: 400.ms)
+                    .slideY(begin: 0.5, duration: 600.ms),
                 const SizedBox(height: 24),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('إلغاء',style: TextStyle(color: Colors.grey),),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: LinearGradient(
-                          colors: [AppColors.OceanBlue, Colors.blue.shade400],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext),
+                          child: const Text(
+                            'إلغاء',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.OceanBlue.withOpacity(0.4),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          if (formKey.currentState?.validate() ?? false) {
-                            final amount = double.parse(amountController.text);
-                            buildContext.read<DonationBloc>().add(
-                              MakeDonationEvent(
-                                projectId: campaignId,
-                                amount: amount,
+                        const SizedBox(width: 12),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.OceanBlue,
+                                Colors.blue.shade400,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.OceanBlue.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
                               ),
-                            );
-                            Navigator.pop(dialogContext);
-                          }
-                        },
-                        // icon: const Icon(Icons.payment, size: 18),
-                        label: const Text('تبرع الآن'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ],
+                          ),
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              if (formKey.currentState?.validate() ?? false) {
+                                final amount = double.parse(
+                                  amountController.text,
+                                );
+                                buildContext.read<DonationBloc>().add(
+                                  MakeDonationEvent(
+                                    projectId: campaignId,
+                                    amount: amount,
+                                  ),
+                                );
+                                Navigator.pop(dialogContext);
+                              }
+                            },
+                            // icon: const Icon(Icons.payment, size: 18),
+                            label: const Text('تبرع الآن'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.5, duration: 600.ms),
+                      ],
+                    )
+                    .animate()
+                    .fadeIn(delay: 500.ms)
+                    .slideY(begin: 0.5, duration: 600.ms),
               ],
             ),
           ),
@@ -183,6 +223,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
       },
     );
   }
+
   @override
   void initState() {
     super.initState();
@@ -203,7 +244,13 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
     );
     _animationController.forward();
   }
-
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    BlocProvider.of<CampaignBloc>(context).add(
+      GetRelatedCampaignsEvent(widget.campaign.id),
+    );
+  }
   @override
   void dispose() {
     _animationController.dispose();
@@ -226,6 +273,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
       ).showSnackBar(SnackBar(content: Text('Could not launch $urlString')));
     }
   }
+
   void _donateToCampaign() {
     final TextEditingController amountController = TextEditingController();
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -236,6 +284,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
       campaignId: widget.campaign.id,
     );
   }
+
   void _openMap(BuildContext context) {
     if (widget.campaign.campaignLocation.latitude == null ||
         widget.campaign.campaignLocation.longitude == null) {
@@ -379,9 +428,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                                   const Center(child: Text("فشل تحميل الصورة")),
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
-                            return Center(
-                              child: LoadingWidget(),
-                            );
+                            return Center(child: LoadingWidget());
                           },
                         ),
                         Positioned(
@@ -485,7 +532,8 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                               duration: 1500.ms,
                               curve: Curves.easeOutCirc,
                               builder: (context, value, child) {
-                                final animatedTotal = value * campaign.donationTotal;
+                                final animatedTotal =
+                                    value * campaign.donationTotal;
                                 return Text(
                                   "${animatedTotal.toStringAsFixed(2)} تم جمعها , ${campaign.requiredAmount} مطلوب ",
                                   style: const TextStyle(
@@ -676,24 +724,24 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: [
-                          ElevatedButton(
-                            onPressed: _joinCampaign,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.OceanBlue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              minimumSize: const Size(double.infinity, 0),
+                        ElevatedButton(
+                          onPressed: _joinCampaign,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.OceanBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text(
-                              "انضم للحملة",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            minimumSize: const Size(double.infinity, 0),
+                          ),
+                          child: const Text(
+                            "انضم للحملة",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
+                        ),
                         const SizedBox(height: 10),
                         Container(
                           height: 50,
@@ -771,7 +819,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                             child: TabBarView(
                               children: [
                                 // --- TAB 1 ---
-                                CampaignSummaryStats (campaign: campaign),
+                                CampaignSummaryStats(campaign: campaign),
                                 // --- TAB 2---
                                 SingleChildScrollView(
                                   padding: const EdgeInsets.all(16.0),
@@ -990,23 +1038,35 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                                             ),
                                             const SizedBox(height: 10),
                                             ListView.builder(
-                                              shrinkWrap: true,
-                                              physics:
-                                                  const NeverScrollableScrollPhysics(),
-                                              itemCount: min(
-                                                3,
-                                                widget.campaign.ratings!.length,
-                                              ),
-                                              itemBuilder: (context, index) {
-                                                final rating =
+                                                  shrinkWrap: true,
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  itemCount: min(
+                                                    3,
                                                     widget
                                                         .campaign
-                                                        .ratings![index];
-                                                return RatingCard(
-                                                  rating: rating,
-                                                );
-                                              },
-                                            ).animate().fadeIn(delay: 400.ms ,duration: 800.ms).slideX(begin: 0.5),
+                                                        .ratings!
+                                                        .length,
+                                                  ),
+                                                  itemBuilder: (
+                                                    context,
+                                                    index,
+                                                  ) {
+                                                    final rating =
+                                                        widget
+                                                            .campaign
+                                                            .ratings![index];
+                                                    return RatingCard(
+                                                      rating: rating,
+                                                    );
+                                                  },
+                                                )
+                                                .animate()
+                                                .fadeIn(
+                                                  delay: 400.ms,
+                                                  duration: 800.ms,
+                                                )
+                                                .slideX(begin: 0.5),
                                           ],
                                         ),
                                     ],
@@ -1020,6 +1080,64 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                     ),
                   ),
                 ],
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(
+                //     horizontal: 16,
+                //   ),
+                //   child: Text(
+                //     'حملات ذات صلة',
+                //     style: Theme.of(context)
+                //         .textTheme
+                //         .headlineSmall
+                //         ?.copyWith(fontWeight: FontWeight.bold),
+                //   ),
+                // ),
+                // const SizedBox(height: 16),
+                // BlocBuilder<CampaignBloc, CampaignState>(
+                //   builder: (context, state) {
+                //     if (state is LoadingRelatedCampaigns) {
+                //       return const Center(
+                //         child: Padding(
+                //           padding: EdgeInsets.all(24.0),
+                //           child: CircularProgressIndicator(),
+                //         ),
+                //       );
+                //     } else if (state
+                //     is RelatedCampaignsLoaded) {
+                //       if (state.relatedCampaigns.isEmpty) {
+                //         return const Center(
+                //           child: Padding(
+                //             padding: EdgeInsets.all(24.0),
+                //             child: Text(
+                //               'لا توجد حملات ذات صلة',
+                //               style: TextStyle(
+                //                 color: Colors.grey,
+                //                 fontSize: 16,
+                //               ),
+                //             ),
+                //           ),
+                //         );
+                //       }
+                //       return CampaignListWidget(
+                //         campaigns: state.relatedCampaigns,
+                //       );
+                //     } else if (state is RelatedCampaignsError) {
+                //       return Center(
+                //         child: Padding(
+                //           padding: const EdgeInsets.all(24.0),
+                //           child: Text(
+                //             state.message,
+                //             style: const TextStyle(
+                //               color: Colors.red,
+                //             ),
+                //           ),
+                //         ),
+                //       );
+                //     }
+                //     return const SizedBox.shrink();
+                //   },
+                // ),
+                // const SizedBox(height: 24),
               ],
             ),
           ),

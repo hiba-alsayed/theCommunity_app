@@ -5,9 +5,6 @@ import '../../../../core/app_color.dart';
 import '../../../../core/widgets/glowing_gps.dart';
 import '../../domain/entites/complaint.dart';
 import '../pages/complaint_details_page.dart';
-
-
-//list
 class ComplaintListView extends StatefulWidget  {
   final List<ComplaintEntity> complaints;
 
@@ -97,6 +94,12 @@ class ComplaintCard extends StatelessWidget {
         return ComplaintStatus.waiting;
       case 'مرفوضة':
         return ComplaintStatus.rejected;
+      case 'تم التعيين':
+        return ComplaintStatus.assigned;
+      case 'تم التحقق':
+        return ComplaintStatus.verified;
+      case 'مغلقة':
+        return ComplaintStatus.closed;
       default:
         return ComplaintStatus.unknown;
     }
@@ -111,6 +114,12 @@ class ComplaintCard extends StatelessWidget {
         return Colors.red;
       case ComplaintStatus.waiting:
         return Colors.amber.shade600;
+      case ComplaintStatus.assigned:
+        return Colors.blue.shade600;
+      case ComplaintStatus.verified:
+        return Colors.teal.shade600;
+      case ComplaintStatus.closed:
+        return Colors.purple.shade700;
       default:
         return Colors.grey.shade500;
     }
@@ -125,6 +134,12 @@ class ComplaintCard extends StatelessWidget {
         return Icons.cancel;
       case ComplaintStatus.waiting:
         return Icons.schedule;
+      case ComplaintStatus.assigned:
+        return Icons.assignment_ind_outlined;
+      case ComplaintStatus.verified:
+        return Icons.verified_outlined;
+      case ComplaintStatus.closed:
+        return Icons.lock_outline;
       default:
         return Icons.info_outline;
     }
@@ -347,4 +362,5 @@ class ComplaintCard extends StatelessWidget {
     );
   }
 }
-enum ComplaintStatus { active, completed,rejected,waiting, unknown }
+enum ComplaintStatus { active, completed,rejected,waiting,assigned,
+  verified, closed, unknown }

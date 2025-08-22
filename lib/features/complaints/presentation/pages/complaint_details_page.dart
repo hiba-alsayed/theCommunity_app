@@ -6,11 +6,11 @@ import '../../../../core/widgets/glowing_gps.dart';
 import '../../../../core/widgets/snack_bar.dart';
 import '../../../profile/presentation/pages/get_profile_by_userid_page.dart';
 import '../../domain/entites/complaint.dart';
+import '../widgets/complaint_summery_stats.dart';
 import 'image_gallery_viewer_page.dart';
 
 class ComplaintDetailsPage extends StatefulWidget {
   final ComplaintEntity complaint;
-
   const ComplaintDetailsPage({super.key, required this.complaint});
 
   @override
@@ -48,10 +48,24 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
       'icon': Icons.check_circle_outline,
       'color': AppColors.SunsetOrange,
     },
-    'انتظار': {'icon': Icons.schedule, 'color': Colors.amber.shade600},
+    'انتظار': {
+      'icon': Icons.schedule,
+      'color': Colors.amber.shade600},
     'يتم التنفيذ': {
       'icon': Icons.rocket_launch_outlined,
       'color': Colors.green.shade600,
+    },
+    'تم التعيين': {
+      'icon': Icons.assignment_ind_outlined,
+      'color': Colors.blue.shade600,
+    },
+    'تم التحقق': {
+      'icon': Icons.verified_outlined,
+      'color': Colors.teal.shade600,
+    },
+    'مغلقة': {
+      'icon': Icons.lock_outline,
+      'color': Colors.purple.shade700,
     },
     'مرفوضة': {'icon': Icons.cancel, 'color': Colors.red},
   };
@@ -304,37 +318,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Stats for Complaint
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        'النقاط',
-                        widget.complaint.points.toString(),
-                        Icons.star,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildStatCard(
-                        'المنطقة',
-                        widget.complaint.region,
-                        Icons.location_city,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildStatCard(
-                        'تاريخ الإنشاء',
-                        _formatDate(widget.complaint.createdAt),
-                        Icons.date_range,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ComplaintSummaryStats(complaint: complaint,),
               const SizedBox(height: 24),
 
               // Complaint Images
@@ -410,36 +394,6 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
       ),
     );
   }
-
-  Widget _buildStatCard(String title, String value, IconData icon) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        width: 110,
-        height: 120,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            children: [
-              Icon(icon, size: 24, color: const Color(0xFF0172B2)),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(title, style: const TextStyle(fontSize: 11)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _imageGallery(BuildContext context, List<dynamic> imageList) {
     if (imageList.isEmpty) {
       return const SizedBox.shrink();

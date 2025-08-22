@@ -146,6 +146,25 @@ class PromotedCampaignsError extends CampaignState {
   List<Object> get props => [message];
 }
 
+// جلب الحملات ذات الصلة
+class LoadingRelatedCampaigns extends CampaignState {}
+class RelatedCampaignsLoaded extends CampaignState {
+  final List<Campaigns> relatedCampaigns;
+
+  const RelatedCampaignsLoaded({required this.relatedCampaigns});
+
+  @override
+  List<Object> get props => [relatedCampaigns];
+}
+class RelatedCampaignsError extends CampaignState {
+  final String message;
+
+  const RelatedCampaignsError({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
+
 // حالة الخطأ
 class CampaignErrorState extends CampaignState {
   final String message;

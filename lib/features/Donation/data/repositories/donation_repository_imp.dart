@@ -6,6 +6,7 @@ import 'package:graduation_project/features/Donation/domain/entity/donation_enti
 
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/network_info.dart';
+import '../../domain/entity/my_donations_entity.dart';
 import '../../domain/repository/donation_repository.dart';
 import '../datasources/donation_remote_data_source.dart';
 
@@ -24,6 +25,19 @@ class DonationRepositoryImp implements DonationRepository {
       try {
         final remoteDonation = await remoteDataSource.makeDonation(projectId, amount);
         return Right(remoteDonation);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(OfflineFailure());
+    }
+  }
+  @override
+  Future<Either<Failure, List<DonationItemEntity>>> getMyDonations() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final myDonations = await remoteDataSource.getMyDonations();
+        return Right(myDonations);
       } on ServerException {
         return Left(ServerFailure());
       }

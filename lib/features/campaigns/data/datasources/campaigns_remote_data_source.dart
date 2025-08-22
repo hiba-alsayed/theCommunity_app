@@ -25,6 +25,7 @@ abstract class CampaignRemoteDataSource {
   );
   Future<List<CampaignModel>> getRecommendedCampaigns();
   Future<List<CampaignModel>> getPromotedCampaigns();
+  Future<List<CampaignModel>> getRelatedCampaigns(int projectId);
 }
 
 class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
@@ -62,12 +63,12 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
         }
         final List<dynamic> dataList = decoded['data'];
         final suggestions =
-            dataList.map((item) {
-              if (item['image_url'] == "null") {
-                item['image_url'] = null;
-              }
-              return CampaignModel.fromJson(item);
-            }).toList();
+        dataList.map((item) {
+          if (item['image_url'] == "null") {
+            item['image_url'] = null;
+          }
+          return CampaignModel.fromJson(item);
+        }).toList();
         return suggestions;
       } else {
         throw ServerException();
@@ -98,7 +99,7 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
 
       final List<dynamic> dataList = decoded['data'];
       final categories =
-          dataList.map((json) => CategoryModel.fromJson(json)).toList();
+      dataList.map((json) => CategoryModel.fromJson(json)).toList();
 
       return categories;
     } else {
@@ -129,12 +130,12 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
 
         final List<dynamic> dataList = decoded['data'];
         final campaigns =
-            dataList.map((item) {
-              if (item['image_url'] == "null") {
-                item['image_url'] = null;
-              }
-              return CampaignModel.fromJson(item);
-            }).toList();
+        dataList.map((item) {
+          if (item['image_url'] == "null") {
+            item['image_url'] = null;
+          }
+          return CampaignModel.fromJson(item);
+        }).toList();
         return campaigns;
       } else {
         throw ServerException();
@@ -155,7 +156,7 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
         "Authorization": "Bearer $token",
       },
     );
-     final Map<String, dynamic> decoded;
+    final Map<String, dynamic> decoded;
     try {
       decoded = json.decode(response.body);
     } catch (e) {
@@ -167,7 +168,8 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
     if (apiMessage == 'لقد قمت بالانضمام بالفعل') {
       throw AlreadyJoinedException();
     }
-    if (response.statusCode == 200 && decoded.containsKey('status') && decoded['status'] == true) {
+    if (response.statusCode == 200 && decoded.containsKey('status') &&
+        decoded['status'] == true) {
       return; // Success!
     }
     throw ServerException();
@@ -195,12 +197,12 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
 
         final List<dynamic> dataList = decoded['data'];
         final myCampaigns =
-            dataList.map((item) {
-              if (item['image_url'] == "null") {
-                item['image_url'] = null;
-              }
-              return CampaignModel.fromJson(item);
-            }).toList();
+        dataList.map((item) {
+          if (item['image_url'] == "null") {
+            item['image_url'] = null;
+          }
+          return CampaignModel.fromJson(item);
+        }).toList();
         return myCampaigns;
       } else {
         throw ServerException();
@@ -211,10 +213,8 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
   }
 
   @override
-  Future<List<CampaignModel>> getNearbyCampaigns(
-      int categoryId,
-      double distance,
-      ) async {
+  Future<List<CampaignModel>> getNearbyCampaigns(int categoryId,
+      double distance,) async {
     try {
       final token = await tokenProvider.getToken();
       final response = await client.post(
@@ -246,7 +246,8 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
 
         return nearbyCampaigns;
       } else {
-        print('Server responded with status code: ${response.statusCode}. Body: ${response.body}');
+        print('Server responded with status code: ${response
+            .statusCode}. Body: ${response.body}');
         throw ServerException(message: 'Server Error: ${response.statusCode}');
       }
     } catch (e) {
@@ -254,16 +255,15 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
       if (e is FormatException) {
         throw ServerException(message: 'Invalid response format from server.');
       }
-      throw ServerException(message: 'An unexpected error occurred: ${e.toString()}');
+      throw ServerException(
+          message: 'An unexpected error occurred: ${e.toString()}');
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> rateCompletedCampaign(
-    int campaignId,
-    int rating,
-    String comment,
-  ) async {
+  Future<Either<Failure, Unit>> rateCompletedCampaign(int campaignId,
+      int rating,
+      String comment,) async {
     try {
       final token = await tokenProvider.getToken();
       final response = await client.post(
@@ -300,46 +300,46 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
   }
 
   @override
-  Future<List<CampaignModel>> getRecommendedCampaigns() async{
-      try {
-        final token = await tokenProvider.getToken();
-        final body = {"type": "حملة رسمية"};
+  Future<List<CampaignModel>> getRecommendedCampaigns() async {
+    try {
+      final token = await tokenProvider.getToken();
+      final body = {"type": "حملة رسمية"};
 
-        final response = await client.post(
-          Uri.parse("$baseUrl/api/client/project/recommends"),
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Authorization": "Bearer $token",
-          },
-          body: json.encode(body),
-        );
+      final response = await client.post(
+        Uri.parse("$baseUrl/api/client/project/recommends"),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: json.encode(body),
+      );
 
-        if (response.statusCode == 200) {
-          final decoded = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
 
-          if (decoded['data'] == null || decoded['data'] is! List) {
-            throw ServerException();
-          }
-          final List<dynamic> dataList = decoded['data'];
-          final recommendedCampaigns = dataList.map((item) {
-            if (item['image_url'] == "null") {
-              item['image_url'] = null;
-            }
-            return CampaignModel.fromJson(item);
-          }).toList();
-
-          return recommendedCampaigns;
-        } else {
+        if (decoded['data'] == null || decoded['data'] is! List) {
           throw ServerException();
         }
-      } catch (e) {
+        final List<dynamic> dataList = decoded['data'];
+        final recommendedCampaigns = dataList.map((item) {
+          if (item['image_url'] == "null") {
+            item['image_url'] = null;
+          }
+          return CampaignModel.fromJson(item);
+        }).toList();
+
+        return recommendedCampaigns;
+      } else {
         throw ServerException();
       }
-}
+    } catch (e) {
+      throw ServerException();
+    }
+  }
 
   @override
-  Future<List<CampaignModel>> getPromotedCampaigns() async{
+  Future<List<CampaignModel>> getPromotedCampaigns() async {
     final url = Uri.parse("$baseUrl/api/client/project/promoted");
 
     try {
@@ -374,4 +374,44 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
     } catch (e) {
       throw ServerException();
     }
-  }}
+  }
+
+  @override
+  Future<List<CampaignModel>> getRelatedCampaigns(int projectId) async {
+    final url = Uri.parse("$baseUrl/api/projects/$projectId/related");
+
+    try {
+      final response = await client.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final decodedResponse = json.decode(response.body);
+
+        if (decodedResponse['status'] != true ||
+            decodedResponse['data'] == null ||
+            decodedResponse['data'] is! List) {
+          throw ServerException();
+        }
+
+        final List<dynamic> dataList = decodedResponse['data'];
+        final relatedCampaigns = dataList.map((item) {
+          if (item['image_url'] == "null") {
+            item['image_url'] = null;
+          }
+          return CampaignModel.fromJson(item);
+        }).toList();
+
+        return relatedCampaigns;
+      } else {
+        throw ServerException();
+      }
+    } catch (e) {
+      throw ServerException();
+    }
+  }
+}

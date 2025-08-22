@@ -22,4 +22,5 @@ abstract class CampaignRepository {
   );
   Future<Either<Failure, List<Campaigns>>> getRecommendedCampaigns();
   Future<Either<Failure, List<Campaigns>>> getPromotedCampaigns();
+  Future<Either<Failure, List<Campaigns>>> getRelatedCampaigns(int projectId);
 }

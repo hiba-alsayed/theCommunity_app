@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project/core/widgets/loading_widget.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../bloc/complaint_bloc.dart';
@@ -106,9 +107,7 @@ class _AllNearbyComplaintsPageState extends State<AllNearbyComplaintsPage> {
                       builder: (context, state) {
                         if (state is LoadingAllNearbyComplaints) {
                           return const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.blueAccent,
-                            ),
+                            child: LoadingWidget()
                           );
                         } else if (state is AllNearbyComplaintsLoaded) {
                           if (state.complaints.isEmpty) {

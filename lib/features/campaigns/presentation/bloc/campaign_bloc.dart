@@ -14,6 +14,7 @@ import '../../domain/usecases/get_my_campaigns.dart';
 import '../../domain/usecases/get_nearby_campaigns.dart';
 import '../../domain/usecases/get_promoted_campaigns.dart';
 import '../../domain/usecases/get_recommended_campaigns.dart';
+import '../../domain/usecases/get_related_campaign.dart';
 import '../../domain/usecases/rate_completed_campaign.dart';
 
 part 'campaign_event.dart';
@@ -31,6 +32,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
   final RateCompletedCampaign rateCompletedCampaign;
   final GetRecommendedCampaigns getRecommendedCampaigns;
   final GetPromotedCampaigns getPromotedCampaigns;
+  final GetRelatedCampaigns getRelatedCampaigns;
 
   CampaignBloc({
     required this.getAllCampaigns,
@@ -42,6 +44,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
     required this.rateCompletedCampaign,
     required this.getRecommendedCampaigns,
     required this.getPromotedCampaigns,
+    required this.getRelatedCampaigns,
   }) : super(CampaignInitialState()) {
 
     // جلب كل الحملات
@@ -158,6 +161,16 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
             (failure) =>
             emit(PromotedCampaignsError(message: _mapFailureToMessage(failure))),
             (campaigns) => emit(PromotedCampaignsLoaded(promotedCampaigns: campaigns)),
+      );
+    });
+
+    // جلب الحملات ذات الصلة
+    on<GetRelatedCampaignsEvent>((event, emit) async {
+      emit(LoadingRelatedCampaigns());
+      final result = await getRelatedCampaigns(event.projectId);
+      result.fold(
+            (failure) => emit(RelatedCampaignsError(message: _mapFailureToMessage(failure))),
+            (campaigns) => emit(RelatedCampaignsLoaded(relatedCampaigns: campaigns)),
       );
     });
   }

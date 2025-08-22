@@ -5,6 +5,7 @@ import 'package:graduation_project/features/auth/domain/usecase/log_out.dart';
 import 'package:graduation_project/features/auth/domain/usecase/reset_password.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/get_my_campaigns.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/get_promoted_campaigns.dart';
+import 'package:graduation_project/features/campaigns/domain/usecases/get_related_campaign.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/join_campaign.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/rate_completed_campaign.dart';
 import 'package:graduation_project/features/campaigns/presentation/bloc/campaign_bloc.dart';
@@ -27,6 +28,7 @@ import 'core/network/network_info.dart';
 import 'features/Donation/data/datasources/donation_remote_data_source.dart';
 import 'features/Donation/data/repositories/donation_repository_imp.dart';
 import 'features/Donation/domain/repository/donation_repository.dart';
+import 'features/Donation/domain/usecase/get_my_donations.dart';
 import 'features/Donation/presentation/bloc/donation_bloc.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_imp.dart';
@@ -101,6 +103,7 @@ sl.registerFactory<CampaignBloc>(
       rateCompletedCampaign: sl(),
       getRecommendedCampaigns: sl(),
       getPromotedCampaigns: sl(),
+      getRelatedCampaigns: sl(),
     ),
 );
 
@@ -124,7 +127,7 @@ sl.registerFactory<CampaignBloc>(
     ),
   );
   sl.registerFactory<DonationBloc>(
-        ()=>DonationBloc(makeDonation: sl()
+        ()=>DonationBloc(makeDonation: sl(), getMyDonations: sl()
     ),
   );
   sl.registerFactory<ProfileBloc>(
@@ -152,8 +155,9 @@ sl.registerLazySingleton<JoinCampaign>(()=>JoinCampaign(sl()));
 sl.registerLazySingleton<GetMyCampaigns>(()=>GetMyCampaigns(sl()));
 sl.registerLazySingleton<GetNearbyCampaigns>(()=>GetNearbyCampaigns(sl()));
 sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()));
-  sl.registerLazySingleton<GetRecommendedCampaigns>(()=>GetRecommendedCampaigns(sl()));
-  sl.registerLazySingleton<GetPromotedCampaigns >(()=>GetPromotedCampaigns (sl()));
+sl.registerLazySingleton<GetRecommendedCampaigns>(()=>GetRecommendedCampaigns(sl()));
+sl.registerLazySingleton<GetPromotedCampaigns >(()=>GetPromotedCampaigns (sl()));
+sl.registerLazySingleton<GetRelatedCampaigns >(()=>GetRelatedCampaigns (sl()));
 
   sl.registerLazySingleton<LogIn>(() => LogIn(sl()));
   sl.registerLazySingleton<SignUp>(() => SignUp(sl()));
@@ -176,6 +180,7 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
   sl.registerLazySingleton<GetNotifications>(()=>GetNotifications(sl()));
 
   sl.registerLazySingleton<MakeDonation>(()=>MakeDonation(sl()));
+  sl.registerLazySingleton<GetMyDonations>(()=>GetMyDonations(sl()));
 
   sl.registerLazySingleton<GetMyProfile>(()=>GetMyProfile(sl()));
   sl.registerLazySingleton<GetProfileByUserId>(()=>GetProfileByUserId(sl()));
