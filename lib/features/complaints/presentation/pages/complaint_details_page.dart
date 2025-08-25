@@ -322,69 +322,44 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
               const SizedBox(height: 24),
 
               // Complaint Images
+              // Complaint Images section
               if (widget.complaint.complaintImages.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'صور الشكوى',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          _imageGallery(
-                            context,
-                            widget.complaint.complaintImages,
-                          ),
-                        ],
+                HorizontalImageGallery(
+                  title: 'صور الشكوى',
+                  imageList: widget.complaint.complaintImages,
+                  onImageTap: (index) {
+                    final imageUrls = widget.complaint.complaintImages.map((img) => img.url as String).toList();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ImageGalleryViewerPage(
+                          imageUrls: imageUrls,
+                          initialIndex: index,
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               if (widget.complaint.complaintImages.isNotEmpty)
                 const SizedBox(height: 24),
 
-              // Achievement Images
+// Achievement Images section
               if (widget.complaint.achievementImages.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'صور الإنجاز',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          _imageGallery(
-                            context,
-                            widget.complaint.achievementImages,
-                          ),
-                        ],
+                HorizontalImageGallery(
+                  title: 'صور الإنجاز',
+                  imageList: widget.complaint.achievementImages,
+                  onImageTap: (index) {
+                    final imageUrls = widget.complaint.achievementImages.map((img) => img.url as String).toList();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ImageGalleryViewerPage(
+                          imageUrls: imageUrls,
+                          initialIndex: index,
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               if (widget.complaint.achievementImages.isNotEmpty)
                 const SizedBox(height: 24),
@@ -394,58 +369,132 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
       ),
     );
   }
-  Widget _imageGallery(BuildContext context, List<dynamic> imageList) {
-    if (imageList.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    final imageUrls = imageList.map((img) => img.url as String).toList();
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: List.generate(imageUrls.length, (index) {
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => ImageGalleryViewerPage(
-                      imageUrls: imageUrls,
-                      initialIndex: index,
-                    ),
-              ),
-            );
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              imageUrls[index],
-              height: 120,
-              width: 120,
-              fit: BoxFit.cover,
-              errorBuilder:
-                  (context, error, stackTrace) => Container(
-                    height: 120,
-                    width: 120,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
-                  ),
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) return child;
-                return const SizedBox(
-                  height: 120,
-                  width: 120,
-                  child: Center(child: LoadingWidget()),
-                );
-              },
-            ),
-          ),
-        );
-      }),
-    );
-  }
+  // Widget _imageGallery(BuildContext context, List<dynamic> imageList) {
+  //   if (imageList.isEmpty) {
+  //     return const SizedBox.shrink();
+  //   }
+  //   final imageUrls = imageList.map((img) => img.url as String).toList();
+  //   return Wrap(
+  //     spacing: 10,
+  //     runSpacing: 10,
+  //     children: List.generate(imageUrls.length, (index) {
+  //       return GestureDetector(
+  //         onTap: () {
+  //           Navigator.push(
+  //             context,
+  //             MaterialPageRoute(
+  //               builder:
+  //                   (context) => ImageGalleryViewerPage(
+  //                     imageUrls: imageUrls,
+  //                     initialIndex: index,
+  //                   ),
+  //             ),
+  //           );
+  //         },
+  //         child: ClipRRect(
+  //           borderRadius: BorderRadius.circular(12),
+  //           child: Image.network(
+  //             imageUrls[index],
+  //             height: 120,
+  //             width: 120,
+  //             fit: BoxFit.cover,
+  //             errorBuilder:
+  //                 (context, error, stackTrace) => Container(
+  //                   height: 120,
+  //                   width: 120,
+  //                   color: Colors.grey[200],
+  //                   child: const Icon(Icons.broken_image, color: Colors.grey),
+  //                 ),
+  //             loadingBuilder: (context, child, progress) {
+  //               if (progress == null) return child;
+  //               return const SizedBox(
+  //                 height: 120,
+  //                 width: 120,
+  //                 child: Center(child: LoadingWidget()),
+  //               );
+  //             },
+  //           ),
+  //         ),
+  //       );
+  //     }),
+  //   );
+  // }
+  
   String _formatDate(DateTime dateTime) {
     final local = dateTime.toLocal();
     return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+  }
+}
+
+class HorizontalImageGallery extends StatelessWidget {
+  final List<dynamic> imageList;
+  final String title;
+  final Function(int) onImageTap;
+
+  const HorizontalImageGallery({
+    super.key,
+    required this.imageList,
+    required this.title,
+    required this.onImageTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageList.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          height: 250, // Set a fixed height for the image gallery
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: PageView.builder(
+            itemCount: imageList.length,
+            itemBuilder: (context, index) {
+              final imageUrl = imageList[index].url as String;
+              return GestureDetector(
+                onTap: () => onImageTap(index),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Container(
+                          color: Colors.grey[300],
+                          child: const Icon(
+                            Icons.broken_image,
+                            color: Colors.grey,
+                            size: 50,
+                          ),
+                        ),
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return const Center(child: LoadingWidget());
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

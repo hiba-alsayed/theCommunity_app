@@ -5,7 +5,9 @@ import 'package:graduation_project/features/complaints/presentation/bloc/complai
 import 'package:graduation_project/features/complaints/presentation/pages/submit_complaint_page.dart';
 import '../../../../core/app_color.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../campaigns/presentation/widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../../../notifications/presentation/page/notification_page.dart';
+import '../widgets/complaint_shimmer_widget.dart';
 import '../widgets/complaint_list_widget.dart';
 import '../widgets/nearby_complaint_carousel_widget.dart';
 import 'all_nearby_complaints_page.dart';
@@ -89,10 +91,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
           builder: (context, state) {
             if (state is LoadingCategories) {
               return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
                   child: LoadingWidget(),
-                ),
               );
             } else if (state is CategoriesLoaded) {
               final categories = state.categories;
@@ -367,7 +366,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                     builder: (context, state) {
                       if (state is LoadingAllNearbyComplaints) {
                         return const Center(
-                          child: LoadingWidget(),
+                          child: ComplaintShimmerWidget(),
                         );
                       } else if (state is AllNearbyComplaintsLoaded) {
                         final displayedCampaigns =
@@ -471,7 +470,6 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                   ),
                 BlocConsumer<ComplaintBloc, ComplaintState>(
                   listener: (context, state) {
-                    // Cache campaigns when loaded
                     if (state is ComplaintsLoaded) {
                       _cachedAllComplaints = state.complaints;
                       _filterComplaints(_searchController.text);
@@ -489,7 +487,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                     if (state is LoadingComplaints ||
                         state is LoadingComplaintsByCategory) {
                       return const SliverFillRemaining(
-                        child: Center(child: LoadingWidget()),
+                        child: Center(child: CampaignComplaintListShimmer()),
                       );
                     } else if (complaintsToDisplay != null && complaintsToDisplay.isNotEmpty) {
                       return SliverList(

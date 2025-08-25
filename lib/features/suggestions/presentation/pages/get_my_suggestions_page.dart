@@ -7,6 +7,7 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../../domain/entities/Suggestions.dart';
 import '../bloc/suggestion_bloc.dart';
+import '../widgets/suggestions_list_shimmer_widget.dart';
 import '../widgets/suggestions_list_widget.dart';
 
 class MySuggestionsPage extends StatefulWidget {
@@ -23,6 +24,10 @@ class _MySuggestionsPageState extends State<MySuggestionsPage> {
     context.read<SuggestionBloc>().add(GetMySuggestionsEvent());
   }
 
+  Future<void> _refreshMySuggestions() async {
+    context.read<SuggestionBloc>().add(GetMySuggestionsEvent());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +36,7 @@ class _MySuggestionsPageState extends State<MySuggestionsPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.OceanBlue, Colors.white],
+            colors: [AppColors.MidGreen, Colors.white],
             stops: [0.0, 0.2],
           ),
         ),
@@ -58,7 +63,7 @@ class _MySuggestionsPageState extends State<MySuggestionsPage> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.OceanBlue.withOpacity(0.5),
+                                  color: AppColors.MidGreen.withOpacity(0.5),
                                   spreadRadius: 2,
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
@@ -73,8 +78,8 @@ class _MySuggestionsPageState extends State<MySuggestionsPage> {
                               onPressed: () {
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
-                                    builder:
-                                        (context) => const MainNavigationPage(),
+                                    builder: (context) =>
+                                    const MainNavigationPage(),
                                   ),
                                 );
                               },
@@ -107,38 +112,61 @@ class _MySuggestionsPageState extends State<MySuggestionsPage> {
                           );
                         }
                       },
-                      child: BlocBuilder<SuggestionBloc, SuggestionState>(
-                        builder: (context, state) {
-                          if (state is GetMySuggestionsLoading) {
-                            return const Center(child: LoadingWidget());
-                          } else if (state is GetMySuggestionsLoaded) {
-                            if (state.suggestions.isEmpty) {
-                              return const Center(
-                                child: Text(
-                                  'لا يوجد لديك مقترحات.',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                  ),
-                                ),
+                      child: RefreshIndicator(
+                        onRefresh: _refreshMySuggestions,
+                        color: AppColors.MidGreen,
+                        backgroundColor: AppColors.WhisperWhite,
+                        child: BlocBuilder<SuggestionBloc, SuggestionState>(
+                          builder: (context, state) {
+                            if (state is GetMySuggestionsLoading) {
+                              return ListView(
+                                children: const [
+                                  Center(child: SuggestionsShimmerList()),
+                                ],
                               );
+                            } else if (state is GetMySuggestionsLoaded) {
+                              if (state.suggestions.isEmpty) {
+                                return ListView(
+                                  children: const [
+                                    SizedBox(
+                                      height: 700,
+                                      child: Center(
+                                        child: Text(
+                                          'لا يوجد لديك مبادرات.',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                              return SuggestionsListWidget(
+                                suggestion: state.suggestions,
+                                isMySuggestionsPage: true,
+                              );
+                            } else if (state is GetMySuggestionsError) {
+                              return ListView(
+                                children: [
+                                  SizedBox(
+                                    height: 300,
+                                    child: Center(
+                                      child: Text(
+                                        'حدث خطأ أثناء تحميل المقترحات: ${state.message}',
+                                        style: const TextStyle(color: Colors.red),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return const SizedBox();
                             }
-                            return SuggestionsListWidget(
-                              suggestion: state.suggestions,
-                              isMySuggestionsPage: true,
-                            );
-                          } else if (state is GetMySuggestionsError) {
-                            return Center(
-                              child: Text(
-                                'حدث خطأ أثناء تحميل المقترحات: ${state.message}',
-                                style: const TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
-                              ),
-                            );
-                          } else {
-                            return const SizedBox();
-                          }
-                        },
+                          },
+                        ),
                       ),
                     ),
                   ),

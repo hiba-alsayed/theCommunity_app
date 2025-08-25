@@ -4,6 +4,7 @@ import 'package:graduation_project/features/campaigns/presentation/bloc/campaign
 import '../../../../core/app_color.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../navigation/main_navigation_page.dart';
+import '../widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../widgets/campaign_list_widget.dart';
 
 class RecommendedPage extends StatefulWidget {
@@ -56,7 +57,7 @@ class _RecommendedPageState extends State<RecommendedPage> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.CedarOlive.withOpacity(0.5),
+                                  color: AppColors.OceanBlue.withOpacity(0.5),
                                   spreadRadius: 2,
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
@@ -93,7 +94,7 @@ class _RecommendedPageState extends State<RecommendedPage> {
                       child: BlocBuilder<CampaignBloc, CampaignState>(
                         builder: (context, state) {
                           if (state is LoadingRecommendedCampaigns) {
-                            return const Center(child: LoadingWidget());
+                            return const Center(child: CampaignComplaintListShimmer());
                           } else if (state is RecommendedCampaignsLoaded) {
                             if (state.recommendedCampaigns.isEmpty) {
                               return const Center(
@@ -111,7 +112,7 @@ class _RecommendedPageState extends State<RecommendedPage> {
                               ),
                             );
                           } else {
-                            return const Center(child: LoadingWidget());
+                            return const SizedBox();
                           }
                         },
                       ),

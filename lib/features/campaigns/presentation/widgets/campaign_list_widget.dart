@@ -38,6 +38,8 @@ class _CampaignListWidgetState extends State<CampaignListWidget> with SingleTick
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      shrinkWrap: true,
+      // physics:  NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(14),
       itemCount: widget.campaigns.length,
       itemBuilder: (context, index) {

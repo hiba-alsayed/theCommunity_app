@@ -173,14 +173,14 @@ class _NotificationPageState extends State<NotificationPage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'No Notifications Yet',
+                  'لا يوجد إشعارات حتى الآن',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'When you get a new notification, it will show up here.',
+                  'عندما تحصل على إشعار جديد، سوف يظهر هنا.',
                   textAlign: TextAlign.center,
                   style: Theme.of(
                     context,

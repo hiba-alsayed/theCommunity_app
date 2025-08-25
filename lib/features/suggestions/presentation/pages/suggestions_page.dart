@@ -5,6 +5,7 @@ import '../../../../core/app_color.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/message_display_widget.dart';
 import '../../domain/entities/Suggestions.dart';
+import '../widgets/suggestions_list_shimmer_widget.dart';
 import '../widgets/suggestions_list_widget.dart';
 import '../bloc/suggestion_bloc.dart';
 
@@ -274,7 +275,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                     builder: (context, state) {
                       if (state is LoadingAllSuggestions ||
                           state is LoadingSuggestionsByCategory) {
-                        return const LoadingWidget();
+                        return const SuggestionsShimmerList();
                       } else if (state is AllSuggestionsLoaded) {
                         if (state.suggestion.isEmpty) {
                           return const MessageDisplayWidget(message: 'لا توجد مقترحات متاحة حالياً.');

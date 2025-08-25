@@ -4,6 +4,7 @@ import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/complaints/presentation/bloc/complaint_bloc.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
+import '../../../campaigns/presentation/widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../widgets/complaint_list_widget.dart';
 
 class MyComplaintsPage extends StatefulWidget {
@@ -19,7 +20,9 @@ class _MyComplaintsPageState extends State<MyComplaintsPage> {
     super.initState();
     context.read<ComplaintBloc>().add(GetMyComplaintsEvent());
   }
-
+  Future<void> _refreshMyComplaints() async {
+    BlocProvider.of<ComplaintBloc>(context).add(GetMyComplaintsEvent());
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,48 +94,64 @@ class _MyComplaintsPageState extends State<MyComplaintsPage> {
                     ),
                   ),
                   Expanded(
-                    child: BlocBuilder<ComplaintBloc, ComplaintState>(
-                      builder: (context, state) {
-                        if (state is LoadingMyComplaints) {
-                          return const Center(
-                            child: LoadingWidget(),
-                          );
-                        }
-                        else if (state is MyComplaintsLoaded) {
-                          if (state.complaints.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                'لا يوجد لديك شكاوى حالياً',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
+                    child: RefreshIndicator(
+                      onRefresh: _refreshMyComplaints,
+                      color: AppColors.RichBerry,
+                      backgroundColor: AppColors.WhisperWhite,
+                      child: BlocBuilder<ComplaintBloc, ComplaintState>(
+                        builder: (context, state) {
+                          if (state is LoadingMyComplaints) {
+                            return ListView( // Always use a scrollable widget
+                              children: const [
+                                Center(
+                                  child: CampaignComplaintListShimmer(),
+                                ),
+                              ],
+                            );
+                          }
+                          else if (state is MyComplaintsLoaded) {
+                            if (state.complaints.isEmpty) {
+                              return ListView(
+                                physics: const AlwaysScrollableScrollPhysics(), // ensures refresh works
+                                children: const [
+                                  SizedBox(
+                                    height: 700,
+                                    child: Center(
+                                      child: Text(
+                                        'لا يوجد لديك شكاوى حالياً',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                            return ComplaintListView(
+                              complaints: state.complaints,
+                            );
+                          }
+                          else if (state is ComplaintErrorState) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  'حدث خطأ أثناء تحميل الشكاوي: ${state.message}',
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             );
                           }
-                          return ComplaintListView(
-                            complaints: state.complaints,
-                          );
-                        }
-                        else if (state is ComplaintErrorState) {
-                          return Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'حدث خطأ أثناء تحميل الشكاوي: ${state.message}',
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 16,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          );
-                        }
-                        return const Center(
-                          child: LoadingWidget(),
-                        );
-                      },
+                          return SizedBox();
+                        },
+                      ),
                     ),
                   ),
                 ],

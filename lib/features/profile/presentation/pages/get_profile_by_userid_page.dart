@@ -5,6 +5,8 @@ import 'package:graduation_project/features/profile/presentation/bloc/profile_bl
 import 'package:get_it/get_it.dart';
 import 'package:graduation_project/core/app_color.dart';
 
+import '../widgets/profile_shimmer_widget.dart';
+
 class GetProfileByUserIdPage extends StatefulWidget {
   final int userId;
   final String userName;
@@ -49,7 +51,6 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
           child: BlocConsumer<ProfileBloc, ProfileState>(
             listener: (context, state) {
               if (state is ProfileError) {
-                // Show a SnackBar for errors
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
                 );
@@ -57,7 +58,7 @@ class _GetProfileByUserIdPageState extends State<GetProfileByUserIdPage> {
             },
             builder: (context, state) {
               if (state is ProfileLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return const ProfileShimmer();
               } else if (state is ProfileLoaded) {
                 return _buildProfileContent(context, state.profile);
               } else if (state is ProfileError) {

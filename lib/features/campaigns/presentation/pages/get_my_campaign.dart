@@ -4,6 +4,7 @@ import 'package:graduation_project/core/widgets/loading_widget.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../bloc/campaign_bloc.dart';
+import '../widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../widgets/campaign_list_widget.dart';
 import '../../domain/entities/campaigns.dart';
 
@@ -18,6 +19,10 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
   @override
   void initState() {
     super.initState();
+    BlocProvider.of<CampaignBloc>(context).add(GetMyCampaignsEvent());
+  }
+
+  Future<void> _onRefresh() async {
     BlocProvider.of<CampaignBloc>(context).add(GetMyCampaignsEvent());
   }
 
@@ -56,7 +61,7 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.CedarOlive.withOpacity(0.5),
+                                  color: AppColors.SunsetOrange.withOpacity(0.5),
                                   spreadRadius: 2,
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
@@ -92,33 +97,43 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
                     ),
                   ),
                   Expanded(
-                    child: BlocBuilder<CampaignBloc, CampaignState>(
-                      builder: (context, state) {
-                        if (state is MyCampaignsLoading) {
-                          return const Center(
-                            child: LoadingWidget(),
-                          );
-                        } else if (state is MyCampaignsLoaded) {
-                          final List<Campaigns> activeCampaigns =
-                              state.myCampaigns
-                                  .where(
-                                    (campaign) => campaign.status == 'نشطة',
-                                  )
-                                  .toList();
-
-                          if (activeCampaigns.isEmpty) {
+                    child: RefreshIndicator(
+                      onRefresh: _onRefresh,
+                      child: BlocBuilder<CampaignBloc, CampaignState>(
+                        builder: (context, state) {
+                          if (state is MyCampaignsLoading) {
                             return const Center(
-                              child: Text('لا توجد حملات نشطة حتى الآن.'),
+                              child: CampaignComplaintListShimmer(),
                             );
-                          }
+                          } else if (state is MyCampaignsLoaded) {
+                            final List<Campaigns> activeCampaigns =
+                            state.myCampaigns.where((campaign) => campaign.status == 'نشطة').toList();
 
-                          return CampaignListWidget(campaigns: activeCampaigns);
-                        } else if (state is MyCampaignsError) {
-                          return Center(child: Text(state.message));
-                        } else {
-                          return const SizedBox();
-                        }
-                      },
+                            if (activeCampaigns.isEmpty) {
+                              return ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: const [
+                                  SizedBox(height: 300),
+                                  Center(
+                                    child: Text(
+                                      'لا توجد حملات انضممت إليها حتى الآن.',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                            return CampaignListWidget(campaigns: activeCampaigns);
+                          }else if (state is MyCampaignsError) {
+                            return Center(child: Text(state.message));
+                          } else {
+                            return const SizedBox();
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ],

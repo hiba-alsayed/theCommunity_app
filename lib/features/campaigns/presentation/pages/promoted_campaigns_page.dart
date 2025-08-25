@@ -4,6 +4,7 @@ import 'package:graduation_project/features/campaigns/presentation/bloc/campaign
 import '../../../../core/app_color.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../navigation/main_navigation_page.dart';
+import '../widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../widgets/campaign_list_widget.dart';
 
 class PromotedCampaignsPage extends StatefulWidget {
@@ -55,7 +56,7 @@ class _PromotedCampaignsPageState extends State<PromotedCampaignsPage> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.CedarOlive.withOpacity(0.5),
+                                  color: AppColors.OceanBlue.withOpacity(0.5),
                                   spreadRadius: 2,
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
@@ -93,7 +94,7 @@ class _PromotedCampaignsPageState extends State<PromotedCampaignsPage> {
                         builder: (context, state) {
                           if (state is LoadingPromotedCampaigns) {
                             return const Center(
-                              child: LoadingWidget(),
+                              child: CampaignComplaintListShimmer(),
                             );
                           } else if (state is PromotedCampaignsLoaded) {
                             if (state.promotedCampaigns.isEmpty) {
@@ -111,10 +112,7 @@ class _PromotedCampaignsPageState extends State<PromotedCampaignsPage> {
                                 style: const TextStyle(color: Colors.red),
                               ),
                             );
-                          }
-                          return const Center(
-                            child: Text('اسحب للأسفل لتحديث الصفحة'),
-                          );
+                          }return const SizedBox();
                         },
                       ),
                     ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project/features/campaigns/domain/entities/campaigns.dart';
 import 'package:graduation_project/features/campaigns/presentation/pages/campaign_details_page.dart';
-import '../../../../core/widgets/glowing_gps.dart'; // Ensure GlowingGPSIcon is available
+import '../../../../core/widgets/glowing_gps.dart';
 
 class PromotedListItem extends StatefulWidget {
   final Campaigns campaign;
@@ -29,7 +29,6 @@ class _PromotedListItemState extends State<PromotedListItem>
     return TweenAnimationBuilder<double>(
       duration: const Duration(milliseconds: 400),
       tween: Tween(begin: 0.0, end: 1.0),
-      curve: Curves.easeOutBack,
       builder: (context, value, child) {
         return Transform.scale(
           scale: value,
@@ -58,7 +57,6 @@ class _PromotedListItemState extends State<PromotedListItem>
               borderRadius: BorderRadius.circular(16),
               child: Stack(
                 children: [
-                  // Background image
                   Positioned.fill(
                     child: Image.network(
                       widget.campaign.imageUrl,
@@ -69,8 +67,6 @@ class _PromotedListItemState extends State<PromotedListItem>
                       ),
                     ),
                   ),
-
-                  // Black gradient
                   Positioned.fill(
                     child: Container(
                       decoration: const BoxDecoration(
@@ -82,8 +78,6 @@ class _PromotedListItemState extends State<PromotedListItem>
                       ),
                     ),
                   ),
-
-                  // Text content
                   Positioned(
                     bottom: 16,
                     left: 16,

@@ -28,7 +28,6 @@ class LoginFailure extends AuthState {
   @override
   List<Object?> get props => [message];
 }
-
 //signup
 class SignUpInitial extends AuthState {
   const SignUpInitial();

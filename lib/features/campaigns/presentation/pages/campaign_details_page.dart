@@ -14,6 +14,7 @@ import '../../../../core pages/location_map_view_page.dart';
 import '../../../profile/presentation/pages/get_profile_by_userid_page.dart';
 import '../bloc/campaign_bloc.dart';
 import '../widgets/campaign_list_widget.dart';
+import '../widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../widgets/campaign_summary_stats.dart';
 import 'all_rating_page.dart';
 
@@ -195,7 +196,6 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                                 Navigator.pop(dialogContext);
                               }
                             },
-                            // icon: const Icon(Icons.payment, size: 18),
                             label: const Text('تبرع الآن'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
@@ -244,13 +244,15 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
     );
     _animationController.forward();
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    BlocProvider.of<CampaignBloc>(context).add(
-      GetRelatedCampaignsEvent(widget.campaign.id),
-    );
+    BlocProvider.of<CampaignBloc>(
+      context,
+    ).add(GetRelatedCampaignsEvent(widget.campaign.id));
   }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -716,7 +718,6 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Conditional UI based on campaign status
                 if (campaign.status == "نشطة") ...[
                   CampaignSummaryStats(campaign: campaign),
                   const SizedBox(height: 24),
@@ -760,10 +761,64 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'حملات ذات صلة',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    height: 400,
+                    child: BlocBuilder<CampaignBloc, CampaignState>(
+                      builder: (context, state) {
+                        if (state is LoadingRelatedCampaigns) {
+                          return Center(
+                            child: CampaignComplaintListShimmer(),
+                          );
+                        } else if (state is RelatedCampaignsLoaded) {
+                          if (state.relatedCampaigns.isEmpty) {
+                            return Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(24.0),
+                                child: Text(
+                                  'لا توجد حملات ذات صلة',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return CampaignListWidget(
+                            campaigns: state.relatedCampaigns,
+                          );
+                        } else if (state is RelatedCampaignsError) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                state.message,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   //الحملة المنجزة
                 ] else if (campaign.status == "منجزة") ...[
                   DefaultTabController(
@@ -1080,64 +1135,6 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                     ),
                   ),
                 ],
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(
-                //     horizontal: 16,
-                //   ),
-                //   child: Text(
-                //     'حملات ذات صلة',
-                //     style: Theme.of(context)
-                //         .textTheme
-                //         .headlineSmall
-                //         ?.copyWith(fontWeight: FontWeight.bold),
-                //   ),
-                // ),
-                // const SizedBox(height: 16),
-                // BlocBuilder<CampaignBloc, CampaignState>(
-                //   builder: (context, state) {
-                //     if (state is LoadingRelatedCampaigns) {
-                //       return const Center(
-                //         child: Padding(
-                //           padding: EdgeInsets.all(24.0),
-                //           child: CircularProgressIndicator(),
-                //         ),
-                //       );
-                //     } else if (state
-                //     is RelatedCampaignsLoaded) {
-                //       if (state.relatedCampaigns.isEmpty) {
-                //         return const Center(
-                //           child: Padding(
-                //             padding: EdgeInsets.all(24.0),
-                //             child: Text(
-                //               'لا توجد حملات ذات صلة',
-                //               style: TextStyle(
-                //                 color: Colors.grey,
-                //                 fontSize: 16,
-                //               ),
-                //             ),
-                //           ),
-                //         );
-                //       }
-                //       return CampaignListWidget(
-                //         campaigns: state.relatedCampaigns,
-                //       );
-                //     } else if (state is RelatedCampaignsError) {
-                //       return Center(
-                //         child: Padding(
-                //           padding: const EdgeInsets.all(24.0),
-                //           child: Text(
-                //             state.message,
-                //             style: const TextStyle(
-                //               color: Colors.red,
-                //             ),
-                //           ),
-                //         ),
-                //       );
-                //     }
-                //     return const SizedBox.shrink();
-                //   },
-                // ),
-                // const SizedBox(height: 24),
               ],
             ),
           ),

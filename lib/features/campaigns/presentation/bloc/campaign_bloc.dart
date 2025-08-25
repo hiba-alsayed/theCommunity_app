@@ -58,7 +58,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
               (campaigns) => emit(AllCampaignsLoaded(campaigns: campaigns)),
         );
       } catch (e) {
-        print("❌ UNHANDLED ERROR in GetAllCampaignsEvent: $e");
+        // print("❌ UNHANDLED ERROR in GetAllCampaignsEvent: $e");
         emit(CampaignErrorState(message: "Failed to process campaign data."));
       }
     });

@@ -6,10 +6,12 @@ import 'package:graduation_project/core/widgets/loading_widget.dart';
 import 'package:graduation_project/features/profile/domain/entity/profile_entity.dart';
 import 'package:graduation_project/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:get_it/get_it.dart';
+import '../core/widgets/snack_bar.dart';
 import '../features/Donation/presentation/pages/my_donations_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/campaigns/presentation/pages/get_my_campaign.dart';
 import '../features/complaints/presentation/pages/my_complaint_page.dart';
+import '../features/profile/presentation/widgets/profile_shimmer_widget.dart';
 import '../features/suggestions/presentation/pages/get_my_suggestions_page.dart';
 import 'package:graduation_project/features/auth/presentation/bloc/auth_bloc.dart';
 
@@ -161,16 +163,22 @@ class _ProfilePageState extends State<ProfilePage> {
         listener: (context, authState) {
           if (authState is LogoutLoading) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Logging out...')),
+              buildGlassySnackBar(
+                message: 'جار تسجيل الخروج...',
+                color: AppColors.RichBerry,
+                context: context,
+              ),
             );
           } else if (authState is LogoutSuccess) {
             ScaffoldMessenger.of(context)
                 .hideCurrentSnackBar();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Logged out successfully!')),
+            buildGlassySnackBar(
+              message: 'تم تسجيل الخروج بنجاح!',
+              color: AppColors.CedarOlive,
+              context: context,
             );
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const LoginPage()),
+              MaterialPageRoute(builder: (context) =>  LoginPage()),
                   (Route<dynamic> route) => false,
             );
           } else if (authState is LogoutFailure) {
@@ -262,7 +270,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   } else if (state is UpdateProfileLoading) {
                     return const Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(color: Colors.white),
+                      child:   ProfileShimmer(),
                     );
                   }
                   return const SizedBox.shrink();
@@ -280,7 +288,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 } else if (state is UpdateProfileSuccess) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
+                    buildGlassySnackBar(
+                      message: state.message,
+                      color: AppColors.CedarOlive,
+                      context: context,
+                    ),
                   );
                   setState(() {
                     _isEditing = false;
@@ -294,7 +306,7 @@ class _ProfilePageState extends State<ProfilePage> {
               },
               builder: (context, state) {
                 if (state is ProfileLoading || state is UpdateProfileLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const ProfileShimmer();
                 } else if (state is ProfileLoaded) {
                   if (!_isEditing) {
                     _populateControllers(state.profile);

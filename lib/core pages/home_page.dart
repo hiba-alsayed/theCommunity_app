@@ -10,8 +10,11 @@ import '../core/widgets/loading_widget.dart';
 import '../features/campaigns/presentation/bloc/campaign_bloc.dart';
 import '../features/campaigns/presentation/pages/promoted_campaigns_page.dart';
 import '../features/campaigns/presentation/widgets/campaign_list_widget.dart';
+import '../features/campaigns/presentation/widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../features/campaigns/presentation/widgets/promoted_carousel_widget.dart';
+import '../features/campaigns/presentation/widgets/promoted_shimmer_widget.dart';
 import '../features/campaigns/presentation/widgets/recommended_carousel_widget.dart';
+import '../features/campaigns/presentation/widgets/recommended_shimmer_widget.dart';
 import '../features/notifications/presentation/page/notification_page.dart';
 import '../features/campaigns/domain/entities/campaigns.dart';
 
@@ -476,7 +479,7 @@ class _HomePageState extends State<HomePage> {
                       builder: (context, state) {
                         if (state is LoadingRecommendedCampaigns) {
                           return const Center(
-                            child: LoadingWidget(),
+                            child: RecommendedShimmerWidget(),
                           );
                         } else if (state is RecommendedCampaignsLoaded) {
                           final displayedCampaigns =
@@ -546,7 +549,7 @@ class _HomePageState extends State<HomePage> {
                           current is PromotedCampaignsError,
                       builder: (context, state) {
                         if (state is LoadingPromotedCampaigns) {
-                          return const Center(child: LoadingWidget());
+                          return const Center(child: PromotedShimmerWidget());
                         } else if (state is PromotedCampaignsLoaded) {
                           // Display only the first 4 promoted campaigns
                           final displayedCampaigns =
@@ -673,7 +676,7 @@ class _HomePageState extends State<HomePage> {
                       if (state is LoadingAllCampaigns ||
                           state is LoadingCampaignsByCategory) {
                         return const SliverFillRemaining(
-                          child: Center(child: LoadingWidget()),
+                          child: Center(child: CampaignComplaintListShimmer()),
                         );
                       } else if (campaignsToDisplay != null && campaignsToDisplay.isNotEmpty) {
                         return SliverList(

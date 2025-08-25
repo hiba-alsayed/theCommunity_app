@@ -94,8 +94,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource{
           throw ServerException(message: responseBody['message'] ?? 'Failed to get profile data.');
         }
       } else {
-        print('Failed to load profile for user $userId. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        // print('Failed to load profile for user $userId. Status code: ${response.statusCode}');
+        // print('Response body: ${response.body}');
         throw ServerException(statusCode: response.statusCode, message: 'Server error: ${response.statusCode}');
       }
     } on Exception catch (e) {
@@ -118,17 +118,16 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource{
     required String area,
     required List<String> skills,
   }) async {
-    // FIX: Filter out null values before converting to List<int>
     final List<int> skillsIds = skills
         .map((skill) => skillNameToId[skill])
-        .where((id) => id != null) // Keep only non-null IDs
-        .cast<int>() // Cast to non-nullable int list
+        .where((id) => id != null)
+        .cast<int>()
         .toList();
 
     final List<int> volunteerFieldsIds = volunteerFields
         .map((field) => volunteerFieldNameId[field])
-        .where((id) => id != null) // Keep only non-null IDs
-        .cast<int>() // Cast to non-nullable int list
+        .where((id) => id != null)
+        .cast<int>()
         .toList();
 
     final token = await tokenProvider.getToken();
@@ -167,8 +166,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource{
           throw ServerException(message: errorMessage);
         }
       } else {
-        print('Failed to update profile. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        // print('Failed to update profile. Status code: ${response.statusCode}');
+        // print('Response body: ${response.body}');
         final errorBody = json.decode(response.body);
         final errorMessage = errorBody['message'] is Map
             ? (errorBody['message']['details'] ?? errorBody['message']['0'] ?? 'Server error: ${response.statusCode}')

@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/login_entity.dart';
 import '../../domain/entities/signup_entity.dart';
@@ -105,7 +104,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       result.fold(
             (failure) => emit(ResetPasswordFailure(_mapFailureToMessage(failure))),
-            (_) => emit(ResetPasswordSuccess(message: 'A password reset link has been sent to your email.',
+            (_) => emit(ResetPasswordSuccess(message: 'لقد تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.',
               email: event.email,)),
       );
     });
@@ -138,11 +137,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   String _mapFailureToMessage(Failure failure) {
     if (failure is ServerFailure) {
       return 'خطأ في الخادم. حاول مرة أخرى.';
-    } else if (failure is OfflineFailure ) {
+    } else if (failure is OfflineFailure) {
       return 'لا يوجد اتصال بالإنترنت';
-    } else {
-      return 'حدث خطأ غير متوقع. حاول مرة أخرى.';
+    } else if (failure is WrongPasswordFailure) {
+      return 'هناك خطأ في كلمة السر أو الإيميل';
+    } else if (failure is WrongDataFailure) {
+      return 'البريد الإلكتروني غير موجود أو غير صالح.';
     }
+    return 'حدث خطأ غير متوقع.';
   }
 }
 

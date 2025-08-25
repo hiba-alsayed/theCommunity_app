@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/core/widgets/loading_widget.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
+import '../../../campaigns/presentation/widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../bloc/complaint_bloc.dart';
 import '../widgets/complaint_list_widget.dart';
 
@@ -23,6 +24,9 @@ class _AllNearbyComplaintsPageState extends State<AllNearbyComplaintsPage> {
         context,
       ).add(GetAllNearbyComplaintsEvent());
     });
+  }
+  Future<void> _refreshComplaints() async {
+    BlocProvider.of<ComplaintBloc>(context).add(GetAllNearbyComplaintsEvent());
   }
 
   @override
@@ -96,54 +100,59 @@ class _AllNearbyComplaintsPageState extends State<AllNearbyComplaintsPage> {
                     ),
                   ),
                   Expanded(
-                    child: BlocConsumer<ComplaintBloc, ComplaintState>(
-                      listener: (context, state) {
-                        if (state is ComplaintErrorState) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(state.message)),
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        if (state is LoadingAllNearbyComplaints) {
-                          return const Center(
-                            child: LoadingWidget()
-                          );
-                        } else if (state is AllNearbyComplaintsLoaded) {
-                          if (state.complaints.isEmpty) {
+                    child: RefreshIndicator(
+                      onRefresh: _refreshComplaints,
+                      color: AppColors.RichBerry,
+                      backgroundColor: AppColors.WhisperWhite,
+                      child: BlocConsumer<ComplaintBloc, ComplaintState>(
+                        listener: (context, state) {
+                          if (state is ComplaintErrorState) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(state.message)),
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          if (state is LoadingAllNearbyComplaints) {
                             return const Center(
+                              child: CampaignComplaintListShimmer()
+                            );
+                          } else if (state is AllNearbyComplaintsLoaded) {
+                            if (state.complaints.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  'لا توجد شكاوى قريبة في الوقت الحالي.',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              );
+                            }
+                            return ComplaintListView(
+                              complaints: state.complaints,
+                            );
+                          } else if (state is ComplaintErrorState) {
+                            return Center(
                               child: Text(
-                                'لا توجد شكاوى قريبة في الوقت الحالي.',
-                                style: TextStyle(
+                                'خطأ في تحميل الشكاوى: ${state.message}',
+                                style: const TextStyle(
+                                  color: Colors.red,
                                   fontSize: 16,
-                                  color: Colors.grey,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
                             );
                           }
-                          return ComplaintListView(
-                            complaints: state.complaints,
-                          );
-                        } else if (state is ComplaintErrorState) {
-                          return Center(
+                          return const Center(
                             child: Text(
-                              'خطأ في تحميل الشكاوى: ${state.message}',
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 16,
-                              ),
-                              textAlign: TextAlign.center,
+                              'اسحب لتحديث الشكاوى القريبة',
+                              style: TextStyle(fontSize: 16, color: Colors.grey),
                             ),
                           );
-                        }
-                        return const Center(
-                          child: Text(
-                            'اسحب لتحديث الشكاوى القريبة',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
                 ],

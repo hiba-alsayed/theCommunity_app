@@ -6,6 +6,7 @@ import '../../../notifications/presentation/page/notification_page.dart';
 import '../../domain/entities/campaigns.dart';
 import '../bloc/campaign_bloc.dart';
 import '../widgets/campaign_list_widget.dart';
+import '../widgets/campaign_complaint_shimmer_list_widget.dart';
 
 class CampaignsPage extends StatefulWidget {
   const CampaignsPage({super.key});
@@ -189,7 +190,6 @@ class _CampaignsPageState extends State<CampaignsPage> {
                           size: 20,
                         ),
                         onPressed: () {
-                          // Replace NotificationPage() with your actual notification page widget
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => const NotificationPage(),
@@ -287,7 +287,7 @@ class _CampaignsPageState extends State<CampaignsPage> {
 
                       if (state is LoadingAllCampaigns ||
                           state is LoadingCampaignsByCategory) {
-                        return const Center(child: LoadingWidget());
+                        return const Center(child: CampaignComplaintListShimmer());
                       } else if (campaignsToDisplay != null &&
                           campaignsToDisplay.isNotEmpty) {
                         return CampaignListWidget(

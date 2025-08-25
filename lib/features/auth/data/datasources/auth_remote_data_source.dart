@@ -94,7 +94,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await tokenProvider.setToken(loginModel.token);
       return loginModel;
     } else {
-      throw Exception(jsonData['message'] ?? 'Login failed');
+      throw ServerException(message: jsonData['message'] ?? 'Login failed');
     }
   }
 

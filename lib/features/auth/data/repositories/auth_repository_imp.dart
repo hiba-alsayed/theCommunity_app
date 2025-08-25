@@ -12,6 +12,23 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   AuthRepositoryImpl(this.remoteDataSource);
 
+  // @override
+  // Future<Either<Failure, LoginEntity>> login({
+  //   required String email,
+  //   required String password,
+  //   required String deviceToken,
+  // }) async {
+  //   try {
+  //     final loginModel = await remoteDataSource.login(
+  //       email: email,
+  //       password: password,
+  //       deviceToken: deviceToken,
+  //     );
+  //     return Right(loginModel);
+  //   } on ServerException catch (e) {
+  //     return Left(WrongPasswordFailure(message:e.message.toString()));
+  //   }
+  // }
   @override
   Future<Either<Failure, LoginEntity>> login({
     required String email,
@@ -26,7 +43,12 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return Right(loginModel);
     } on ServerException catch (e) {
-      return Left(ServerFailure());
+      final errorMessage = e.message?.toString() ?? '';
+      if (errorMessage.contains('Invalid credentials')){
+        return Left(WrongPasswordFailure(message: e.message.toString()));
+      }  else {
+        return Left(ServerFailure(message: 'خطأ في الخادم. حاول مرة أخرى.'));
+      }
     }
   }
 
