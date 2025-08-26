@@ -4,6 +4,7 @@ import 'package:graduation_project/features/complaints/domain/entites/complaint.
 import 'package:graduation_project/features/complaints/presentation/bloc/complaint_bloc.dart';
 import 'package:graduation_project/features/complaints/presentation/pages/submit_complaint_page.dart';
 import '../../../../core/app_color.dart';
+import '../../../../core/widgets/category_shimmer_list.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../campaigns/presentation/widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../../../notifications/presentation/page/notification_page.dart';
@@ -90,9 +91,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
           bloc: BlocProvider.of<ComplaintBloc>(context),
           builder: (context, state) {
             if (state is LoadingCategories) {
-              return const Center(
-                  child: LoadingWidget(),
-              );
+              return  CategoryShimmerList();
             } else if (state is CategoriesLoaded) {
               final categories = state.categories;
               final Map<String, Map<String, dynamic>> categoryIcons = {

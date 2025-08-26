@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
+import '../../../campaigns/presentation/widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../bloc/complaint_bloc.dart';
 import '../../domain/entites/complaint_category_entity.dart';
 import '../widgets/complaint_list_widget.dart';
@@ -270,7 +271,7 @@ class _GetNearbyComplaintsPageState extends State<GetNearbyComplaintsPage> {
                               child: BlocBuilder<ComplaintBloc, ComplaintState>(
                                 builder: (context, state) {
                                   if (state is LoadingNearbyComplaints) {
-                                    return const Center(child: CircularProgressIndicator());
+                                    return  Center(child: CampaignComplaintListShimmer());
                                   } else if (state is NearbyComplaintsLoaded) {
                                     if (state.complaints.isEmpty) {
                                       return const Center(child: Text('لا توجد شكاوى قريبة ضمن هذا النطاق'));

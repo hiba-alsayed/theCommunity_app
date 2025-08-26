@@ -240,31 +240,34 @@ class _ProfilePageState extends State<ProfilePage> {
                     current is UpdateProfileError,
                 builder: (context, state) {
                   if (state is ProfileLoaded) {
-                    return Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.WhisperWhite,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.CedarOlive.withOpacity(0.5),
-                            spreadRadius: 2,
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        icon: Icon(_isEditing ? Icons.save : Icons.edit),
-                        onPressed: () {
-                          if (_isEditing) {
-                            _submitProfileUpdate(state.profile);
-                          } else {
-                            _toggleEditMode(state.profile);
-                          }
-                        },
-                        tooltip: _isEditing ? 'Save Profile' : 'Edit Profile',
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.WhisperWhite,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.CedarOlive.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: Icon(_isEditing ? Icons.save : Icons.edit),
+                          onPressed: () {
+                            if (_isEditing) {
+                              _submitProfileUpdate(state.profile);
+                            } else {
+                              _toggleEditMode(state.profile);
+                            }
+                          },
+                          tooltip: _isEditing ? 'Save Profile' : 'Edit Profile',
+                        ),
                       ),
                     );
                   } else if (state is UpdateProfileLoading) {

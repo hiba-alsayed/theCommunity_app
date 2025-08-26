@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/core/widgets/loading_widget.dart';
 import '../../../../core/app_color.dart';
+import '../../../../core/widgets/category_shimmer_list.dart';
 import '../../../notifications/presentation/page/notification_page.dart';
 import '../../domain/entities/campaigns.dart';
 import '../bloc/campaign_bloc.dart';
@@ -42,12 +43,7 @@ class _CampaignsPageState extends State<CampaignsPage> {
         return BlocBuilder<CampaignBloc, CampaignState>(
           builder: (context, state) {
             if (state is LoadingCategories) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: CircularProgressIndicator(),
-                ),
-              );
+              return  CategoryShimmerList();
             } else if (state is CategoriesLoaded) {
               final categories = state.categories;
 

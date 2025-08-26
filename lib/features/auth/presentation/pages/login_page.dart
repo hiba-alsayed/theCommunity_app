@@ -56,55 +56,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // void _onResetPasswordPressed() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext dialogContext) {
-  //       return AlertDialog(
-  //         title: const Text('إعادة تعيين كلمة المرور'),
-  //         content: TextField(
-  //           controller: resetEmailController,
-  //           keyboardType: TextInputType.emailAddress,
-  //           decoration: const InputDecoration(
-  //             hintText: 'أدخل بريدك الإلكتروني',
-  //             labelText: 'البريد الإلكتروني',
-  //             border: OutlineInputBorder(),
-  //           ),
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: const Text('إلغاء'),
-  //             onPressed: () {
-  //               Navigator.of(dialogContext).pop();
-  //               resetEmailController.clear();
-  //             },
-  //           ),
-  //           TextButton(
-  //             child: const Text('إعادة تعيين'),
-  //             onPressed: () {
-  //               if (resetEmailController.text.trim().isEmpty) {
-  //                 ScaffoldMessenger.of(context).showSnackBar(
-  //                   buildGlassySnackBar(
-  //                     message: 'يرجى إدخال البريد الإلكتروني أولاً.',
-  //                     color: AppColors.RichBerry,
-  //                     context: context,
-  //                   ),
-  //                 );
-  //                 return;
-  //               }
-  //               final email = resetEmailController.text.trim();
-  //               Navigator.of(dialogContext).pop();
-  //               resetEmailController.clear();
-  //               context.read<AuthBloc>().add(
-  //                 ResetPasswordEvent(email: email),
-  //               );
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+
   void _onResetPasswordPressed() {
     showGeneralDialog(
       context: context,
@@ -244,6 +196,10 @@ class _LoginPageState extends State<LoginPage> {
                           context.read<AuthBloc>().add(
                             ResetPasswordEvent(email: email),
                           );
+                          Navigator.of(context).push( MaterialPageRoute(
+                            builder: (context) =>
+                                ConfirmResetPasswordPage(email: email),
+                          ),);
                         },
                         label: const Text('إعادة تعيين'),
                         icon: const Icon(Icons.send_rounded, size: 18),

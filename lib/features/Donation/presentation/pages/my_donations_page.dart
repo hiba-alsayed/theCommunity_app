@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/app_color.dart';
 import '../../domain/entity/my_donations_entity.dart';
 import '../bloc/donation_bloc.dart';
+import '../widgets/donation_shimmer_list.dart';
 
 class MyDonationsPage extends StatefulWidget {
   const MyDonationsPage({super.key});
@@ -53,7 +54,7 @@ class _MyDonationsPageState extends State<MyDonationsPage> {
           child: BlocBuilder<DonationBloc, DonationState>(
             builder: (context, state) {
               if (state is MyDonationLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return const DonationShimmerList();
               } else if (state is MyDonationsSuccess) {
                 if (state.donations.isEmpty) {
                   return RefreshIndicator(

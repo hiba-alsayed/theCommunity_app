@@ -45,8 +45,8 @@ class DonationRemoteDataSourceImp implements DonationRemoteDataSource{
       }),
     );
     final jsonData = json.decode(response.body);
-    print("Response status: ${response.statusCode}");
-    print("Response body: ${response.body}");
+    // print("Response status: ${response.statusCode}");
+    // print("Response body: ${response.body}");
     if (response.statusCode == 200 && jsonData['status'] == true) {
       return DonationModel.fromJson(jsonData);
     } else if (response.statusCode == 422) {

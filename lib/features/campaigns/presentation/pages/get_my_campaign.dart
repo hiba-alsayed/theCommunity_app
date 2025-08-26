@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/core/widgets/loading_widget.dart';
+import '../../../../core pages/profile_details_page.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../bloc/campaign_bloc.dart';
@@ -77,7 +78,7 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
                                     builder:
-                                        (context) => const MainNavigationPage(),
+                                        (context) => ProfilePage(),
                                   ),
                                 );
                               },

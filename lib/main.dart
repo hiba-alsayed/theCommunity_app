@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:graduation_project/core%20pages/splash_screen.dart';
 import 'package:graduation_project/features/Donation/presentation/bloc/donation_bloc.dart';
 import 'package:graduation_project/features/auth/presentation/pages/login_page.dart';
 import 'package:graduation_project/features/notifications/presentation/bloc/notification_bloc.dart';
@@ -67,7 +68,7 @@ class MyApp extends StatelessWidget {
             child: child!,
           );
         },
-        home:LoginPage()
+        home:SplashScreen()
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project/core%20pages/profile_details_page.dart';
 import 'package:graduation_project/features/suggestions/presentation/pages/suggestion_details_page.dart';
 import '../../../../core/app_color.dart';
 import '../../../../core/widgets/gradiant_app_bar.dart';
@@ -79,7 +80,7 @@ class _MySuggestionsPageState extends State<MySuggestionsPage> {
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                    const MainNavigationPage(),
+                                    ProfilePage(),
                                   ),
                                 );
                               },

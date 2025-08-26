@@ -16,13 +16,12 @@ class _ConfirmRegistrationScreenState extends State<ConfirmRegistrationScreen> {
   @override
   void initState() {
     super.initState();
-    // If you have an email input field, initialize its text:
     _emailController.text = widget.email;
   }
 
   @override
   void dispose() {
-    _emailController.dispose(); // Dispose if used
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -43,7 +42,6 @@ class _ConfirmRegistrationScreenState extends State<ConfirmRegistrationScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('code_resent_success' ?? 'Code resent successfully!')),
             );
-            // Optionally, restart a timer for the new code expiration
           } else if (state is ResendCodeFailure) {
             ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Hide loading snackbar
             ScaffoldMessenger.of(context).showSnackBar(
@@ -55,20 +53,18 @@ class _ConfirmRegistrationScreenState extends State<ConfirmRegistrationScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            // ... other UI elements for code input, etc.
             children: [
-              // Example: Your code input field
               TextFormField(
-                controller: _codeController, // Assuming you have a _codeController
+                controller: _codeController,
                 decoration: InputDecoration(labelText: 'Verification Code'),
               ),
               const SizedBox(height: 20),
-              // Your Confirm Registration button (if applicable)
+
               ElevatedButton(
                 onPressed: () {
                   BlocProvider.of<AuthBloc>(context).add(
                     PerformConfirmRegistration(
-                      email: widget.email, // or _emailController.text
+                      email: widget.email,
                       code: _codeController.text,
                     ),
                   );
@@ -86,13 +82,11 @@ class _ConfirmRegistrationScreenState extends State<ConfirmRegistrationScreen> {
                       // Dispatch the ResendCodeEvent
                       BlocProvider.of<AuthBloc>(context).add(
                         ResendCodeEvent(
-                          email: widget.email, // Use the email from widget properties
-                          // If you had an email input field here:
-                          // email: _emailController.text,
+                          email: widget.email,
                         ),
                       );
                     }
-                        : null, // Disable button while loading
+                        : null,
                     child: Text(
                      'resend_code' ?? 'Resend Code',
                       style: TextStyle(

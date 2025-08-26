@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project/features/suggestions/presentation/pages/submit_suggestion_page.dart';
 import '../../../../core/app_color.dart';
+import '../../../../core/widgets/category_shimmer_list.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/message_display_widget.dart';
 import '../../domain/entities/Suggestions.dart';
@@ -70,10 +71,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         return BlocBuilder<SuggestionBloc, SuggestionState>(
           builder: (context, state) {
             if (state is LoadingSuggestionCategories) {
-              return const SizedBox(
-                height: 200,
-                child: Center(child: LoadingWidget()),
-              );
+              return  CategoryShimmerList();
             } else if (state is SuggestionCategoriesLoaded) {
               final categories = state.categories;
 

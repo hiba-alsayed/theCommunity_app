@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project/core/widgets/category_shimmer_list.dart';
 import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../campaigns/presentation/widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../bloc/suggestion_bloc.dart';
 import '../widgets/suggestions_list_widget.dart';
 
@@ -61,12 +63,7 @@ class _NearbySuggestionsScreenState extends State<NearbySuggestionsScreen> {
         return BlocBuilder<SuggestionBloc, SuggestionState>(
           builder: (context, state) {
             if (state is LoadingSuggestionCategories) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: CircularProgressIndicator(),
-                ),
-              );
+              return CategoryShimmerList();
             } else if (state is SuggestionCategoriesLoaded) {
               final categories = state.categories;
               return Container(
@@ -285,7 +282,7 @@ class _NearbySuggestionsScreenState extends State<NearbySuggestionsScreen> {
                             child: BlocBuilder<SuggestionBloc, SuggestionState>(
                               builder: (context, state) {
                                 if (state is SuggestionsLoading) {
-                                  return const Center(child: LoadingWidget());
+                                  return const Center(child: CampaignComplaintListShimmer());
                                 } else if (state is SuggestionsLoaded) {
                                   if (state.suggestions.isEmpty) {
                                     return const Center(child: Text('لا توجد مبادرات قريبة'));

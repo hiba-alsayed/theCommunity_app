@@ -623,7 +623,7 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            campaign.createdAt,
+                            campaign.executionDate.toString(),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[700],

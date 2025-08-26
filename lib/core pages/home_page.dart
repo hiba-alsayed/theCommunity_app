@@ -5,6 +5,7 @@ import 'package:graduation_project/features/campaigns/presentation/pages/recomme
 import 'package:graduation_project/features/complaints/presentation/pages/get_nearby_complaints_page.dart';
 import 'package:graduation_project/features/suggestions/presentation/pages/nearby_suggestions_page.dart';
 import '../core/app_color.dart';
+import '../core/widgets/category_shimmer_list.dart';
 import '../core/widgets/glowing_gps.dart';
 import '../core/widgets/loading_widget.dart';
 import '../features/campaigns/presentation/bloc/campaign_bloc.dart';
@@ -85,10 +86,7 @@ class _HomePageState extends State<HomePage> {
         return BlocBuilder<CampaignBloc, CampaignState>(
           builder: (context, state) {
             if (state is LoadingCategories) {
-              return const SizedBox(
-                height: 200,
-                child: Center(child: LoadingWidget()),
-              );
+              return  CategoryShimmerList();
             } else if (state is CategoriesLoaded) {
               final categories = state.categories;
               final Map<String, Map<String, dynamic>> categoryIcons = {

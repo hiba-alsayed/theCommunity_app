@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:graduation_project/core/widgets/loading_widget.dart';
+import '../../../../core/app_color.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -35,7 +36,7 @@ class _ConfirmResetPasswordPageState extends State<ConfirmResetPasswordPage> {
 
     context.read<AuthBloc>().add(
       ConfirmResetPasswordEvent(
-        email: widget.email, // Use the email passed from the previous page
+        email: widget.email,
         code: _codeController.text.trim(),
         newPassword: _newPasswordController.text,
         newPasswordConfirmation: _confirmNewPasswordController.text,
@@ -47,12 +48,11 @@ class _ConfirmResetPasswordPageState extends State<ConfirmResetPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('تأكيد إعادة تعيين كلمة المرور', style: TextStyle(fontSize: 18.sp)),
-        backgroundColor: Colors.transparent, // Adjust as per your theme
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white), // For back button
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      extendBodyBehindAppBar: true, // Allows content to go behind AppBar
+      extendBodyBehindAppBar: true,
 
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -63,12 +63,11 @@ class _ConfirmResetPasswordPageState extends State<ConfirmResetPasswordPage> {
           }
           if (state is ConfirmResetPasswordSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)), // "Password reset successfully"
+              SnackBar(content: Text(state.message)),
             );
-            // After successful password reset, navigate to login or main page
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const MainNavigationPage()), // Or LoginPage
-                  (route) => false, // Remove all previous routes
+              MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+                  (route) => false,
             );
           }
         },
@@ -78,20 +77,18 @@ class _ConfirmResetPasswordPageState extends State<ConfirmResetPasswordPage> {
             children: [
               // Gradient Background
               Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.black, Color(0xFF00B4D8)],
+                    colors: [
+                      Colors.white, Color(0xFF0172B2)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                 ),
               ),
-              // Animated Background (if you want to reuse it)
-              // const AnimatedCircleBackground(), // Uncomment if you have this widget
-
               Align(
                 alignment: Alignment.center,
-                child: SingleChildScrollView( // For smaller screens/keyboard
+                child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 80.h),
                   child: Container(
                     margin: EdgeInsets.all(10.w),
@@ -117,7 +114,7 @@ class _ConfirmResetPasswordPageState extends State<ConfirmResetPasswordPage> {
                             'تأكيد كلمة المرور الجديدة',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 24.sp,
+                              fontSize: 20.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
                             ),
@@ -141,7 +138,7 @@ class _ConfirmResetPasswordPageState extends State<ConfirmResetPasswordPage> {
                               if (value == null || value.isEmpty) {
                                 return 'يرجى إدخال رمز التحقق';
                               }
-                              if (value.length != 6) { // Assuming 6-digit code
+                              if (value.length != 6) {
                                 return 'رمز التحقق يجب أن يكون 6 أرقام';
                               }
                               return null;
@@ -204,7 +201,7 @@ class _ConfirmResetPasswordPageState extends State<ConfirmResetPasswordPage> {
                             Container(
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Colors.black, Color(0xFF00B4D8)],
+                                  colors: [Colors.white, Color(0xFF0172B2)],
                                 ),
                                 borderRadius: BorderRadius.circular(16),
                               ),

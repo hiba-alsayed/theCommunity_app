@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/app_color.dart';
+import '../../../../core/widgets/category_shimmer_list.dart';
 import '../../../../navigation/main_navigation_page.dart';
 import '../bloc/campaign_bloc.dart';
+import '../widgets/campaign_complaint_shimmer_list_widget.dart';
 import '../widgets/campaign_list_widget.dart';
 class GetNearbyCampaignsPage extends StatefulWidget {
   const GetNearbyCampaignsPage({Key? key}) : super(key: key);
@@ -56,12 +58,7 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
         return BlocBuilder<CampaignBloc, CampaignState>(
           builder: (context, state) {
             if (state is LoadingCategories) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: CircularProgressIndicator(),
-                ),
-              );
+              return CategoryShimmerList();
             } else if (state is CategoriesLoaded) {
               final categories = state.categories;
               return Container(
@@ -281,7 +278,7 @@ class _GetNearbyCampaignsPageState extends State<GetNearbyCampaignsPage> {
                             child: BlocBuilder<CampaignBloc, CampaignState>(
                               builder: (context, state) {
                                 if (state is LoadingNearbyCampaigns) {
-                                  return const Center(child: CircularProgressIndicator());
+                                  return const Center(child: CampaignComplaintListShimmer());
                                 } else if (state is NearbyCampaignsLoaded) {
                                   if (state.nearbyCampaigns.isEmpty) {
                                     return const Center(child: Text('لا توجد حملات قريبة'));
