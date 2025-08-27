@@ -780,6 +780,10 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                   SizedBox(
                     height: 400,
                     child: BlocBuilder<CampaignBloc, CampaignState>(
+                      buildWhen: (previous, current) =>
+                      current is RelatedCampaignsLoaded ||
+                          current is RelatedCampaignsError ||
+                          current is LoadingRelatedCampaigns,
                       builder: (context, state) {
                         if (state is LoadingRelatedCampaigns) {
                           return Center(
