@@ -78,3 +78,12 @@ class GetRelatedCampaignsEvent extends CampaignEvent {
   @override
   List<Object?> get props => [projectId];
 }
+// جلب تفاصيل حملة
+class GetDetailsCampaignEvent extends CampaignEvent {
+  final int campaignId;
+
+  const GetDetailsCampaignEvent(this.campaignId);
+
+  @override
+  List<Object?> get props => [campaignId];
+}

@@ -26,6 +26,7 @@ abstract class CampaignRemoteDataSource {
   Future<List<CampaignModel>> getRecommendedCampaigns();
   Future<List<CampaignModel>> getPromotedCampaigns();
   Future<List<CampaignModel>> getRelatedCampaigns(int projectId);
+  Future<CampaignModel> getCampaignDetails(int campaignId);
 }
 
 class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
@@ -407,6 +408,35 @@ class CampaignRemoteDataSourceImp implements CampaignRemoteDataSource {
         }).toList();
 
         return relatedCampaigns;
+      } else {
+        throw ServerException();
+      }
+    } catch (e) {
+      throw ServerException();
+    }
+  }
+  @override
+  Future<CampaignModel> getCampaignDetails(int campaignId) async {
+    try {
+      final token = await tokenProvider.getToken();
+      final response = await client.get(
+        Uri.parse("$baseUrl/api/client/project/show/$campaignId"),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+
+        if (decoded['status'] != true || decoded['data'] == null) {
+          throw ServerException();
+        }
+
+        final Map<String, dynamic> campaignData = decoded['data'];
+        return CampaignModel.fromJson(campaignData);
       } else {
         throw ServerException();
       }

@@ -55,8 +55,6 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
-
-
   void _onResetPasswordPressed() {
     showGeneralDialog(
       context: context,

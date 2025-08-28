@@ -10,25 +10,8 @@ import '../datasources/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
-  AuthRepositoryImpl(this.remoteDataSource);
+  AuthRepositoryImpl({required this.remoteDataSource});
 
-  // @override
-  // Future<Either<Failure, LoginEntity>> login({
-  //   required String email,
-  //   required String password,
-  //   required String deviceToken,
-  // }) async {
-  //   try {
-  //     final loginModel = await remoteDataSource.login(
-  //       email: email,
-  //       password: password,
-  //       deviceToken: deviceToken,
-  //     );
-  //     return Right(loginModel);
-  //   } on ServerException catch (e) {
-  //     return Left(WrongPasswordFailure(message:e.message.toString()));
-  //   }
-  // }
   @override
   Future<Either<Failure, LoginEntity>> login({
     required String email,

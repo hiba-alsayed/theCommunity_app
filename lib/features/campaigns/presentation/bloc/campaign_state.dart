@@ -164,6 +164,26 @@ class RelatedCampaignsError extends CampaignState {
   @override
   List<Object> get props => [message];
 }
+// جلب تفاصيل الحملة
+class LoadingCampaignDetails extends CampaignState {}
+
+class CampaignDetailsLoaded extends CampaignState {
+  final Campaigns campaign;
+
+  CampaignDetailsLoaded({required this.campaign});
+
+  @override
+  List<Object> get props => [campaign];
+}
+
+class CampaignDetailsError extends CampaignState {
+  final String message;
+
+  CampaignDetailsError({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
 
 // حالة الخطأ
 class CampaignErrorState extends CampaignState {

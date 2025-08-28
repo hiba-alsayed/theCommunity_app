@@ -3,6 +3,7 @@ import 'package:graduation_project/features/Donation/domain/usecase/make_donatio
 import 'package:graduation_project/features/auth/domain/usecase/confirm_reset_password.dart';
 import 'package:graduation_project/features/auth/domain/usecase/log_out.dart';
 import 'package:graduation_project/features/auth/domain/usecase/reset_password.dart';
+import 'package:graduation_project/features/campaigns/domain/usecases/get_campaign_details.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/get_my_campaigns.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/get_promoted_campaigns.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/get_related_campaign.dart';
@@ -103,7 +104,7 @@ sl.registerFactory<CampaignBloc>(
       rateCompletedCampaign: sl(),
       getRecommendedCampaigns: sl(),
       getPromotedCampaigns: sl(),
-      getRelatedCampaigns: sl(),
+      getRelatedCampaigns: sl(), getCampaignDetails: sl(),
     ),
 );
 
@@ -158,6 +159,7 @@ sl.registerLazySingleton<RateCompletedCampaign>(()=>RateCompletedCampaign(sl()))
 sl.registerLazySingleton<GetRecommendedCampaigns>(()=>GetRecommendedCampaigns(sl()));
 sl.registerLazySingleton<GetPromotedCampaigns >(()=>GetPromotedCampaigns (sl()));
 sl.registerLazySingleton<GetRelatedCampaigns >(()=>GetRelatedCampaigns (sl()));
+  sl.registerLazySingleton<GetCampaignDetails >(()=>GetCampaignDetails (sl()));
 
   sl.registerLazySingleton<LogIn>(() => LogIn(sl()));
   sl.registerLazySingleton<SignUp>(() => SignUp(sl()));
@@ -204,7 +206,7 @@ sl.registerLazySingleton<GetRelatedCampaigns >(()=>GetRelatedCampaigns (sl()));
   );
   sl.registerLazySingleton<AuthRepository>(
         () => AuthRepositoryImpl(
-      sl(),
+          remoteDataSource: sl(),
     ),
   );
   sl.registerLazySingleton<ComplaintsRepository>(

@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:graduation_project/features/campaigns/domain/entities/campaigns.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/get_all_campaigns.dart';
+import 'package:graduation_project/features/campaigns/domain/usecases/get_campaign_details.dart';
 import 'package:graduation_project/features/campaigns/domain/usecases/join_campaign.dart';
 
 import '../../../../core/errors/failures.dart';
@@ -33,7 +34,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
   final GetRecommendedCampaigns getRecommendedCampaigns;
   final GetPromotedCampaigns getPromotedCampaigns;
   final GetRelatedCampaigns getRelatedCampaigns;
-
+  final GetCampaignDetails getCampaignDetails;
   CampaignBloc({
     required this.getAllCampaigns,
     required this.getCategoriesUseCase,
@@ -45,6 +46,7 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
     required this.getRecommendedCampaigns,
     required this.getPromotedCampaigns,
     required this.getRelatedCampaigns,
+    required this.getCampaignDetails,
   }) : super(CampaignInitialState()) {
 
     // جلب كل الحملات
@@ -171,6 +173,16 @@ class CampaignBloc extends Bloc<CampaignEvent, CampaignState> {
       result.fold(
             (failure) => emit(RelatedCampaignsError(message: _mapFailureToMessage(failure))),
             (campaigns) => emit(RelatedCampaignsLoaded(relatedCampaigns: campaigns)),
+      );
+    });
+
+    //جلب تفاصيل حملة
+    on<GetDetailsCampaignEvent>((event, emit) async {
+      emit(LoadingCampaignDetails());
+      final result = await getCampaignDetails(event.campaignId);
+      result.fold(
+            (failure) => emit(CampaignDetailsError(message: _mapFailureToMessage(failure))),
+            (campaign) => emit(CampaignDetailsLoaded(campaign: campaign)),
       );
     });
   }

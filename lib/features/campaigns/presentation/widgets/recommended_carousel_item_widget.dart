@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project/features/campaigns/domain/entities/campaigns.dart';
 import 'package:graduation_project/features/campaigns/presentation/pages/campaign_details_page.dart';
 import '../../../../core/widgets/glowing_gps.dart';
+import '../pages/campaign_detailss_page.dart';
 
 class RecommendedCarouselItemWidget extends StatefulWidget {
   final Campaigns campaign;
@@ -30,7 +31,7 @@ class _RecommendedCarouselItemWidgetState extends State<RecommendedCarouselItemW
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => CampaignDetailsPage(campaign: widget.campaign),
+              builder: (_) => CampaignDetailssPage(campaignId: widget.campaign.id,),
             ),
           );
         },

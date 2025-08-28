@@ -243,15 +243,19 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
     _animationController.forward();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+    // _loadInitialData();
     BlocProvider.of<CampaignBloc>(
       context,
     ).add(GetRelatedCampaignsEvent(widget.campaign.id));
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   BlocProvider.of<CampaignBloc>(
+  //     context,
+  //   ).add(GetRelatedCampaignsEvent(widget.campaign.id));
+  // }
 
   @override
   void dispose() {
@@ -286,7 +290,6 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
       campaignId: widget.campaign.id,
     );
   }
-
   void _openMap(BuildContext context) {
     if (widget.campaign.campaignLocation.latitude == null ||
         widget.campaign.campaignLocation.longitude == null) {
@@ -308,6 +311,9 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
       ),
     );
   }
+  Future<void> _loadDetails() async {
+    context.read<CampaignBloc>().add(GetDetailsCampaignEvent(widget.campaign.id));
+}
 
   @override
   Widget build(BuildContext context) {
@@ -342,6 +348,8 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                   context: context,
                 ),
               );
+              // إعادة تحميل تفاصيل الحملة
+              context.read<CampaignBloc>().add(GetDetailsCampaignEvent(campaign.id));
             } else if (state is AlreadyJoinedState) {
               ScaffoldMessenger.of(context).showSnackBar(
                 buildGlassySnackBar(
@@ -363,6 +371,8 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                 _userRating = 0;
                 _commentController.clear();
               });
+              // إعادة تحميل تفاصيل الحملة
+              context.read<CampaignBloc>().add(GetDetailsCampaignEvent(campaign.id));
             } else if (state is RatingCampaignError) {
               // print("❌ RatingCampaignError: ${state.message}");
               if (state.message == "لقد قمت بتقييم هذا المشروع مسبقًا.") {
@@ -407,647 +417,502 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
       ],
       child: Scaffold(
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (campaign.imageUrl != null && campaign.imageUrl!.isNotEmpty)
-                  Container(
-                    margin: const EdgeInsets.all(16),
-                    height: 250,
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.network(
-                          campaign.imageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (context, error, _) =>
-                                  const Center(child: Text("فشل تحميل الصورة")),
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(child: LoadingWidget());
-                          },
-                        ),
-                        Positioned(
-                          top: 12,
-                          right: 12,
-                          child: GestureDetector(
-                            onTap: () => Navigator.pop(context),
-                            child: Container(
-                              height: 34,
-                              width: 34,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.4),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.arrow_back_ios,
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  Container(
-                    height: 250,
-                    margin: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Center(child: Text('لا توجد صورة')),
-                  ),
-                // Title + category
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          campaign.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
+          child: RefreshIndicator(
+            onRefresh: _loadDetails,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (campaign.imageUrl != null && campaign.imageUrl!.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      height: 250,
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      const SizedBox(width: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: categoryData['color'].withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: categoryData['color'],
-                            width: 1,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.network(
+                            campaign.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, _) =>
+                                    const Center(child: Text("فشل تحميل الصورة")),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(child: LoadingWidget());
+                            },
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              categoryData['icon'],
-                              size: 16,
-                              color: categoryData['color'],
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              campaign.category,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: categoryData['color'],
-                                fontWeight: FontWeight.w600,
+                          Positioned(
+                            top: 12,
+                            right: 12,
+                            child: GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                height: 34,
+                                width: 34,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.4),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_back_ios,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                if (campaign.status == "نشطة") ...[
-                  // Donation Progress Bar and Text
+                    )
+                  else
+                    Container(
+                      height: 250,
+                      margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Center(child: Text('لا توجد صورة')),
+                    ),
+                  // Title + category
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Animate(
-                          effects: [
-                            CustomEffect(
-                              duration: 1500.ms,
-                              curve: Curves.easeOutCirc,
-                              builder: (context, value, child) {
-                                final animatedTotal =
-                                    value * campaign.donationTotal;
-                                return Text(
-                                  "${animatedTotal.toStringAsFixed(2)} تم جمعها , ${campaign.requiredAmount} مطلوب ",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+                        Expanded(
                           child: Text(
-                            "0.00 تم جمعها , ${campaign.requiredAmount} مطلوب ",
+                            campaign.title,
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Colors.black,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
-
-                        // PROGRESS BAR ---
-                        AnimatedBuilder(
-                          animation: _progressAnimation,
-                          builder: (context, child) {
-                            return LinearProgressIndicator(
-                              value: _progressAnimation.value,
-                              backgroundColor: Colors.grey[300],
-                              color: Colors.green,
-                              minHeight: 10,
-                              borderRadius: BorderRadius.circular(5),
-                            );
-                          },
+                        const SizedBox(width: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: categoryData['color'].withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: categoryData['color'],
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                categoryData['icon'],
+                                size: 16,
+                                color: categoryData['color'],
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                campaign.category,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: categoryData['color'],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 20),
-                ],
-                // User info + date
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => GetProfileByUserIdPage(
-                                    userId: campaign.campaignUser.userid,
-                                    userName: campaign.campaignUser.createdBy,
-                                  ),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.person,
-                              size: 14,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              "بواسطة: ${campaign.campaignUser.createdBy}",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
+                  if (campaign.status == "نشطة") ...[
+                    // Donation Progress Bar and Text
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 14,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            campaign.executionDate.toString(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Description
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    campaign.description,
-                    style: TextStyle(
-                      fontSize: 15,
-                      height: 1.5,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // Location Card
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () => _openMap(context),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'الموقع',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                          Animate(
+                            effects: [
+                              CustomEffect(
+                                duration: 1500.ms,
+                                curve: Curves.easeOutCirc,
+                                builder: (context, value, child) {
+                                  final animatedTotal =
+                                      value * campaign.donationTotal;
+                                  return Text(
+                                    "${animatedTotal.toStringAsFixed(2)} تم جمعها , ${campaign.requiredAmount} مطلوب ",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                            child: Text(
+                              "0.00 تم جمعها , ${campaign.requiredAmount} مطلوب ",
+                              style: const TextStyle(
                                 fontSize: 16,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                GlowingGPSIcon(),
-                                const SizedBox(width: 4),
-                                if (widget.campaign.campaignLocation.name !=
-                                    null)
-                                  Expanded(
-                                    child: Text(
-                                      widget.campaign.campaignLocation.name!,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.grey[700],
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '(اضغط لعرض الموقع على الخريطة)',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            if (widget.campaign.campaignLocation.latitude !=
-                                    null &&
-                                widget.campaign.campaignLocation.longitude !=
-                                    null)
-                              LocationPreview(
-                                latitude:
-                                    widget.campaign.campaignLocation.latitude!,
-                                longitude:
-                                    widget.campaign.campaignLocation.longitude!,
-                              ),
-                            const SizedBox(height: 8),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // PROGRESS BAR ---
+                          AnimatedBuilder(
+                            animation: _progressAnimation,
+                            builder: (context, child) {
+                              return LinearProgressIndicator(
+                                value: _progressAnimation.value,
+                                backgroundColor: Colors.grey[300],
+                                color: Colors.green,
+                                minHeight: 10,
+                                borderRadius: BorderRadius.circular(5),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                if (campaign.status == "نشطة") ...[
-                  CampaignSummaryStats(campaign: campaign),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 20),
+                  ],
+                  // User info + date
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ElevatedButton(
-                          onPressed: _joinCampaign,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.OceanBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            minimumSize: const Size(double.infinity, 0),
-                          ),
-                          child: const Text(
-                            "انضم للحملة",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          height: 50,
-                          decoration: BoxDecoration(color: Colors.white),
-                          child: GestureDetector(
-                            onTap: _donateToCampaign,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "تبرع للحملة",
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => GetProfileByUserIdPage(
+                                      userId: campaign.campaignUser.userid,
+                                      userName: campaign.campaignUser.createdBy,
+                                    ),
+                              ),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.person,
+                                size: 14,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "بواسطة: ${campaign.campaignUser.createdBy}",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.OceanBlue,
+                                  fontSize: 14,
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ),
+                            ],
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today,
+                              size: 14,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              campaign.executionDate.toString(),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Description
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'حملات ذات صلة',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                      campaign.description,
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.5,
+                        color: Colors.grey[800],
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    height: 400,
-                    child: BlocBuilder<CampaignBloc, CampaignState>(
-                      buildWhen: (previous, current) =>
-                      current is RelatedCampaignsLoaded ||
-                          current is RelatedCampaignsError ||
-                          current is LoadingRelatedCampaigns,
-                      builder: (context, state) {
-                        if (state is LoadingRelatedCampaigns) {
-                          return Center(
-                            child: CampaignComplaintListShimmer(),
-                          );
-                        } else if (state is RelatedCampaignsLoaded) {
-                          if (state.relatedCampaigns.isEmpty) {
+                  const SizedBox(height: 24),
+                  // Location Card
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => _openMap(context),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'الموقع',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  GlowingGPSIcon(),
+                                  const SizedBox(width: 4),
+                                  if (widget.campaign.campaignLocation.name !=
+                                      null)
+                                    Expanded(
+                                      child: Text(
+                                        widget.campaign.campaignLocation.name!,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.grey[700],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '(اضغط لعرض الموقع على الخريطة)',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              if (widget.campaign.campaignLocation.latitude !=
+                                      null &&
+                                  widget.campaign.campaignLocation.longitude !=
+                                      null)
+                                LocationPreview(
+                                  latitude:
+                                      widget.campaign.campaignLocation.latitude!,
+                                  longitude:
+                                      widget.campaign.campaignLocation.longitude!,
+                                ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  if (campaign.status == "نشطة") ...[
+                    CampaignSummaryStats(campaign: campaign),
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: _joinCampaign,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.OceanBlue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              minimumSize: const Size(double.infinity, 0),
+                            ),
+                            child: const Text(
+                              "انضم للحملة",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            height: 50,
+                            decoration: BoxDecoration(color: Colors.white),
+                            child: GestureDetector(
+                              onTap: _donateToCampaign,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "تبرع للحملة",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.OceanBlue,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'حملات ذات صلة',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    SizedBox(
+                      height: 400,
+                      child: BlocBuilder<CampaignBloc, CampaignState>(
+                        buildWhen: (previous, current) =>
+                        current is RelatedCampaignsLoaded ||
+                            current is RelatedCampaignsError ||
+                            current is LoadingRelatedCampaigns,
+                        builder: (context, state) {
+                          if (state is LoadingRelatedCampaigns) {
+                            return Center(
+                              child: CampaignComplaintListShimmer(),
+                            );
+                          } else if (state is RelatedCampaignsLoaded) {
+                            if (state.relatedCampaigns.isEmpty) {
+                              return Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(24.0),
+                                  child: Text(
+                                    'لا توجد حملات ذات صلة',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            return CampaignListWidget(
+                              campaigns: state.relatedCampaigns,
+                            );
+                          } else if (state is RelatedCampaignsError) {
                             return Center(
                               child: Padding(
-                                padding: EdgeInsets.all(24.0),
+                                padding: const EdgeInsets.all(24.0),
                                 child: Text(
-                                  'لا توجد حملات ذات صلة',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 16,
-                                  ),
+                                  state.message,
+                                  style: const TextStyle(color: Colors.red),
                                 ),
                               ),
                             );
                           }
-                          return CampaignListWidget(
-                            campaigns: state.relatedCampaigns,
-                          );
-                        } else if (state is RelatedCampaignsError) {
-                          return Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Text(
-                                state.message,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
+                          return const SizedBox.shrink();
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  //الحملة المنجزة
-                ] else if (campaign.status == "منجزة") ...[
-                  DefaultTabController(
-                    length: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 45,
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(25.0),
-                          ),
-                          child: TabBar(
-                            dividerColor: Colors.transparent,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            indicator: BoxDecoration(
-                              color: AppColors.OceanBlue,
+                    const SizedBox(height: 24),
+                    //الحملة المنجزة
+                  ] else if (campaign.status == "منجزة") ...[
+                    DefaultTabController(
+                      length: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 45,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(25.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.OceanBlue.withOpacity(0.3),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
+                            ),
+                            child: TabBar(
+                              dividerColor: Colors.transparent,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicator: BoxDecoration(
+                                color: AppColors.OceanBlue,
+                                borderRadius: BorderRadius.circular(25.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.OceanBlue.withOpacity(0.3),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              labelColor: Colors.white,
+                              unselectedLabelColor: Colors.black87,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                              tabs: const [
+                                Tab(text: 'التفاصيل النهائية'),
+                                Tab(text: 'التقييمات'),
                               ],
                             ),
-                            labelColor: Colors.white,
-                            unselectedLabelColor: Colors.black87,
-                            labelStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                            tabs: const [
-                              Tab(text: 'التفاصيل النهائية'),
-                              Tab(text: 'التقييمات'),
-                            ],
                           ),
-                        ),
 
-                        // --- TAB BAR VIEW ---
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: 400,
-                              maxHeight: MediaQuery.of(context).size.height,
-                            ),
-                            child: TabBarView(
-                              children: [
-                                // --- TAB 1 ---
-                                CampaignSummaryStats(campaign: campaign),
-                                // --- TAB 2---
-                                SingleChildScrollView(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Card(
-                                        elevation: 2,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
+                          // --- TAB BAR VIEW ---
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10.0),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: 400,
+                                maxHeight: MediaQuery.of(context).size.height,
+                              ),
+                              child: TabBarView(
+                                children: [
+                                  // --- TAB 1 ---
+                                  CampaignSummaryStats(campaign: campaign),
+                                  // --- TAB 2---
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Card(
+                                          elevation: 2,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                           ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "شاركنا رأيك في الحملة",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                              ),
-                                              const SizedBox(height: 16),
-                                              Center(
-                                                child: RatingBar.builder(
-                                                  initialRating:
-                                                      _userRating.toDouble(),
-                                                  minRating: 1,
-                                                  direction: Axis.horizontal,
-                                                  allowHalfRating: false,
-                                                  itemCount: 5,
-                                                  itemPadding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 4.0,
-                                                      ),
-                                                  itemBuilder:
-                                                      (context, _) =>
-                                                          const Icon(
-                                                            Icons.star_rounded,
-                                                            color: Colors.amber,
-                                                          ),
-                                                  onRatingUpdate: (rating) {
-                                                    setState(() {
-                                                      _userRating =
-                                                          rating.toInt();
-                                                    });
-                                                  },
-                                                ),
-                                              ),
-                                              const SizedBox(height: 16),
-                                              TextField(
-                                                controller: _commentController,
-                                                decoration: const InputDecoration(
-                                                  hintText:
-                                                      "أضف تعليقاً (اختياري)",
-                                                  border: OutlineInputBorder(),
-                                                  filled: true,
-                                                  fillColor: Color.fromARGB(
-                                                    255,
-                                                    245,
-                                                    245,
-                                                    245,
-                                                  ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                          color:
-                                                              Colors
-                                                                  .transparent,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                              Radius.circular(
-                                                                8,
-                                                              ),
-                                                            ),
-                                                      ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                          color:
-                                                              AppColors
-                                                                  .OceanBlue,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                              Radius.circular(
-                                                                8,
-                                                              ),
-                                                            ),
-                                                      ),
-                                                ),
-                                                maxLines: 3,
-                                              ),
-                                              const SizedBox(height: 16),
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  if (_userRating == 0) {
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          'يرجى اختيار تقييم أولاً',
-                                                        ),
-                                                      ),
-                                                    );
-                                                    return;
-                                                  }
-                                                  context.read<CampaignBloc>().add(
-                                                    RateCompletedCampaignEvent(
-                                                      campaignId: campaign.id,
-                                                      rating: _userRating,
-                                                      comment:
-                                                          _commentController
-                                                              .text,
-                                                    ),
-                                                  );
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      AppColors.OceanBlue,
-                                                  foregroundColor: Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        vertical: 14,
-                                                      ),
-                                                  minimumSize: const Size(
-                                                    double.infinity,
-                                                    0,
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  "إرسال التقييم",
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 24),
-                                      if (widget.campaign.ratings != null &&
-                                          widget.campaign.ratings!.isNotEmpty)
-                                        Column(
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "التقييمات السابقة (${widget.campaign.ratings!.length})",
+                                                  "شاركنا رأيك في الحملة",
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .titleMedium
@@ -1056,90 +921,238 @@ class _CampaignDetailsPageState extends State<CampaignDetailsPage>
                                                             FontWeight.bold,
                                                       ),
                                                 ),
-                                                if (widget
-                                                        .campaign
-                                                        .ratings!
-                                                        .length >
-                                                    3)
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder:
-                                                              (
-                                                                context,
-                                                              ) => AllRatingsPage(
-                                                                ratings:
-                                                                    widget
-                                                                        .campaign
-                                                                        .ratings!,
-                                                                campaignTitle:
-                                                                    widget
-                                                                        .campaign
-                                                                        .title,
-                                                                campaign:
-                                                                    widget
-                                                                        .campaign,
+                                                const SizedBox(height: 16),
+                                                Center(
+                                                  child: RatingBar.builder(
+                                                    initialRating:
+                                                        _userRating.toDouble(),
+                                                    minRating: 1,
+                                                    direction: Axis.horizontal,
+                                                    allowHalfRating: false,
+                                                    itemCount: 5,
+                                                    itemPadding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4.0,
+                                                        ),
+                                                    itemBuilder:
+                                                        (context, _) =>
+                                                            const Icon(
+                                                              Icons.star_rounded,
+                                                              color: Colors.amber,
+                                                            ),
+                                                    onRatingUpdate: (rating) {
+                                                      setState(() {
+                                                        _userRating =
+                                                            rating.toInt();
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                TextField(
+                                                  controller: _commentController,
+                                                  decoration: const InputDecoration(
+                                                    hintText:
+                                                        "أضف تعليقاً (اختياري)",
+                                                    border: OutlineInputBorder(),
+                                                    filled: true,
+                                                    fillColor: Color.fromARGB(
+                                                      255,
+                                                      245,
+                                                      245,
+                                                      245,
+                                                    ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                          borderSide: BorderSide(
+                                                            color:
+                                                                Colors
+                                                                    .transparent,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                Radius.circular(
+                                                                  8,
+                                                                ),
                                                               ),
                                                         ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                          borderSide: BorderSide(
+                                                            color:
+                                                                AppColors
+                                                                    .OceanBlue,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                Radius.circular(
+                                                                  8,
+                                                                ),
+                                                              ),
+                                                        ),
+                                                  ),
+                                                  maxLines: 3,
+                                                ),
+                                                const SizedBox(height: 16),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    if (_userRating == 0) {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            'يرجى اختيار تقييم أولاً',
+                                                          ),
+                                                        ),
                                                       );
-                                                    },
-                                                    child: const Text(
-                                                      "عرض الكل",
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors.OceanBlue,
+                                                      return;
+                                                    }
+                                                    context.read<CampaignBloc>().add(
+                                                      RateCompletedCampaignEvent(
+                                                        campaignId: campaign.id,
+                                                        rating: _userRating,
+                                                        comment:
+                                                            _commentController
+                                                                .text,
                                                       ),
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 10),
-                                            ListView.builder(
-                                                  shrinkWrap: true,
-                                                  physics:
-                                                      const NeverScrollableScrollPhysics(),
-                                                  itemCount: min(
-                                                    3,
-                                                    widget
-                                                        .campaign
-                                                        .ratings!
-                                                        .length,
-                                                  ),
-                                                  itemBuilder: (
-                                                    context,
-                                                    index,
-                                                  ) {
-                                                    final rating =
-                                                        widget
-                                                            .campaign
-                                                            .ratings![index];
-                                                    return RatingCard(
-                                                      rating: rating,
                                                     );
                                                   },
-                                                )
-                                                .animate()
-                                                .fadeIn(
-                                                  delay: 400.ms,
-                                                  duration: 800.ms,
-                                                )
-                                                .slideX(begin: 0.5),
-                                          ],
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        AppColors.OceanBlue,
+                                                    foregroundColor: Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 14,
+                                                        ),
+                                                    minimumSize: const Size(
+                                                      double.infinity,
+                                                      0,
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    "إرسال التقييم",
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                    ],
+                                        const SizedBox(height: 24),
+                                        if (widget.campaign.ratings != null &&
+                                            widget.campaign.ratings!.isNotEmpty)
+                                          Column(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    "التقييمات السابقة (${widget.campaign.ratings!.length})",
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium
+                                                        ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                  ),
+                                                  if (widget
+                                                          .campaign
+                                                          .ratings!
+                                                          .length >
+                                                      3)
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (
+                                                                  context,
+                                                                ) => AllRatingsPage(
+                                                                  ratings:
+                                                                      widget
+                                                                          .campaign
+                                                                          .ratings!,
+                                                                  campaignTitle:
+                                                                      widget
+                                                                          .campaign
+                                                                          .title,
+                                                                  campaign:
+                                                                      widget
+                                                                          .campaign,
+                                                                ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: const Text(
+                                                        "عرض الكل",
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors.OceanBlue,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+                                              ListView.builder(
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    itemCount: min(
+                                                      3,
+                                                      widget
+                                                          .campaign
+                                                          .ratings!
+                                                          .length,
+                                                    ),
+                                                    itemBuilder: (
+                                                      context,
+                                                      index,
+                                                    ) {
+                                                      final rating =
+                                                          widget
+                                                              .campaign
+                                                              .ratings![index];
+                                                      return RatingCard(
+                                                        rating: rating,
+                                                      );
+                                                    },
+                                                  )
+                                                  .animate()
+                                                  .fadeIn(
+                                                    delay: 400.ms,
+                                                    duration: 800.ms,
+                                                  )
+                                                  .slideX(begin: 0.5),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

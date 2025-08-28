@@ -7,6 +7,7 @@ import '../../../../injection_container.dart' as di;
 import '../../../Donation/presentation/bloc/donation_bloc.dart';
 import '../../domain/entities/campaigns.dart';
 import '../pages/campaign_details_page.dart';
+import '../pages/campaign_detailss_page.dart';
 
 class CampaignListWidget extends StatefulWidget {
   final List<Campaigns> campaigns;
@@ -152,7 +153,7 @@ class CampaignCard extends StatelessWidget {
               MaterialPageRoute(
                 builder: (_) => BlocProvider(
                   create: (_) => di.sl<DonationBloc>(),
-                  child: CampaignDetailsPage(campaign: campaign),
+                  child: CampaignDetailssPage(campaignId:campaign.id,),
                 ),
               ),
             );

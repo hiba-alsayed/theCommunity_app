@@ -173,4 +173,17 @@ class CampaignRepositoryImp implements CampaignRepository {
       return Left(OfflineFailure());
     }
   }
+  @override
+  Future<Either<Failure, Campaigns>> getCampaignDetails(int projectId) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final remoteCampaign = await remoteDataSource.getCampaignDetails(projectId);
+        return Right(remoteCampaign);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(OfflineFailure());
+    }
+  }
   }

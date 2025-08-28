@@ -13,7 +13,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
       splash: SplashContent(),
-      nextScreen: SignUpPage(),
+      nextScreen: LoginPage(),
       splashTransition: SplashTransition.fadeTransition,
       pageTransitionType: PageTransitionType.fade,
       backgroundColor: Colors.transparent,
